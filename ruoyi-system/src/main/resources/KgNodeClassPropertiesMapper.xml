@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.KgNodeClassPropertiesMapper">
+    
+    <resultMap type="KgNodeClassProperties" id="KgNodeClassPropertiesResult">
+        <result property="id"    column="id"    />
+        <result property="name"    column="name"    />
+        <result property="type"    column="type"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="createUser"    column="create_user"    />
+        <result property="nodeId"    column="node_id"    />
+        <result property="valid"    column="valid"    />
+        <result property="modifyTime"    column="modify_time"    />
+        <result property="modifyUser"    column="modify_user"    />
+        <result property="modifyType"    column="modify_type"    />
+    </resultMap>
+
+    <sql id="selectKgNodeClassPropertiesVo">
+        select id, name, type, create_time, create_user, node_id, valid, modify_time, modify_user, modify_type from kg_node_class_properties
+    </sql>
+
+    <select id="selectKgNodeClassPropertiesList" parameterType="KgNodeClassProperties" resultMap="KgNodeClassPropertiesResult">
+        <include refid="selectKgNodeClassPropertiesVo"/>
+        <where>  
+            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+            <if test="type != null  and type != ''"> and type = #{type}</if>
+            <if test="createUser != null "> and create_user = #{createUser}</if>
+            <if test="nodeId != null "> and node_id = #{nodeId}</if>
+            <if test="valid != null "> and valid = #{valid}</if>
+            <if test="modifyTime != null "> and modify_time = #{modifyTime}</if>
+            <if test="modifyUser != null "> and modify_user = #{modifyUser}</if>
+            <if test="modifyType != null "> and modify_type = #{modifyType}</if>
+        </where>
+    </select>
+    
+    <select id="selectKgNodeClassPropertiesById" parameterType="Long" resultMap="KgNodeClassPropertiesResult">
+        <include refid="selectKgNodeClassPropertiesVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertKgNodeClassProperties" parameterType="KgNodeClassProperties">
+        insert into kg_node_class_properties
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="name != null and name != ''">name,</if>
+            <if test="type != null and type != ''">type,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="createUser != null">create_user,</if>
+            <if test="nodeId != null">node_id,</if>
+            <if test="valid != null">valid,</if>
+            <if test="modifyTime != null">modify_time,</if>
+            <if test="modifyUser != null">modify_user,</if>
+            <if test="modifyType != null">modify_type,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="name != null and name != ''">#{name},</if>
+            <if test="type != null and type != ''">#{type},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="createUser != null">#{createUser},</if>
+            <if test="nodeId != null">#{nodeId},</if>
+            <if test="valid != null">#{valid},</if>
+            <if test="modifyTime != null">#{modifyTime},</if>
+            <if test="modifyUser != null">#{modifyUser},</if>
+            <if test="modifyType != null">#{modifyType},</if>
+         </trim>
+    </insert>
+
+    <update id="updateKgNodeClassProperties" parameterType="KgNodeClassProperties">
+        update kg_node_class_properties
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null and name != ''">name = #{name},</if>
+            <if test="type != null and type != ''">type = #{type},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="createUser != null">create_user = #{createUser},</if>
+            <if test="nodeId != null">node_id = #{nodeId},</if>
+            <if test="valid != null">valid = #{valid},</if>
+            <if test="modifyTime != null">modify_time = #{modifyTime},</if>
+            <if test="modifyUser != null">modify_user = #{modifyUser},</if>
+            <if test="modifyType != null">modify_type = #{modifyType},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteKgNodeClassPropertiesById" parameterType="Long">
+        delete from kg_node_class_properties where id = #{id}
+    </delete>
+
+    <delete id="deleteKgNodeClassPropertiesByIds" parameterType="String">
+        delete from kg_node_class_properties where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>
