@@ -1,5 +1,8 @@
 package com.ruoyi.system.domain;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.ruoyi.common.annotation.Excel;
@@ -7,7 +10,7 @@ import com.ruoyi.common.core.domain.BaseEntity;
 
 /**
  * 【请填写功能名称】对象 kg_node_class
- * 
+ *
  * @author ruoyi
  * @date 2024-03-04
  */
@@ -16,6 +19,7 @@ public class KgNodeClass extends BaseEntity
     private static final long serialVersionUID = 1L;
 
     /** 主键id */
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long id;
 
     /** 实体类型名称 */
@@ -30,39 +34,39 @@ public class KgNodeClass extends BaseEntity
     @Excel(name = "是否有效，1有效，0无效")
     private Long valid;
 
-    public void setId(Long id) 
+    public void setId(Long id)
     {
         this.id = id;
     }
 
-    public Long getId() 
+    public Long getId()
     {
         return id;
     }
-    public void setName(String name) 
+    public void setName(String name)
     {
         this.name = name;
     }
 
-    public String getName() 
+    public String getName()
     {
         return name;
     }
-    public void setCreateUser(Long createUser) 
+    public void setCreateUser(Long createUser)
     {
         this.createUser = createUser;
     }
 
-    public Long getCreateUser() 
+    public Long getCreateUser()
     {
         return createUser;
     }
-    public void setValid(Long valid) 
+    public void setValid(Long valid)
     {
         this.valid = valid;
     }
 
-    public Long getValid() 
+    public Long getValid()
     {
         return valid;
     }

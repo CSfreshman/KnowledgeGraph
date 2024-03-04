@@ -65,7 +65,7 @@
             <el-row>
               <el-col :span="20">属性:</el-col>
               <el-col :span="4">
-                <el-button>新增属性</el-button>
+                <el-button @click="handleAddProperties">新增属性</el-button>
               </el-col>
             </el-row>
             <el-table v-loading="loading" :data="nodePropertiesList" @selection-change="handleSelectionChange">
@@ -82,7 +82,7 @@
                     size="mini"
                     type="text"
                     icon="el-icon-delete"
-                    @click="handleDelete(scope.row)"
+                    @click="handleDeleteProperties(scope.row)"
                     v-hasPermi="['system:user:remove']"
                   >删除
                   </el-button>
@@ -114,13 +114,29 @@
         <el-button @click="cancel">取 消</el-button>
       </div>
     </el-dialog>
+
+    <!-- 添加或修改【请填写功能名称】对话框 -->
+    <el-dialog :title="titleProperties" :visible.sync="openProperties" width="500px" append-to-body>
+      <el-form ref="form" :model="formProperties" :rules="rulesProperties" label-width="80px">
+        <el-form-item label="属性名" prop="name">
+          <el-input v-model="formProperties.name" placeholder="请输入属性名" />
+        </el-form-item>
+        <el-form-item label="属性类型" prop="type">
+          <el-input v-model="formProperties.type" placeholder="请输入属性类型" />
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="submitFormProperties">确 定</el-button>
+        <el-button @click="cancelProperties">取 消</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 
 import { listClass, getClass, delClass, addClass, updateClass } from "@/api/system/mange/class/node";
-import {delNodeProperties, listNodeProperties} from "@/api/system/mange/class/nodeProperties"
+import {delNodeProperties, listNodeProperties, updateNodeProperties, addNodeProperties} from "@/api/system/mange/class/nodeProperties"
 
 export default {
   name: "node",
@@ -142,8 +158,10 @@ export default {
       nodeClassList: [],
       // 弹出层标题
       title: "",
+      titleProperties: "",
       // 是否显示弹出层
       open: false,
+      openProperties: false,
       // 查询参数
       queryParams: {
         pageNum: 1,
@@ -168,6 +186,7 @@ export default {
 
       // 表单参数
       form: {},
+      formProperties: {},
       // 表单校验
       rules: {
         name: [
@@ -179,6 +198,20 @@ export default {
         valid: [
           { required: true, message: "是否有效，1有效，0无效不能为空", trigger: "blur" }
         ]
+      },
+      rulesProperties: {
+        name: [
+          { required: true, message: "属性名不能为空", trigger: "blur" }
+        ],
+        type: [
+          { required: true, message: "属性类型不能为空", trigger: "change" }
+        ],
+        nodeId: [
+          { required: true, message: "外键不能为空", trigger: "blur" }
+        ],
+        valid: [
+          { required: true, message: "是否有效，1有效，0无效不能为空", trigger: "blur" }
+        ],
       },
       mainNode: '',
       nodePropertiesList: []
@@ -202,6 +235,11 @@ export default {
       this.open = false;
       this.reset();
     },
+    cancelProperties() {
+      this.openProperties = false;
+      this.resetProperties();
+    },
+
     // 表单重置
     reset() {
       this.form = {
@@ -212,6 +250,21 @@ export default {
         valid: null
       };
       this.resetForm("form");
+    },
+    resetProperties() {
+      this.formProperties = {
+        id: null,
+        name: null,
+        type: null,
+        createTime: null,
+        createUser: null,
+        nodeId: null,
+        valid: null,
+        modifyTime: null,
+        modifyUser: null,
+        modifyType: null
+      };
+      this.resetForm("formProperties");
     },
     /** 搜索按钮操作 */
     handleQuery() {
@@ -285,8 +338,54 @@ export default {
     changeMainNode(row) {
       this.mainNode = row;
       this.nodePropertiesQueryParams.nodeId = row.id;
+      this.nodePropertiesQueryParams.valid = 1;
       listNodeProperties(this.nodePropertiesQueryParams).then(response => {
-        this.nodeClassList = response.rows
+        this.nodePropertiesList = response.rows
+      });
+    },
+
+    queryNodeProperties(id) {
+      this.nodePropertiesQueryParams.valid = 1;
+      listNodeProperties(this.nodePropertiesQueryParams).then(response => {
+        this.nodePropertiesList = response.rows
+      });
+    },
+
+    handleDeleteProperties(row) {
+      const ids = row.id;
+      this.$modal.confirm('是否确认删除id为"' + ids + '"的属性？').then(function() {
+        return delNodeProperties(ids);
+      }).then(() => {
+        this.queryNodeProperties(row.nodeId);
+        this.$modal.msgSuccess("删除成功");
+      }).catch(() => {});
+    },
+
+    /** 新增按钮操作 */
+    handleAddProperties() {
+      this.resetProperties();
+      this.openProperties = true;
+      this.titleProperties = "添加属性";
+    },
+    /** 提交按钮 */
+    submitFormProperties() {
+      this.$refs["form"].validate(valid => {
+        if (valid) {
+          if (this.formProperties.id != null) {
+            updateNodeProperties(this.form).then(response => {
+              this.$modal.msgSuccess("修改成功");
+              this.openProperties = false;
+              this.queryNodeProperties(this.mainNode.id);
+            });
+          } else {
+            this.formProperties.nodeId = this.mainNode.id;
+            addNodeProperties(this.formProperties).then(response => {
+              this.$modal.msgSuccess("新增成功");
+              this.openProperties = false;
+              this.queryNodeProperties(this.mainNode.id);
+            });
+          }
+        }
       });
     }
   }
