@@ -61,17 +61,6 @@
             <artifactId>ruoyi-generator</artifactId>
         </dependency>
 
-
-        <!-- neo4j 驱动 -->
-        <dependency>
-            <groupId>org.neo4j.driver</groupId>
-            <artifactId>neo4j-java-driver</artifactId>
-        </dependency>
-        <!-- neo4j 操作实体注解需要 -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-neo4j</artifactId>
-        </dependency>
     </dependencies>
 
     <build>
