@@ -2,14 +2,14 @@
   <div>
     <el-card id="network-container">
       <el-row>
-        <el-col span="9">
+        <el-col span="7">
           <div id="left-aside">
             {{chooseNode}}
             <br>
             {{chooseEdge}}
           </div>
         </el-col>
-        <el-col span="15">
+        <el-col span="17">
           <div id="network"></div>
         </el-col>
       </el-row>
@@ -21,6 +21,7 @@
 
 <script>
 import vis from 'vis'
+import {getAllGraph} from "@/api/graph"
 
 export default {
   name: "graph",
@@ -47,7 +48,7 @@ export default {
     }
   },
   mounted () {
-    this.globalTrace() // 页面初始化的时候调用方法
+    this.getAllGraph();
   },
   methods: {
     /**
@@ -62,7 +63,11 @@ export default {
         edges: new vis.DataSet(this.edges),
       }
       var options = { // 对vis的一些设置
-
+        edges: {
+          color: {
+            color: 'gray' // 默认边的颜色，如果未指定特定边的颜色
+          }
+        }
       }
       // 初始化你的网络
       this.network = new vis.Network(container, data, options)
@@ -77,16 +82,46 @@ export default {
         console.log("nodeId:"+nodeId);
         console.log("edgeId:"+edgeId);
 
-        console.log(view.nodes[nodeId-1])
-        view.chooseNode = view.nodes[nodeId-1]
+        view.chooseNode = view.nodes.find(node=>node.id == nodeId)
+        //console.log(view.nodes.find(node=>node.id == nodeId))
 
-
-        console.log(view.edges[edgeId-1])
-        view.chooseEdge = view.edges[edgeId-1]
+        view.chooseEdge = view.edges.find(edge=>edge.id == edgeId)
 
       })
 
 
+    },
+
+
+    getAllGraph() {
+      getAllGraph().then(response=>{
+        const newNodes = response.nodes.map(node=>{
+          if (node.props && node.props.color) {
+            return { ...node, color: node.props.color };
+          } else {
+            //return { ...node, color: 'defaultColor' }; // 如果prop.color不存在，默认设置一个值
+            return {...node}
+          }
+        })
+
+        const newEdges = response.edges.map(edge=>{
+          if (edge.props && edge.props.color) {
+            return { ...edge, color: {color: edge.props.color} };
+          } else {
+            return {...edge}
+          }
+        })
+
+
+        this.nodes = newNodes;
+        this.edges = newEdges;
+
+        console.log(newNodes)
+        console.log("执行结果===")
+        console.log("nodes:" + this.nodes + "\nedges:" + this.edges)
+        console.log("======")
+        this.globalTrace();
+      })
     }
   }
 
@@ -101,12 +136,12 @@ export default {
  }
 
  #network {
-   background-color: #00afff;
+   background-color: #FFFFFF;
    height:100vh;
  }
 
  #left-aside {
-   background-color: #42b983;
+   background-color: #ececec;
    height:100vh;
  }
 

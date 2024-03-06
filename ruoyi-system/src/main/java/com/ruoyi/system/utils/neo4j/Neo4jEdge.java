@@ -10,20 +10,20 @@ import java.util.Set;
 @Data
 public class Neo4jEdge {
 
-    private long edgeId;
+    private long id;
 
-    private Object srcId;
+    private Object from;
 
-    private Object dstId;
+    private Object to;
 
     private String label;
 
     private Map<String, Object> props = new HashMap<>();
 
     public Neo4jEdge(Relationship relationship) {
-        srcId = relationship.startNodeId();
-        dstId = relationship.endNodeId();
-        edgeId = relationship.id();
+        from = relationship.startNodeId();
+        to = relationship.endNodeId();
+        id = relationship.id();
         label = relationship.type();
         parseProps(relationship);
     }
@@ -41,18 +41,18 @@ public class Neo4jEdge {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Neo4jEdge that = (Neo4jEdge) o;
-        //if (!edgeId.equals(that.edgeId)) return false;
-        if (!srcId.equals(that.srcId)) return false;
-        if (!dstId.equals(that.dstId)) return false;
+        //if (!id.equals(that.id)) return false;
+        if (!from.equals(that.from)) return false;
+        if (!to.equals(that.to)) return false;
         return label.equals(that.label);
     }
 
     @Override
     public int hashCode() {
-        int result = srcId.hashCode();
-        result = 31 * result + dstId.hashCode();
+        int result = from.hashCode();
+        result = 31 * result + to.hashCode();
         result = 31 * result + label.hashCode();
-        result = 31 * result + (int) (edgeId ^ (edgeId >>> 32));
+        result = 31 * result + (int) (id ^ (id >>> 32));
         return result;
     }
 }

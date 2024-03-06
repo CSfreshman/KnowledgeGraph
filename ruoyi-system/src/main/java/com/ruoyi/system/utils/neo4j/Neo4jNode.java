@@ -1,4 +1,5 @@
 package com.ruoyi.system.utils.neo4j;
+import cn.hutool.core.util.ObjectUtil;
 import lombok.Data;
 import org.neo4j.driver.types.Node;
 
@@ -9,6 +10,8 @@ public class Neo4jNode {
 
     private Object id;
 
+    private String label;
+
     private List<String> labels = new ArrayList<>();
 
     private Map<String, Object> props = new HashMap<>();
@@ -17,6 +20,10 @@ public class Neo4jNode {
         id = node.id();
         parseLabels(node);
         parseProp(node);
+
+        if(ObjectUtil.isNotNull(props) && ObjectUtil.isNotNull(props.get("name"))){
+            label = props.get("name").toString();
+        }
     }
 
 
