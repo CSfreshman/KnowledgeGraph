@@ -99,6 +99,7 @@ public class KgNodeClassPropertiesServiceImpl implements IKgNodeClassPropertiesS
         kgNodeClassProperties.setValid(0);
         kgNodeClassProperties.setModifyTime(DateUtils.getNowDate());
         kgNodeClassProperties.setModifyUser(SecurityUtils.getUserId());
+        kgNodeClassProperties.setModifyType(0L);
         // 更新数据
         return updateKgNodeClassProperties(kgNodeClassProperties);
 

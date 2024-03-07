@@ -6,7 +6,7 @@
           <el-form>
             <el-form-item :inline="true">
               <el-input
-                placeholder="请输出实体类型名称"
+                placeholder="请输出关系类型名称"
                 v-model="queryParams.name">
                 <template #suffix>
                   <el-button style="border: none" icon="el-icon-search" size="small" @click="handleQuery"></el-button>
@@ -16,7 +16,7 @@
           </el-form>
 
 
-          <el-button @click="handleAdd" >新建实体类型</el-button>
+          <el-button @click="handleAdd" >新建关系类型</el-button>
 
           <el-table v-loading="loading" :data="nodeClassList" :show-header="false" @row-click="changeMainNode">
             <el-table-column key="name" prop="name"></el-table-column>
@@ -34,7 +34,7 @@
         <el-card>
           <div v-show="mainNode == ''">
             <el-input
-              placeholder="请选择一个实体类型"
+              placeholder="请选择一个关系类型"
               v-model="input"
               :disabled="true">
             </el-input>
@@ -101,18 +101,39 @@
       </el-col>
     </el-row>
 
-    <!-- 添加或修改【请填写功能名称】对话框 -->
+<!--    新建关系类型-->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-        <el-form-item label="实体类型名称" prop="name">
+        <el-form-item label="关系类型名称" prop="name">
           <el-input v-model="form.name" placeholder="请输入实体类型名称" />
         </el-form-item>
-<!--        <el-form-item label="创建人" prop="createUser">-->
-<!--          <el-input v-model="form.createUser" placeholder="请输入创建人" />-->
-<!--        </el-form-item>-->
-<!--        <el-form-item label="是否有效，1有效，0无效" prop="valid">-->
-<!--          <el-input v-model="form.valid" placeholder="请输入是否有效，1有效，0无效" />-->
-<!--        </el-form-item>-->
+        <el-form-item label="起点实体" prop="name">
+          <el-select v-model="formProperties.type" placeholder="请选择">
+            <el-option
+              v-for="item in optionalType"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value">
+            </el-option>
+          </el-select>
+        </el-form-item>
+
+        <el-form-item label="终点实体" prop="name">
+          <el-select v-model="formProperties.type" placeholder="请选择">
+            <el-option
+              v-for="item in optionalType"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <!--        <el-form-item label="创建人" prop="createUser">-->
+        <!--          <el-input v-model="form.createUser" placeholder="请输入创建人" />-->
+        <!--        </el-form-item>-->
+        <!--        <el-form-item label="是否有效，1有效，0无效" prop="valid">-->
+        <!--          <el-input v-model="form.valid" placeholder="请输入是否有效，1有效，0无效" />-->
+        <!--        </el-form-item>-->
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="submitForm">确 定</el-button>
@@ -120,7 +141,7 @@
       </div>
     </el-dialog>
 
-    <!-- 添加或修改【请填写功能名称】对话框 -->
+    <!-- 新建属性 -->
     <el-dialog :title="titleProperties" :visible.sync="openProperties" width="500px" append-to-body>
       <el-form ref="form" :model="formProperties" :rules="rulesProperties" label-width="80px">
         <el-form-item label="属性名" prop="name">
@@ -135,7 +156,7 @@
               :value="item.value">
             </el-option>
           </el-select>
-<!--          <el-input v-model="" placeholder="请输入属性类型" />-->
+          <!--          <el-input v-model="" placeholder="请输入属性类型" />-->
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -148,11 +169,9 @@
 
 <script>
 
-import { listClass, getClass, delClass, addClass, updateClass } from "@/api/mange/class/node";
-import {delNodeProperties, listNodeProperties, updateNodeProperties, addNodeProperties} from "@/api/mange/class/nodeProperties"
 
 export default {
-  name: "node",
+  name: "edge",
   data() {
     return {
       // 遮罩层
