@@ -1,4 +1,4 @@
-package com.ruoyi.web.controller.system;
+package com.ruoyi.web.controller.manage;
 
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
@@ -16,8 +16,8 @@ import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.enums.BusinessType;
-import com.ruoyi.system.domain.KgNodeClass;
-import com.ruoyi.system.service.IKgNodeClassService;
+import com.ruoyi.system.domain.KgNodeClassProperties;
+import com.ruoyi.system.service.IKgNodeClassPropertiesService;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.common.core.page.TableDataInfo;
 
@@ -28,77 +28,77 @@ import com.ruoyi.common.core.page.TableDataInfo;
  * @date 2024-03-04
  */
 @RestController
-@RequestMapping("/system/mange/class/node")
-public class KgNodeClassController extends BaseController
+@RequestMapping("/system/mange/class/nodeProperties")
+public class KgNodeClassPropertiesController extends BaseController
 {
     @Autowired
-    private IKgNodeClassService kgNodeClassService;
+    private IKgNodeClassPropertiesService kgNodeClassPropertiesService;
 
     /**
      * 查询【请填写功能名称】列表
      */
-    @PreAuthorize("@ss.hasPermi('system:class:list')")
+    @PreAuthorize("@ss.hasPermi('system:properties:list')")
     @GetMapping("/list")
-    public TableDataInfo list(KgNodeClass kgNodeClass)
+    public TableDataInfo list(KgNodeClassProperties kgNodeClassProperties)
     {
         startPage();
-        List<KgNodeClass> list = kgNodeClassService.selectKgNodeClassList(kgNodeClass);
+        List<KgNodeClassProperties> list = kgNodeClassPropertiesService.selectKgNodeClassPropertiesList(kgNodeClassProperties);
         return getDataTable(list);
     }
 
     /**
      * 导出【请填写功能名称】列表
      */
-    @PreAuthorize("@ss.hasPermi('system:class:export')")
+    @PreAuthorize("@ss.hasPermi('system:properties:export')")
     @Log(title = "【请填写功能名称】", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
-    public void export(HttpServletResponse response, KgNodeClass kgNodeClass)
+    public void export(HttpServletResponse response, KgNodeClassProperties kgNodeClassProperties)
     {
-        List<KgNodeClass> list = kgNodeClassService.selectKgNodeClassList(kgNodeClass);
-        ExcelUtil<KgNodeClass> util = new ExcelUtil<KgNodeClass>(KgNodeClass.class);
+        List<KgNodeClassProperties> list = kgNodeClassPropertiesService.selectKgNodeClassPropertiesList(kgNodeClassProperties);
+        ExcelUtil<KgNodeClassProperties> util = new ExcelUtil<KgNodeClassProperties>(KgNodeClassProperties.class);
         util.exportExcel(response, list, "【请填写功能名称】数据");
     }
 
     /**
      * 获取【请填写功能名称】详细信息
      */
-    @PreAuthorize("@ss.hasPermi('system:class:query')")
+    @PreAuthorize("@ss.hasPermi('system:properties:query')")
     @GetMapping(value = "/{id}")
     public AjaxResult getInfo(@PathVariable("id") Long id)
     {
-        return success(kgNodeClassService.selectKgNodeClassById(id));
+        return success(kgNodeClassPropertiesService.selectKgNodeClassPropertiesById(id));
     }
 
     /**
      * 新增【请填写功能名称】
      */
-    @PreAuthorize("@ss.hasPermi('system:class:add')")
+    @PreAuthorize("@ss.hasPermi('system:properties:add')")
     @Log(title = "【请填写功能名称】", businessType = BusinessType.INSERT)
     @PostMapping
-    public AjaxResult add(@RequestBody KgNodeClass kgNodeClass)
+    public AjaxResult add(@RequestBody KgNodeClassProperties kgNodeClassProperties)
     {
-        return toAjax(kgNodeClassService.insertKgNodeClass(kgNodeClass));
+        return toAjax(kgNodeClassPropertiesService.insertKgNodeClassProperties(kgNodeClassProperties));
     }
 
     /**
      * 修改【请填写功能名称】
      */
-    @PreAuthorize("@ss.hasPermi('system:class:edit')")
+    @PreAuthorize("@ss.hasPermi('system:properties:edit')")
     @Log(title = "【请填写功能名称】", businessType = BusinessType.UPDATE)
     @PutMapping
-    public AjaxResult edit(@RequestBody KgNodeClass kgNodeClass)
+    public AjaxResult edit(@RequestBody KgNodeClassProperties kgNodeClassProperties)
     {
-        return toAjax(kgNodeClassService.updateKgNodeClass(kgNodeClass));
+        return toAjax(kgNodeClassPropertiesService.updateKgNodeClassProperties(kgNodeClassProperties));
     }
 
     /**
      * 删除【请填写功能名称】
      */
-    @PreAuthorize("@ss.hasPermi('system:class:remove')")
+    @PreAuthorize("@ss.hasPermi('system:properties:remove')")
     @Log(title = "【请填写功能名称】", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{ids}")
     public AjaxResult remove(@PathVariable Long[] ids)
     {
-        return toAjax(kgNodeClassService.deleteKgNodeClassByIds(ids));
+        return toAjax(kgNodeClassPropertiesService.deleteKgNodeClassPropertiesByIds(ids));
     }
 }

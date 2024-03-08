@@ -18,8 +18,8 @@
 
           <el-button @click="handleAdd" >新建关系类型</el-button>
 
-          <el-table v-loading="loading" :data="nodeClassList" :show-header="false" @row-click="changeMainNode">
-            <el-table-column key="name" prop="name"></el-table-column>
+          <el-table v-loading="loading" :data="edgeClassList" :show-header="false" @row-click="changeMainData">
+            <el-table-column key="name" prop="label"></el-table-column>
           </el-table>
           <pagination
             v-show="total>0"
@@ -32,7 +32,7 @@
       </el-col>
       <el-col span="17">
         <el-card>
-          <div v-show="mainNode == ''">
+          <div v-show="mainData == ''">
             <el-input
               placeholder="请选择一个关系类型"
               v-model="input"
@@ -41,13 +41,13 @@
           </div>
 
 
-          <div v-show="mainNode != ''">
+          <div v-show="mainData != ''">
 
-            <el-form :model="mainNode" label-width="80px">
+            <el-form :model="mainData" label-width="80px">
               <el-row>
                 <el-form-item label="id">
                   <el-input
-                    :placeholder="mainNode.id"
+                    :placeholder="mainData.id"
                     v-model="input"
                     :disabled="true">
                   </el-input>
@@ -57,7 +57,27 @@
               <el-row>
                 <el-form-item label="名称">
                   <el-input
-                    :placeholder="mainNode.name"
+                    :placeholder="mainData.label"
+                    v-model="input"
+                    :disabled="true">
+                  </el-input>
+                </el-form-item>
+              </el-row>
+
+              <el-row>
+                <el-form-item label="起点">
+                  <el-input
+                    :placeholder="mainData.fromNodeClassName"
+                    v-model="input"
+                    :disabled="true">
+                  </el-input>
+                </el-form-item>
+              </el-row>
+
+              <el-row>
+                <el-form-item label="终点">
+                  <el-input
+                    :placeholder="mainData.toNodeId"
                     v-model="input"
                     :disabled="true">
                   </el-input>
@@ -73,7 +93,7 @@
                 <el-button @click="handleAddProperties">新增属性</el-button>
               </el-col>
             </el-row>
-            <el-table v-loading="loading" :data="nodePropertiesList" @selection-change="handleSelectionChange">
+            <el-table v-loading="loading" :data="edgePropertiesList" @selection-change="handleSelectionChange">
               <el-table-column label="属性名" prop="name"></el-table-column>
               <el-table-column label="类型" prop="type"></el-table-column>
               <el-table-column
@@ -169,6 +189,9 @@
 
 <script>
 
+import { listClass, getClass, delClass, addClass, updateClass } from "@/api/mange/class/edge";
+import { listClassProperties, getClassProperties, delClassProperties, addClassProperties, updateClassProperties } from "@/api/mange/class/edgeProperties";
+
 
 export default {
   name: "edge",
@@ -187,66 +210,45 @@ export default {
       // 总条数
       total: 0,
       // 【请填写功能名称】表格数据
-      nodeClassList: [],
+      edgeClassList: [],
       // 弹出层标题
       title: "",
-      titleProperties: "",
       // 是否显示弹出层
       open: false,
-      openProperties: false,
       // 查询参数
       queryParams: {
         pageNum: 1,
         pageSize: 10,
-        name: null,
+        label: null,
+        fromNodeId: null,
+        toNodeId: null,
         createUser: null,
         valid: null
       },
-
-      nodePropertiesQueryParams: {
+      edgePropertiesQueryParams: {
         pageNum: 1,
         pageSize: 10,
+        edgeId: null,
         name: null,
         type: null,
         createUser: null,
-        nodeId: null,
         valid: null,
-        modifyTime: null,
-        modifyUser: null,
-        modifyType: null
+        modityTime: null,
+        modityUser: null,
+        modityType: null
       },
-
       // 表单参数
       form: {},
+
       formProperties: {},
       // 表单校验
       rules: {
-        name: [
-          { required: true, message: "实体类型名称不能为空", trigger: "blur" }
-        ],
-        createTime: [
-          { required: true, message: "创建时间不能为空", trigger: "blur" }
-        ],
-        valid: [
-          { required: true, message: "是否有效，1有效，0无效不能为空", trigger: "blur" }
-        ]
-      },
-      rulesProperties: {
-        name: [
-          { required: true, message: "属性名不能为空", trigger: "blur" }
-        ],
-        type: [
-          { required: true, message: "属性类型不能为空", trigger: "change" }
-        ],
-        nodeId: [
-          { required: true, message: "外键不能为空", trigger: "blur" }
-        ],
-        valid: [
-          { required: true, message: "是否有效，1有效，0无效不能为空", trigger: "blur" }
+        label: [
+          { required: true, message: "关系名不能为空", trigger: "blur" }
         ],
       },
-      mainNode: '',
-      nodePropertiesList: [],
+      mainData: '',
+      edgePropertiesList: [],
 
       optionalType: [{
         value: '选项1',
@@ -274,7 +276,7 @@ export default {
     getList() {
       this.loading = true;
       listClass(this.queryParams).then(response => {
-        this.nodeClassList = response.rows;
+        this.edgeClassList = response.rows;
         this.total = response.total;
         this.loading = false;
       });
@@ -384,18 +386,18 @@ export default {
       }, `class_${new Date().getTime()}.xlsx`)
     },
 
-    changeMainNode(row) {
-      this.mainNode = row;
-      this.nodePropertiesQueryParams.nodeId = row.id;
-      this.nodePropertiesQueryParams.valid = 1;
-      listNodeProperties(this.nodePropertiesQueryParams).then(response => {
-        this.nodePropertiesList = response.rows
+    changeMainData(row) {
+      this.mainData = row;
+      this.edgePropertiesQueryParams.edgeId = row.id;
+      this.edgePropertiesQueryParams.valid = 1;
+      listClassProperties(this.edgePropertiesQueryParams).then(response => {
+        this.edgePropertiesList = response.rows
       });
     },
 
     queryNodeProperties(id) {
-      this.nodePropertiesQueryParams.valid = 1;
-      listNodeProperties(this.nodePropertiesQueryParams).then(response => {
+      this.edgePropertiesQueryParams.valid = 1;
+      listNodeProperties(this.edgePropertiesQueryParams).then(response => {
         this.nodePropertiesList = response.rows
       });
     },
@@ -424,14 +426,14 @@ export default {
             updateNodeProperties(this.form).then(response => {
               this.$modal.msgSuccess("修改成功");
               this.openProperties = false;
-              this.queryNodeProperties(this.mainNode.id);
+              this.queryNodeProperties(this.mainData.id);
             });
           } else {
-            this.formProperties.nodeId = this.mainNode.id;
+            this.formProperties.nodeId = this.mainData.id;
             addNodeProperties(this.formProperties).then(response => {
               this.$modal.msgSuccess("新增成功");
               this.openProperties = false;
-              this.queryNodeProperties(this.mainNode.id);
+              this.queryNodeProperties(this.mainData.id);
             });
           }
         }
