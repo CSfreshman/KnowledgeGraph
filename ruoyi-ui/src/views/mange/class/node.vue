@@ -230,21 +230,21 @@ export default {
       nodePropertiesList: [],
 
       optionalType: [{
-        value: '选项1',
+        value: 'int',
         label: 'int'
       }, {
-        value: '选项2',
+        value: 'float',
         label: 'float'
       }, {
-        value: '选项3',
+        value: 'long',
         label: 'long'
       }, {
-        value: '选项4',
+        value: 'double',
         label: 'double'
       }, {
-        value: '选项5',
+        value: 'string',
         label: 'string'
-      }]
+      }],
     };
   },
   created() {
@@ -254,6 +254,7 @@ export default {
     /** 查询【请填写功能名称】列表 */
     getList() {
       this.loading = true;
+      this.queryParams.valid = 1;
       listClass(this.queryParams).then(response => {
         this.nodeClassList = response.rows;
         this.total = response.total;

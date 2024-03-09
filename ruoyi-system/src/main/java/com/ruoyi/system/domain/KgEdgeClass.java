@@ -1,5 +1,7 @@
 package com.ruoyi.system.domain;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.ruoyi.common.annotation.Excel;
@@ -16,6 +18,7 @@ public class KgEdgeClass extends BaseEntity
     private static final long serialVersionUID = 1L;
 
     /** 主键id */
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long id;
 
     /** 关系名（标签） */
@@ -24,12 +27,14 @@ public class KgEdgeClass extends BaseEntity
 
     /** 起点nodeId */
     @Excel(name = "起点nodeId")
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long fromNodeId;
 
     private String fromNodeClassName;
 
     /** 终点nodeId */
     @Excel(name = "终点nodeId")
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long toNodeId;
 
     private String toNodeClassName;

@@ -2,6 +2,8 @@ package com.ruoyi.system.domain;
 
 import java.util.Date;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.ruoyi.common.annotation.Excel;
@@ -9,7 +11,7 @@ import com.ruoyi.common.core.domain.BaseEntity;
 
 /**
  * 【请填写功能名称】对象 kg_edge_class_properties
- * 
+ *
  * @author ruoyi
  * @date 2024-03-08
  */
@@ -18,10 +20,12 @@ public class KgEdgeClassProperties extends BaseEntity
     private static final long serialVersionUID = 1L;
 
     /** 主键id */
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long id;
 
     /** 边id */
     @Excel(name = "边id")
+    @JsonSerialize(using = ToStringSerializer.class)
     private Long edgeId;
 
     /** 属性名 */
@@ -52,84 +56,84 @@ public class KgEdgeClassProperties extends BaseEntity
     @Excel(name = "修改类型，1新增，0删除")
     private Long modityType;
 
-    public void setId(Long id) 
+    public void setId(Long id)
     {
         this.id = id;
     }
 
-    public Long getId() 
+    public Long getId()
     {
         return id;
     }
-    public void setEdgeId(Long edgeId) 
+    public void setEdgeId(Long edgeId)
     {
         this.edgeId = edgeId;
     }
 
-    public Long getEdgeId() 
+    public Long getEdgeId()
     {
         return edgeId;
     }
-    public void setName(String name) 
+    public void setName(String name)
     {
         this.name = name;
     }
 
-    public String getName() 
+    public String getName()
     {
         return name;
     }
-    public void setType(String type) 
+    public void setType(String type)
     {
         this.type = type;
     }
 
-    public String getType() 
+    public String getType()
     {
         return type;
     }
-    public void setCreateUser(Long createUser) 
+    public void setCreateUser(Long createUser)
     {
         this.createUser = createUser;
     }
 
-    public Long getCreateUser() 
+    public Long getCreateUser()
     {
         return createUser;
     }
-    public void setValid(Long valid) 
+    public void setValid(Long valid)
     {
         this.valid = valid;
     }
 
-    public Long getValid() 
+    public Long getValid()
     {
         return valid;
     }
-    public void setModityTime(Date modityTime) 
+    public void setModityTime(Date modityTime)
     {
         this.modityTime = modityTime;
     }
 
-    public Date getModityTime() 
+    public Date getModityTime()
     {
         return modityTime;
     }
-    public void setModityUser(Long modityUser) 
+    public void setModityUser(Long modityUser)
     {
         this.modityUser = modityUser;
     }
 
-    public Long getModityUser() 
+    public Long getModityUser()
     {
         return modityUser;
     }
-    public void setModityType(Long modityType) 
+    public void setModityType(Long modityType)
     {
         this.modityType = modityType;
     }
 
-    public Long getModityType() 
+    public Long getModityType()
     {
         return modityType;
     }

@@ -9,6 +9,14 @@ export function listClass(query) {
   })
 }
 
+export function getAllNodeClass(query) {
+  return request({
+    url: '/system/mange/class/node/getAll',
+    method: 'get',
+    params: query
+  })
+}
+
 // 查询【请填写功能名称】详细
 export function getClass(id) {
   return request({

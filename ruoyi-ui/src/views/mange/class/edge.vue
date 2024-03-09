@@ -7,7 +7,7 @@
             <el-form-item :inline="true">
               <el-input
                 placeholder="请输出关系类型名称"
-                v-model="queryParams.name">
+                v-model="queryParams.label">
                 <template #suffix>
                   <el-button style="border: none" icon="el-icon-search" size="small" @click="handleQuery"></el-button>
                 </template>
@@ -77,7 +77,7 @@
               <el-row>
                 <el-form-item label="终点">
                   <el-input
-                    :placeholder="mainData.toNodeId"
+                    :placeholder="mainData.toNodeClassName"
                     v-model="input"
                     :disabled="true">
                   </el-input>
@@ -125,12 +125,12 @@
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="关系类型名称" prop="name">
-          <el-input v-model="form.name" placeholder="请输入实体类型名称" />
+          <el-input v-model="form.label" placeholder="请输入实体类型名称" />
         </el-form-item>
         <el-form-item label="起点实体" prop="name">
-          <el-select v-model="formProperties.type" placeholder="请选择">
+          <el-select v-model="form.fromNodeId" placeholder="请选择">
             <el-option
-              v-for="item in optionalType"
+              v-for="item in optionalNodeClassList"
               :key="item.value"
               :label="item.label"
               :value="item.value">
@@ -139,9 +139,9 @@
         </el-form-item>
 
         <el-form-item label="终点实体" prop="name">
-          <el-select v-model="formProperties.type" placeholder="请选择">
+          <el-select v-model="form.toNodeId" placeholder="请选择">
             <el-option
-              v-for="item in optionalType"
+              v-for="item in optionalNodeClassList"
               :key="item.value"
               :label="item.label"
               :value="item.value">
@@ -190,6 +190,7 @@
 <script>
 
 import { listClass, getClass, delClass, addClass, updateClass } from "@/api/mange/class/edge";
+import { getAllNodeClass  } from "@/api/mange/class/node";
 import { listClassProperties, getClassProperties, delClassProperties, addClassProperties, updateClassProperties } from "@/api/mange/class/edgeProperties";
 
 
@@ -249,27 +250,44 @@ export default {
       },
       mainData: '',
       edgePropertiesList: [],
-
       optionalType: [{
-        value: '选项1',
+        value: 'int',
         label: 'int'
       }, {
-        value: '选项2',
+        value: 'float',
         label: 'float'
       }, {
-        value: '选项3',
+        value: 'long',
         label: 'long'
       }, {
-        value: '选项4',
+        value: 'double',
         label: 'double'
       }, {
-        value: '选项5',
+        value: 'string',
         label: 'string'
-      }]
+      }],
+      titleProperties: '',
+      openProperties: false,
+      rulesProperties: {
+        edgeId: [
+          { required: true, message: "边id不能为空", trigger: "blur" }
+        ],
+        name: [
+          { required: true, message: "属性名不能为空", trigger: "blur" }
+        ],
+        type: [
+          { required: true, message: "属性类型不能为空", trigger: "change" }
+        ],
+        valid: [
+          { required: true, message: "是否有效，1有效，0无效不能为空", trigger: "blur" }
+        ],
+      },
+      optionalNodeClassList: ''
     };
   },
   created() {
     this.getList();
+    this.getNodeClassList();
   },
   methods: {
     /** 查询【请填写功能名称】列表 */
@@ -281,6 +299,26 @@ export default {
         this.loading = false;
       });
     },
+    getNodeClassList() {
+      var queryParams = {
+        name: null,
+        createUser: null,
+        valid: 1
+      };
+      getAllNodeClass(queryParams).then(resp => {
+        this.optionalNodeClassList = this.convertData(resp);
+        console.log(this.optionalNodeClassList)
+      })
+    },
+
+
+    convertData(originalData) {
+      const convertedData = originalData.map(item => {
+        return { value: item.id, label: item.name };
+      });
+      return convertedData;
+    },
+
     // 取消按钮
     cancel() {
       this.open = false;
@@ -309,7 +347,7 @@ export default {
         type: null,
         createTime: null,
         createUser: null,
-        nodeId: null,
+        edgeId: null,
         valid: null,
         modifyTime: null,
         modifyUser: null,
@@ -337,7 +375,7 @@ export default {
     handleAdd() {
       this.reset();
       this.open = true;
-      this.title = "添加【请填写功能名称】";
+      this.title = "添加关系类型";
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
@@ -395,19 +433,19 @@ export default {
       });
     },
 
-    queryNodeProperties(id) {
+    queryEdgeProperties(id) {
       this.edgePropertiesQueryParams.valid = 1;
-      listNodeProperties(this.edgePropertiesQueryParams).then(response => {
-        this.nodePropertiesList = response.rows
+      listClassProperties(this.edgePropertiesQueryParams).then(response => {
+        this.edgePropertiesList = response.rows
       });
     },
 
     handleDeleteProperties(row) {
       const ids = row.id;
       this.$modal.confirm('是否确认删除id为"' + ids + '"的属性？').then(function() {
-        return delNodeProperties(ids);
+        return delClassProperties(ids);
       }).then(() => {
-        this.queryNodeProperties(row.nodeId);
+        this.queryEdgeProperties(row.edgeId);
         this.$modal.msgSuccess("删除成功");
       }).catch(() => {});
     },
@@ -423,17 +461,18 @@ export default {
       this.$refs["form"].validate(valid => {
         if (valid) {
           if (this.formProperties.id != null) {
-            updateNodeProperties(this.form).then(response => {
+            updateClassProperties(this.form).then(response => {
               this.$modal.msgSuccess("修改成功");
               this.openProperties = false;
-              this.queryNodeProperties(this.mainData.id);
+                this.queryEdgeProperties(this.mainData.id);
             });
           } else {
-            this.formProperties.nodeId = this.mainData.id;
-            addNodeProperties(this.formProperties).then(response => {
+            this.formProperties.edgeId = this.mainData.id;
+            this.formProperties.valid = 1
+            addClassProperties(this.formProperties).then(response => {
               this.$modal.msgSuccess("新增成功");
               this.openProperties = false;
-              this.queryNodeProperties(this.mainData.id);
+              this.queryEdgeProperties(this.mainData.id);
             });
           }
         }

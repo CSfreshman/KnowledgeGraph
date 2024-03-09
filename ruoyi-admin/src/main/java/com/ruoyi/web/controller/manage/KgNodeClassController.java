@@ -46,6 +46,11 @@ public class KgNodeClassController extends BaseController
         return getDataTable(list);
     }
 
+    @GetMapping("/getAll")
+    public List<KgNodeClass> getAll(KgNodeClass kgNodeClass){
+        return kgNodeClassService.getAll(kgNodeClass);
+    }
+
     /**
      * 导出【请填写功能名称】列表
      */

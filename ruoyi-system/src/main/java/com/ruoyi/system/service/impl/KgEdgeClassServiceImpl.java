@@ -2,8 +2,10 @@ package com.ruoyi.system.service.impl;
 
 import java.util.List;
 
+import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.ruoyi.common.utils.DateUtils;
+import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.system.domain.KgNodeClass;
 import com.ruoyi.system.mapper.KgNodeClassMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -90,6 +92,8 @@ public class KgEdgeClassServiceImpl implements IKgEdgeClassService
     public int insertKgEdgeClass(KgEdgeClass kgEdgeClass)
     {
         kgEdgeClass.setCreateTime(DateUtils.getNowDate());
+        kgEdgeClass.setId(IdUtil.getSnowflakeNextId());
+        kgEdgeClass.setCreateUser(SecurityUtils.getUserId());
         return kgEdgeClassMapper.insertKgEdgeClass(kgEdgeClass);
     }
 

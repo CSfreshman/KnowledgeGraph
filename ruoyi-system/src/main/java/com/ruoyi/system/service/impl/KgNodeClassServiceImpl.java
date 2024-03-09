@@ -100,4 +100,11 @@ public class KgNodeClassServiceImpl implements IKgNodeClassService
     {
         return kgNodeClassMapper.deleteKgNodeClassById(id);
     }
+
+    @Override
+    public List<KgNodeClass> getAll(KgNodeClass kgNodeClass) {
+        List<KgNodeClass> kgNodeClasses = kgNodeClassMapper.selectKgNodeClassList(kgNodeClass);
+
+        return kgNodeClasses;
+    }
 }

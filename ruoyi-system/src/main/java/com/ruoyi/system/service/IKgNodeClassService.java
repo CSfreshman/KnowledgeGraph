@@ -58,4 +58,6 @@ public interface IKgNodeClassService
      * @return 结果
      */
     public int deleteKgNodeClassById(Long id);
+
+    List<KgNodeClass> getAll(KgNodeClass kgNodeClass);
 }
