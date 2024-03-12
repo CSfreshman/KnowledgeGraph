@@ -1,10 +1,12 @@
 package com.ruoyi.system.service.impl;
 
+import com.ruoyi.system.req.GraphReq;
 import com.ruoyi.system.service.TestNeo4jService;
 import com.ruoyi.system.utils.neo4j.Neo4jEdge;
 import com.ruoyi.system.utils.neo4j.Neo4jGraph;
 import com.ruoyi.system.utils.neo4j.Neo4jNode;
 import org.neo4j.driver.*;
+import org.neo4j.driver.internal.InternalResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.data.neo4j.core.Neo4jTemplate;
@@ -83,5 +85,31 @@ public class TestNeo4jServiceImpl implements TestNeo4jService {
         Neo4jGraph graph = Neo4jGraph.parse(result);
         Set<Neo4jEdge> edges = graph.getEdges();
         return edges;
+    }
+
+    @Override
+    public Neo4jGraph getNodeDetailByNodeId(GraphReq req) {
+        System.out.println("开始查询节点详情-以该节点为中心的N度网络");
+        System.out.println("nodeId = " + req.getNodeId());
+        System.out.println("degree = " + req.getDegree());
+
+        String cypher = "MATCH path = (n) " +
+                "WHERE id(n) = " + req.getNodeId() + " " +
+                "WITH nodes(path) AS centerNodes " +
+                "UNWIND centerNodes AS centerNode " +
+                "MATCH network = (centerNode)-[*.."+req.getDegree()+"]-(related) " +
+                "RETURN nodes(network) AS nodes, relationships(network) AS relationships";
+        Session session = driver.session();
+        Result result = null;
+        try{
+            result = session.run(cypher);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+
+        Neo4jGraph graph = Neo4jGraph.parse1(result);
+
+        return graph;
     }
 }

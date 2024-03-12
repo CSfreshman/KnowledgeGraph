@@ -60,4 +60,31 @@ public class Neo4jGraph {
         edges.add(neo4jEdge);
     }
 
+    public static Neo4jGraph parse1(Result result) {
+        if (result == null) return null;
+        Neo4jGraph graph = new Neo4jGraph();
+        List<Record> records = result.list();
+        for (Record record:records){
+            List<Value> values = record.values();
+            for (Value value : values) {
+                for (Value value1 : value.values()) {
+                    Type type = value1.type();
+                    if (type.name().equals(TypeConstructor.NODE.name())) {
+                        Node node = value1.asNode();
+                        graph.addNeo4jNode(new Neo4jNode(node));
+                    }else if (type.name().equals(TypeConstructor.PATH.name())) {
+                        Path path = value1.asPath();
+                        path.nodes().forEach(node -> graph.addNeo4jNode(new Neo4jNode(node)));
+                        path.relationships().forEach(relationship -> graph.addNeo4jEdge(new Neo4jEdge(relationship)));
+                    }else if (type.name().equals(TypeConstructor.RELATIONSHIP.name())) {
+                        Relationship relationship = value1.asRelationship();
+                        graph.addNeo4jEdge(new Neo4jEdge(relationship));
+                    }else {
+                        log.error("目前不支持{}类型的查询数据解析。", type.name());
+                    }
+                }
+            }
+        }
+        return graph;
+    }
 }

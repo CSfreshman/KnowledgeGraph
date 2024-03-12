@@ -24,6 +24,7 @@
                       size="medium"
                       class="rounded-tag"
                       type="info"
+
                     >
                       {{labelItem}}
                     </el-tag>
@@ -251,5 +252,6 @@ export default {
 
  .rounded-tag {
    border-radius: 20px; /* 调整圆角大小 */
+   color: #000000;
  }
 </style>

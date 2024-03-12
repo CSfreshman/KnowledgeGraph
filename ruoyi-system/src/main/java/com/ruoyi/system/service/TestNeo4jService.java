@@ -1,5 +1,6 @@
 package com.ruoyi.system.service;
 
+import com.ruoyi.system.req.GraphReq;
 import com.ruoyi.system.utils.neo4j.Neo4jEdge;
 import com.ruoyi.system.utils.neo4j.Neo4jGraph;
 import com.ruoyi.system.utils.neo4j.Neo4jNode;
@@ -14,4 +15,6 @@ public interface TestNeo4jService {
 
     Set<Neo4jNode> getAllNode();
     Set<Neo4jEdge> getAllEdge();
+
+    Neo4jGraph getNodeDetailByNodeId(GraphReq valueOf);
 }
