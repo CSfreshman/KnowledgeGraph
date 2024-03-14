@@ -9,7 +9,7 @@
                 属性
               </el-col>
               <el-col span="2">
-                <el-button>修改</el-button>
+                <el-button @click="">修改</el-button>
               </el-col>
             </el-row>
             <el-row>
@@ -57,6 +57,11 @@
                           <span>{{ scope.row.value }}</span>
                         </template>
                       </el-table-column>
+                      <el-table-column>
+                        <template slot-scope="scope">
+                          <el-button type="text" icon="el-icon-edit" @click="updateProp(scope.row)" size="mini" circle></el-button>
+                        </template>
+                      </el-table-column>
                     </el-table>
                   </div>
                 </template>
@@ -81,7 +86,7 @@
                   <el-button @click="changeDegree(3)">3度</el-button>
                 </el-col>
                 <el-col span="2">
-                  <el-button>删除</el-button>
+                  <el-button @click="deleteNode">删除</el-button>
                 </el-col>
               </el-row>
 
@@ -94,17 +99,34 @@
         </el-col>
       </el-row>
     </el-card>
+
+    <div>
+      <el-dialog title="修改属性" :visible.sync="open" width="500px" append-to-body>
+        <el-form :model="form">
+          <div v-for="(prop, index) in form.props" :key="index">
+            <el-form-item :label="prop.key" label-width="400">
+              <el-input v-model="prop.value"></el-input>
+            </el-form-item>
+          </div>
+        </el-form>
+        <div slot="footer" class="dialog-footer">
+          <el-button type="primary" @click="submit">确 定</el-button>
+          <el-button @click="cancel">取 消</el-button>
+        </div>
+      </el-dialog>
+    </div>
   </div>
 </template>
 
 <script>
-import {getNodeDetail} from "@/api/nodeDetail"
+import {getNodeDetail, updateNodeDetail, deleteNode} from "@/api/nodeDetail"
 import vis from "vis";
 
 export default {
   name: "node",
   data() {
     return{
+      routerData: '',
       headText: '图谱：',
       nodes: '',
       edges: '',
@@ -114,10 +136,17 @@ export default {
       showData: '',
       // 表格中展示的数据（选中的节点的属性）
       tableData: '',
-      nodeId: 9
+      nodeId: '',
+      open: false,
+      form: {
+        nodeId: '', // 节点id
+        props: []
+      }
     }
   },
   mounted(){
+    this.routerData = this.$route.query.data;
+    this.nodeId = this.routerData.id;
     this.getNodeDetail(this.nodeId,1);
 
   },
@@ -133,8 +162,8 @@ export default {
           if (node.props && node.props.color) {
             return { ...node, color: node.props.color };
           } else {
-            //return { ...node, color: 'defaultColor' }; // 如果prop.color不存在，默认设置一个值
-            return {...node}
+            return { ...node, color: '#FFFFFF' }; // 如果prop.color不存在，默认设置一个值
+            //return {...node}
           }
         })
 
@@ -148,6 +177,13 @@ export default {
 
         this.nodes = newNodes;
         this.edges = newEdges;
+
+        // 选中的节点高亮
+        var highLightNode = this.nodes.find(node=>node.id == this.nodeId);
+        highLightNode.color = 'orange';
+        var index = this.nodes.findIndex(node => node.id === this.nodeId);
+        this.nodes[index] = highLightNode;
+        console.log(this.nodes)
 
         this.createNetwork()
 
@@ -178,6 +214,13 @@ export default {
       }
       // 初始化你的网络
       this.network = new vis.Network(container, data, options)
+      //
+      // var self = this;
+      //
+      //
+      // this.network.on("afterDrawing",() => {
+      //    self.network.focus(self.nodeId);
+      // });
     },
 
     changeDegree(degree) {
@@ -200,6 +243,35 @@ export default {
         transformedData.push({ key, value: rawData[key] });
       }
       this.tableData = transformedData;
+    },
+
+    // 处理修改属性的按钮
+    updateProp(row) {
+      console.log(row)
+      this.form.nodeId = this.nodeId;
+      this.form.props = [];
+      this.form.props.push({key: row.key, value: row.value})
+      this.open = true;
+    },
+
+    // 处理点击提交按钮
+    submit() {
+      this.open = false;
+      updateNodeDetail(this.form).then(resp=>{
+        this.getNodeDetail(this.nodeId,1);
+      })
+    },
+
+    cancel() {
+      this.open = false;
+      this.form.props = [];
+    },
+
+    // 删除节点
+    deleteNode(){
+      deleteNode(this.nodeId).then(resp=>{
+
+      })
     }
 
 

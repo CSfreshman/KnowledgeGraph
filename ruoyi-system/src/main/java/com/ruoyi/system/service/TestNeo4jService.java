@@ -17,4 +17,6 @@ public interface TestNeo4jService {
     Set<Neo4jEdge> getAllEdge();
 
     Neo4jGraph getNodeDetailByNodeId(GraphReq valueOf);
+
+    Integer updateNodeDetail(GraphReq req);
 }

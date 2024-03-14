@@ -74,6 +74,18 @@
         </el-col>
         <el-col span="17">
           <div id="network"></div>
+          <div v-if="showToolBar" :style="{ left: toolBarPosition.x + 'px', top: toolBarPosition.y + 'px' }" class="graph-menu">
+            <div v-if="selectedNode">
+              <el-row><el-button @click="goNodeDetail" size="mini">查看详情</el-button></el-row>
+              <el-row><el-button @click="" size="mini">删除节点</el-button></el-row>
+              <el-row><el-button @click="" size="mini">添加关系</el-button></el-row>
+            </div>
+
+            <div v-if="selectedEdge">
+              <el-row><el-button @click="" size="mini">查看详情</el-button></el-row>
+              <el-row><el-button @click="" size="mini">删除关系</el-button></el-row>
+            </div>
+          </div>
         </el-col>
       </el-row>
 
@@ -111,8 +123,15 @@ export default {
       ],
 
       selected: false,
+      selectedNode: false,
+      selectedEdge: false,
       totalNodeSize: 0,
-      totalEdgeSize: 0
+      totalEdgeSize: 0,
+
+      // 图谱工具栏相关参数
+      showToolBar: false,
+      // 工具栏坐标
+      toolBarPosition: {x:0,y:0}
     }
   },
   mounted () {
@@ -148,12 +167,17 @@ export default {
 
       this.network.on('click', function (properties) {
 
+        // 单击节点关闭工具栏
+        view.showToolBar = false;
+
         if(properties.nodes.length == 0 && properties.edges.length == 0){
           console.log("点击画布");
           view.selected = false;
         } else if(properties.nodes.length == 0) {
           console.log("点击边");
           view.selected = true;
+          view.selectedEdge = true;
+          view.selectedNode = false;
           let edgeId = properties.edges[0];
           console.log("edgeId:"+edgeId);
           view.chooseEdge = view.edges.find(edge=>edge.id == edgeId)
@@ -163,15 +187,61 @@ export default {
         } else{
           console.log("点击节点");
           view.selected = true;
+          view.selectedEdge = false;
+          view.selectedNode = true;
           let nodeId = properties.nodes[0];
           console.log("nodeId:"+nodeId);
           view.chooseNode = view.nodes.find(node=>node.id == nodeId)
           view.showData = view.nodes.find(node=>node.id == nodeId)
           view.transformData(view.chooseNode,false)
         }
+      });
+
+      this.network.on("doubleClick",(params) => {
+          if(params.nodes.length == 0 && params.edges.length == 0) {
+            console.log("双击画布");
+          }else {
+            view.showToolBar = true;
+            view.selected = true;
+
+            if (params.nodes.length == 0) {
+              // 双击边，显示工具栏
+              console.log("双击边");
+              view.chooseEdge = view.edges.find(node=>edge.id == params.edges[0])
+              view.selectedNode = false;
+              view.selectedEdge = true;
+
+            }else {
+              // 双击节点，显示工具栏
+              console.log("双击节点");
+              view.chooseNode = view.nodes.find(node=>node.id == params.nodes[0])
+              view.selectedNode = true;
+              view.selectedEdge = false;
+            }
+
+            view.toolBarPosition = {
+              x: params.pointer.DOM.x + 300,
+              y: params.pointer.DOM.y
+            }
+          }
+
+
+      });
+
+      // 拖拽画布时隐藏工具栏
+      this.network.on("dragStart",(params)=>{
+        view.showToolBar = false;
       })
 
+      this.network.on("dragging",(params)=>{
+        view.showToolBar = false;
+      })
 
+      this.network.on("dragEnd",(params)=>{
+        view.showToolBar = false;
+      })
+
+      view.showToolBar = false;
     },
 
 
@@ -222,6 +292,21 @@ export default {
         transformedData.push({ key, value: rawData[key] });
       }
       this.tableData = transformedData;
+    },
+
+    // 隐藏工具栏
+    hideToolBar() {
+      this.showToolBar = false;
+    },
+
+    // 前往节点详情页
+    goNodeDetail() {
+      console.log("前往节点详情页：" + this.chooseNode)
+      var data = this.chooseNode;
+      this.$router.push({
+        path: '/nodeDetail',
+        query: {data}
+      })
     }
   }
 
@@ -253,5 +338,14 @@ export default {
  .rounded-tag {
    border-radius: 20px; /* 调整圆角大小 */
    color: #000000;
+ }
+
+ .graph-menu {
+   position: absolute;
+   background-color: #fff;
+   border: 1px solid #ccc;
+   padding: 5px;
+   z-index: 100;
+   cursor: pointer;
  }
 </style>

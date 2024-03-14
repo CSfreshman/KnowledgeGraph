@@ -13,6 +13,8 @@ import org.springframework.data.neo4j.core.Neo4jTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 
@@ -111,5 +113,27 @@ public class TestNeo4jServiceImpl implements TestNeo4jService {
         Neo4jGraph graph = Neo4jGraph.parse1(result);
 
         return graph;
+    }
+
+    @Override
+    public Integer updateNodeDetail(GraphReq req) {
+        String cypher = "MATCH (n) WHERE id(n) = " + req.getNodeId() + " SET ";
+        StringBuilder paramsStr = new StringBuilder();
+        for (Map.Entry<String, Object> entry : req.getProps().entrySet()) {
+            paramsStr.append("n.");
+            paramsStr.append(entry.getKey());
+            paramsStr.append(" = ");
+            paramsStr.append(entry.getValue());
+            paramsStr.append(",");
+        }
+        if(paramsStr.length() > 0){
+            paramsStr.deleteCharAt(paramsStr.length() - 1);
+        }
+        cypher+=paramsStr;
+        System.out.println(cypher);
+        Session session = driver.session();
+        Result result = session.run(cypher);
+
+        return 0;
     }
 }
