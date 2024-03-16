@@ -21,11 +21,11 @@
                 <el-table-column key="name" prop="name"></el-table-column>
               </el-table>
               <pagination
-                v-show="total>0"
-                :total="total"
+                v-show="totalClass>0"
+                :total="totalClass"
                 :page.sync="queryParamsClass.pageNum"
                 :limit.sync="queryParamsClass.pageSize"
-                @pagination="getList"
+                @pagination="getNodeClassList"
               />
 
             </el-card>
@@ -50,15 +50,16 @@
                       @row-click="changeSelectedNode"
                     >
                       <el-table-column
-                        prop="name"
-                        label="名称"
-                        width="120"
+                        prop="label"
+                        label="label"
+                        width="200"
                         align="center">
                       </el-table-column>
 
                       <el-table-column
-                        prop="props"
-                        label="属性"
+                        prop="name"
+                        label="名称"
+                        width="200"
                         align="center">
                       </el-table-column>
 
@@ -68,7 +69,7 @@
                         width="100"
                         align="center">
                         <template slot-scope="scope">
-                          <el-button @click="handleClick(scope.row)" type="text" size="small">查看</el-button>
+                          <el-button @click="gotoDetail(scope.row)" type="text" size="small">查看</el-button>
                           <el-button type="text" size="small">编辑</el-button>
                         </template>
                       </el-table-column>
@@ -80,7 +81,7 @@
                       :total="total"
                       :page.sync="queryParams.pageNum"
                       :limit.sync="queryParams.pageSize"
-                      @pagination="getList"
+                      @pagination="getNodeInstanceList"
                     />
 
                   </div>
@@ -169,7 +170,7 @@
 
 import { listClass, getClass, delClass, addClass, updateClass } from "@/api/mange/class/node";
 import {delNodeProperties, listNodeProperties, updateNodeProperties, addNodeProperties} from "@/api/mange/class/nodeProperties"
-import {addNode} from "@/api/mange/instance/node"
+import {addNode,listNode} from "@/api/mange/instance/node"
 export default {
   name: "node",
   data() {
@@ -178,23 +179,26 @@ export default {
       queryParamsClass: {
         valid: '',
         pageNum: 1,
-        pageSize: 10,
+        pageSize: 5,
         name: ''
       },
       // 实体实例查询参数
       queryParams: {
         pageNum: 1,
-        pageSize: 10
+        pageSize: 5,
+        valid: 1,
+        classId: ''
       },
       nodeClassList: '',
       nodeClassPropsList: '',
-      totalClass: 3,
+      totalClass: 0,
+      total: 0,
       loading: true,
 
       nodeList: [
-        {id:1,name:"心理因素",props:{test:"test",test1:"test1"}},
-        {id:2,name:"社会因素",props:{test:"test",test1:"test1"}},
-        {id:3,name:"其他因素",props:{test:"test",test1:"test1"}}
+        // {id:1,name:"心理因素",props:{test:"test",test1:"test1"}},
+        // {id:2,name:"社会因素",props:{test:"test",test1:"test1"}},
+        // {id:3,name:"其他因素",props:{test:"test",test1:"test1"}}
       ],
       selectedNode: '',
       selectedNodeClass: '',
@@ -230,9 +234,18 @@ export default {
       });
     },
 
+    getNodeInstanceList() {
+      this.queryParams.valid = 1;
+      this.queryParams.classId = this.selectedNodeClass.id;
+      listNode(this.queryParams).then(resp=>{
+        this.nodeList = resp.rows
+        this.total = resp.total
+      })
+    },
+
     changeSelectedNode(row) {
       this.selectedNode = row;
-      this.selectedNode.label = this.selectedNodeClass.label
+      this.selectedNode.label = row.label
       this.transformData(this.selectedNode,false)
     },
 
@@ -240,6 +253,7 @@ export default {
     changeSelectedNodeClass(row) {
       this.selectedNodeClass = row;
       console.log(row)
+      this.getNodeInstanceList()
     },
 
     resetForm() {
@@ -288,11 +302,23 @@ export default {
       this.open = false;
     },
 
+    // 点击表格的查看按钮
+    gotoDetail(row) {
+      // 页面路由传递的id只需要有neo4jId即可
+      var data = {id:row.neo4jId};
+
+      this.$router.push({
+        path: '/nodeDetail',
+        query: {data}
+      })
+    },
+
     // 对一条数据进行格式转换，方便在
     transformData(data,isEdge) {
-      let rawData = data.props;
+      let rawData = data.propsList;
       const transformedData = [];
       transformedData.push({key: 'id', value: data.id})
+      transformedData.push({key: 'neo4j_id', value: data.neo4jId})
       transformedData.push({ key: 'label', value: data.label});
       if(isEdge){
         transformedData.push({key: 'fromId', value: data.from})
@@ -301,7 +327,7 @@ export default {
         transformedData.push({key: 'toName', value: this.nodes.find(node=>node.id == data.to).label})
       }
       for (const key in rawData) {
-        transformedData.push({ key, value: rawData[key] });
+        transformedData.push({ key:rawData[key].name, value: rawData[key].value });
       }
       this.propList = transformedData;
     }

@@ -8,6 +8,8 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
 
+import java.util.List;
+
 /**
  * 【请填写功能名称】对象 kg_node_instance
  *
@@ -46,6 +48,8 @@ public class KgNodeInstance extends BaseEntity
     /** 是否有效，1有效，0无效 */
     @Excel(name = "是否有效，1有效，0无效")
     private Long valid;
+
+    private List<KgNodeInstanceProperties> propsList;
 
     public void setId(Long id)
     {

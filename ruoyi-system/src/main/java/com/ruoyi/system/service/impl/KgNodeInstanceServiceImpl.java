@@ -7,6 +7,8 @@ import cn.hutool.core.util.ObjectUtil;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.utils.ServletUtils;
+import com.ruoyi.system.domain.KgNodeInstanceProperties;
+import com.ruoyi.system.mapper.KgNodeInstancePropertiesMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.ruoyi.system.mapper.KgNodeInstanceMapper;
@@ -24,7 +26,8 @@ public class KgNodeInstanceServiceImpl implements IKgNodeInstanceService
 {
     @Autowired
     private KgNodeInstanceMapper kgNodeInstanceMapper;
-
+    @Autowired
+    private KgNodeInstancePropertiesMapper kgNodeInstancePropertiesMapper;
     /**
      * 查询【请填写功能名称】
      *
@@ -46,7 +49,14 @@ public class KgNodeInstanceServiceImpl implements IKgNodeInstanceService
     @Override
     public List<KgNodeInstance> selectKgNodeInstanceList(KgNodeInstance kgNodeInstance)
     {
-        return kgNodeInstanceMapper.selectKgNodeInstanceList(kgNodeInstance);
+        List<KgNodeInstance> kgNodeInstances = kgNodeInstanceMapper.selectKgNodeInstanceList(kgNodeInstance);
+        for (KgNodeInstance instance : kgNodeInstances) {
+            KgNodeInstanceProperties prop = new KgNodeInstanceProperties();
+            prop.setNodeId(instance.getId());
+            prop.setValid(1L);
+            instance.setPropsList(kgNodeInstancePropertiesMapper.selectKgNodeInstancePropertiesList(prop));
+        }
+        return kgNodeInstances;
     }
 
     /**

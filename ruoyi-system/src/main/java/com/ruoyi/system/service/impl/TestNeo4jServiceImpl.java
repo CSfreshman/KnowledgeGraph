@@ -1,5 +1,6 @@
 package com.ruoyi.system.service.impl;
 
+import cn.hutool.core.util.ObjectUtil;
 import com.ruoyi.system.req.GraphReq;
 import com.ruoyi.system.service.TestNeo4jService;
 import com.ruoyi.system.utils.neo4j.Neo4jEdge;
@@ -102,17 +103,16 @@ public class TestNeo4jServiceImpl implements TestNeo4jService {
                 "UNWIND centerNodes AS centerNode " +
                 "MATCH network = (centerNode)-[*.."+req.getDegree()+"]-(related) " +
                 "RETURN nodes(network) AS nodes, relationships(network) AS relationships";
+        System.out.println(cypher);
         Session session = driver.session();
         Result result = null;
-        try{
-            result = session.run(cypher);
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-
-
+        result = session.run(cypher);
         Neo4jGraph graph = Neo4jGraph.parse1(result);
-
+        if(ObjectUtil.isEmpty(graph.getNodes()) && ObjectUtil.isEmpty(graph.getEdges())){
+            String cypher2 = "MATCH (n) WHERE id(n) = " + req.getNodeId() + " RETURN n";
+            result = session.run(cypher2);
+            graph = Neo4jGraph.parse(result);
+        }
         return graph;
     }
 
