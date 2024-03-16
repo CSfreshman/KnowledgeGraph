@@ -19,4 +19,7 @@ public interface TestNeo4jService {
     Neo4jGraph getNodeDetailByNodeId(GraphReq valueOf);
 
     Integer updateNodeDetail(GraphReq req);
+
+    // 插入一个节点到neo4j中
+    Neo4jNode insertNodeToNeo4j(Neo4jNode node);
 }

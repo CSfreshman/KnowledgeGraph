@@ -124,7 +124,7 @@
     <el-dialog :title="titleProperties" :visible.sync="openProperties" width="500px" append-to-body>
       <el-form ref="form" :model="formProperties" :rules="rulesProperties" label-width="80px">
         <el-form-item label="属性名" prop="name">
-          <el-input v-model="formProperties.name" placeholder="请输入属性名" />
+          <el-input v-model="formProperties.name" placeholder="请输入属性名(不能以数字开头)" />
         </el-form-item>
         <el-form-item label="属性类型" prop="type">
           <el-select v-model="formProperties.type" placeholder="请选择">

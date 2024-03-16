@@ -2,6 +2,7 @@ package com.ruoyi.system.domain;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+import lombok.Data;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.ruoyi.common.annotation.Excel;
@@ -13,6 +14,7 @@ import com.ruoyi.common.core.domain.BaseEntity;
  * @author ruoyi
  * @date 2024-03-16
  */
+@Data
 public class KgNodeInstance extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
@@ -25,6 +27,9 @@ public class KgNodeInstance extends BaseEntity
     @Excel(name = "类型id")
     @JsonSerialize(using = ToStringSerializer.class)
     private Long classId;
+
+    @JsonSerialize(using = ToStringSerializer.class)
+    private Long neo4jId;
 
     /** 类型名称 */
     @Excel(name = "类型名称")

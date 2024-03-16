@@ -1,13 +1,13 @@
 package com.ruoyi.web.controller.manage;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import javax.servlet.http.HttpServletResponse;
 
 import cn.hutool.core.util.IdUtil;
 import com.ruoyi.system.domain.KgNodeInstanceProperties;
 import com.ruoyi.system.service.IKgNodeInstancePropertiesService;
+import com.ruoyi.system.service.TestNeo4jService;
+import com.ruoyi.system.utils.neo4j.Neo4jNode;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -42,6 +42,9 @@ public class KgNodeInstanceController extends BaseController
 
     @Autowired
     private IKgNodeInstancePropertiesService kgNodeInstancePropertiesService;
+
+    @Autowired
+    private TestNeo4jService neo4jService;
 
     /**
      * 查询【请填写功能名称】列表
@@ -87,7 +90,7 @@ public class KgNodeInstanceController extends BaseController
         System.out.println(req);
         KgNodeInstance instance = new KgNodeInstance();
 
-
+        // 构造实体实例数据
         instance.setLabel((String)req.get("label"));
         instance.setName((String)req.get("name"));
         instance.setClassId(Long.valueOf((String)req.get("classId")));
@@ -95,6 +98,10 @@ public class KgNodeInstanceController extends BaseController
         List props = (List)req.get("props");
         List<KgNodeInstanceProperties> propertiesList = new ArrayList<>();
         int count2 = 0;
+
+        Map<String,Object> nodePropsMap = new HashMap<>();
+
+        // 构造实体实例属性数据，并进行保存
         for (Object prop : props) {
             KgNodeInstanceProperties properties = new KgNodeInstanceProperties();
             properties.setId(IdUtil.getSnowflakeNextId());
@@ -103,10 +110,21 @@ public class KgNodeInstanceController extends BaseController
             Map map = (Map)prop;
             properties.setName((String)map.get("key"));
             properties.setValue((String)map.get("value"));
+            nodePropsMap.put((String)map.get("key"),map.get("value"));
             count2+=kgNodeInstancePropertiesService.insertKgNodeInstanceProperties(properties);
         }
 
+        // 构造neo4j节点数据并执行插入动作
+        Neo4jNode node = new Neo4jNode();
+        node.setId(instance.getId());   // 这行没用，没法指定neo4j的id
+        node.setLabel(instance.getName());  // 注意：这里label本意为name
+        node.setLabels(Collections.singletonList(instance.getLabel()));
+        nodePropsMap.put("name",instance.getName());
+        node.setProps(nodePropsMap);
+        Neo4jNode neo4jNode = neo4jService.insertNodeToNeo4j(node);
+        System.out.println(neo4jNode);
 
+        instance.setNeo4jId(Long.valueOf(neo4jNode.getId().toString()));
         int count1 = kgNodeInstanceService.insertKgNodeInstance(instance);
 
         return toAjax(count1 + count2);

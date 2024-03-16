@@ -75,6 +75,7 @@ public class TestNeo4jServiceImpl implements TestNeo4jService {
         Result result = session.run(cypher);
         Neo4jGraph graph = Neo4jGraph.parse(result);
         Set<Neo4jNode> nodes = graph.getNodes();
+        System.out.println(nodes);
         return nodes;
     }
 
@@ -135,5 +136,34 @@ public class TestNeo4jServiceImpl implements TestNeo4jService {
         Result result = session.run(cypher);
 
         return 0;
+    }
+
+
+
+
+    @Override
+    public Neo4jNode insertNodeToNeo4j(Neo4jNode node) {
+        Session session = driver.session();
+        String query = "CREATE (n:" + node.getLabels().get(0) + " {";
+        StringBuilder builder = new StringBuilder();
+        // 构造Cypher语句
+        for (Map.Entry<String, Object> entry : node.getProps().entrySet()) {
+         builder.append(entry.getKey() + ": ");
+         builder.append("'" + entry.getValue() + "'");
+         builder.append(",");
+        }
+
+        // 移除最后一个逗号
+        if(builder.length() > 0){
+            builder.deleteCharAt(builder.length() - 1);
+        }
+        builder.append("}) RETURN n");
+        query+=builder;
+
+        System.out.println("Cypher   "+query);
+        Result result = session.run(query);
+        System.out.println("插入完成");
+
+        return Neo4jGraph.parse(result).getNodes().toArray(new Neo4jNode[1])[0];
     }
 }

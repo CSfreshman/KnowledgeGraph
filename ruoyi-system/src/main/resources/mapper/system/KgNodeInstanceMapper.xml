@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
-PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.system.mapper.KgNodeInstanceMapper">
-    
+
     <resultMap type="KgNodeInstance" id="KgNodeInstanceResult">
         <result property="id"    column="id"    />
         <result property="classId"    column="class_id"    />
@@ -12,28 +12,30 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="createTime"    column="create_time"    />
         <result property="createUser"    column="create_user"    />
         <result property="valid"    column="valid"    />
+        <result property="neo4jId"    column="neo4j_id"    />
     </resultMap>
 
     <sql id="selectKgNodeInstanceVo">
-        select id, class_id, label, name, create_time, create_user, valid from kg_node_instance
+        select id, class_id, label, name, create_time, create_user, valid, neo4j_id from kg_node_instance
     </sql>
 
     <select id="selectKgNodeInstanceList" parameterType="KgNodeInstance" resultMap="KgNodeInstanceResult">
         <include refid="selectKgNodeInstanceVo"/>
-        <where>  
+        <where>
             <if test="classId != null "> and class_id = #{classId}</if>
             <if test="label != null  and label != ''"> and label = #{label}</if>
             <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
             <if test="createUser != null "> and create_user = #{createUser}</if>
             <if test="valid != null "> and valid = #{valid}</if>
+            <if test="neo4jId != null "> and neo4j_id = #{neo4jId}</if>
         </where>
     </select>
-    
+
     <select id="selectKgNodeInstanceById" parameterType="Long" resultMap="KgNodeInstanceResult">
         <include refid="selectKgNodeInstanceVo"/>
         where id = #{id}
     </select>
-        
+
     <insert id="insertKgNodeInstance" parameterType="KgNodeInstance">
         insert into kg_node_instance
         <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -44,7 +46,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="createTime != null">create_time,</if>
             <if test="createUser != null">create_user,</if>
             <if test="valid != null">valid,</if>
-         </trim>
+            <if test="neo4jId != null">neo4j_id,</if>
+        </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="id != null">#{id},</if>
             <if test="classId != null">#{classId},</if>
@@ -53,7 +56,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="createTime != null">#{createTime},</if>
             <if test="createUser != null">#{createUser},</if>
             <if test="valid != null">#{valid},</if>
-         </trim>
+            <if test="neo4jId != null">#{neo4jId},</if>
+        </trim>
     </insert>
 
     <update id="updateKgNodeInstance" parameterType="KgNodeInstance">
@@ -65,6 +69,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="createTime != null">create_time = #{createTime},</if>
             <if test="createUser != null">create_user = #{createUser},</if>
             <if test="valid != null">valid = #{valid},</if>
+            <if test="neo4jId != null">neo4j_id = #{neo4jId},</if>
         </trim>
         where id = #{id}
     </update>
@@ -74,7 +79,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </delete>
 
     <delete id="deleteKgNodeInstanceByIds" parameterType="String">
-        delete from kg_node_instance where id in 
+        delete from kg_node_instance where id in
         <foreach item="id" collection="array" open="(" separator="," close=")">
             #{id}
         </foreach>
