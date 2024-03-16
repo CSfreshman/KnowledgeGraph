@@ -1,7 +1,7 @@
 import request from '@/utils/request'
 
 // 查询【请填写功能名称】列表
-export function listClass(query) {
+export function listNode(query) {
   return request({
     url: '/mange/instance/node/list',
     method: 'get',
@@ -10,7 +10,7 @@ export function listClass(query) {
 }
 
 // 查询【请填写功能名称】详细
-export function getClass(id) {
+export function getNode(id) {
   return request({
     url: '/mange/instance/node/' + id,
     method: 'get'
@@ -18,7 +18,7 @@ export function getClass(id) {
 }
 
 // 新增【请填写功能名称】
-export function addClass(data) {
+export function addNode(data) {
   return request({
     url: '/mange/instance/node',
     method: 'post',
@@ -27,7 +27,7 @@ export function addClass(data) {
 }
 
 // 修改【请填写功能名称】
-export function updateClass(data) {
+export function updateNode(data) {
   return request({
     url: '/mange/instance/node',
     method: 'put',
@@ -36,7 +36,7 @@ export function updateClass(data) {
 }
 
 // 删除【请填写功能名称】
-export function delClass(id) {
+export function delNode(id) {
   return request({
     url: '/mange/instance/node/' + id,
     method: 'delete'

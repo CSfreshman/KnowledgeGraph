@@ -9,7 +9,7 @@
                 <el-form-item :inline="true">
                   <el-input
                     placeholder="请输出实体类型名称"
-                    v-model="queryParams.name">
+                    v-model="queryParamsClass.name">
                     <template #suffix>
                       <el-button style="border: none" icon="el-icon-search" size="small" @click="handleQuery"></el-button>
                     </template>
@@ -18,13 +18,13 @@
               </el-form>
 
               <el-table v-loading="loading" :data="nodeClassList" :show-header="false" @row-click="changeSelectedNodeClass">
-                <el-table-column key="label" prop="label"></el-table-column>
+                <el-table-column key="name" prop="name"></el-table-column>
               </el-table>
               <pagination
                 v-show="total>0"
                 :total="total"
-                :page.sync="queryParams.pageNum"
-                :limit.sync="queryParams.pageSize"
+                :page.sync="queryParamsClass.pageNum"
+                :limit.sync="queryParamsClass.pageSize"
                 @pagination="getList"
               />
 
@@ -35,7 +35,7 @@
           <div id="right-container">
             <div id="right-head">
 
-              <el-button>新建实体</el-button>
+              <el-button @click="addNode">新建实体</el-button>
               <el-button>图谱展示</el-button>
               <el-button>表格展示</el-button>
             </div>
@@ -140,18 +140,57 @@
         </el-col>
       </el-row>
     </el-card>
+
+    <el-dialog :title="title" :visible.sync="open" width="500px">
+      <el-form :model="form">
+        <el-form-item label="name" label-width="100">
+          <el-input v-model="form.name"></el-input>
+        </el-form-item>
+        <div v-for="(prop, index) in form.props" :key="index">
+          <el-row><el-col>
+            <el-form-item :label="prop.key" label-width="100">
+              <el-input v-model="prop.value"></el-input>
+            </el-form-item>
+          </el-col></el-row>
+
+        </div>
+      </el-form>
+
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="submit">确 定</el-button>
+        <el-button @click="cancel">取 消</el-button>
+      </div>
+    </el-dialog>
+
   </div>
 </template>
 
 <script>
+
+import { listClass, getClass, delClass, addClass, updateClass } from "@/api/mange/class/node";
+import {delNodeProperties, listNodeProperties, updateNodeProperties, addNodeProperties} from "@/api/mange/class/nodeProperties"
+import {addNode} from "@/api/mange/instance/node"
 export default {
   name: "node",
   data() {
     return {
-      queryParams: '',
-      nodeClassList: [
-        {id:1,label:"病因"}
-      ],
+      // 实体类型查询参数
+      queryParamsClass: {
+        valid: '',
+        pageNum: 1,
+        pageSize: 10,
+        name: ''
+      },
+      // 实体实例查询参数
+      queryParams: {
+        pageNum: 1,
+        pageSize: 10
+      },
+      nodeClassList: '',
+      nodeClassPropsList: '',
+      totalClass: 3,
+      loading: true,
+
       nodeList: [
         {id:1,name:"心理因素",props:{test:"test",test1:"test1"}},
         {id:2,name:"社会因素",props:{test:"test",test1:"test1"}},
@@ -160,22 +199,93 @@ export default {
       selectedNode: '',
       selectedNodeClass: '',
       propList: '',
-      total: 3
 
+
+      // 是否打开对话框
+      open: false,
+      title: '',
+
+      form: {
+        classId: '',
+        label: '',
+        name: '',
+        props: []
+      }
     }
   },
 
   mounted() {
-
+    this.getNodeClassList();
   },
   methods: {
+    // 查询实体类型列表
+    getNodeClassList() {
+      this.loading = true;
+      this.queryParamsClass.valid = 1;
+      listClass(this.queryParamsClass).then(response => {
+        this.nodeClassList = response.rows;
+        this.totalClass = response.total;
+        this.loading = false;
+
+      });
+    },
+
     changeSelectedNode(row) {
       this.selectedNode = row;
       this.selectedNode.label = this.selectedNodeClass.label
       this.transformData(this.selectedNode,false)
     },
+
+
     changeSelectedNodeClass(row) {
       this.selectedNodeClass = row;
+      console.log(row)
+    },
+
+    resetForm() {
+      this.form.classId = '';
+      this.form.label = '';
+      this.form.name = '';
+      this.form.props = [];
+    },
+
+    // 新建一个实体
+    addNode() {
+      this.open = true;
+      this.title = "新建实体-------" + this.selectedNodeClass.name;
+      this.resetForm();
+      // 查询该实体类型所有的属性
+      var nodeClassPropQueryParams = {
+        nodeId: this.selectedNodeClass.id,
+        valid: 1
+      };
+      listNodeProperties(nodeClassPropQueryParams).then(resp=>{
+        this.nodeClassPropsList = resp.rows;
+        console.log(this.nodeClassPropsList)
+
+        // 填充form表单
+        this.form.label = this.selectedNodeClass.name;
+        this.form.classId = this.selectedNodeClass.id;
+
+        //this.form.props.push({key:"name",value: ''})
+
+        this.nodeClassPropsList.forEach(it=>{
+          this.form.props.push({key:it.name,value: ''})
+        })
+
+        console.log(this.form)
+      })
+    },
+
+    submit() {
+      this.open = false;
+      addNode(this.form).then(resp=>{
+
+      })
+    },
+
+    cancel() {
+      this.open = false;
     },
 
     // 对一条数据进行格式转换，方便在

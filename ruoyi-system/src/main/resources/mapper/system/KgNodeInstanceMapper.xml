@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.KgNodeInstanceMapper">
+    
+    <resultMap type="KgNodeInstance" id="KgNodeInstanceResult">
+        <result property="id"    column="id"    />
+        <result property="classId"    column="class_id"    />
+        <result property="label"    column="label"    />
+        <result property="name"    column="name"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="createUser"    column="create_user"    />
+        <result property="valid"    column="valid"    />
+    </resultMap>
+
+    <sql id="selectKgNodeInstanceVo">
+        select id, class_id, label, name, create_time, create_user, valid from kg_node_instance
+    </sql>
+
+    <select id="selectKgNodeInstanceList" parameterType="KgNodeInstance" resultMap="KgNodeInstanceResult">
+        <include refid="selectKgNodeInstanceVo"/>
+        <where>  
+            <if test="classId != null "> and class_id = #{classId}</if>
+            <if test="label != null  and label != ''"> and label = #{label}</if>
+            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+            <if test="createUser != null "> and create_user = #{createUser}</if>
+            <if test="valid != null "> and valid = #{valid}</if>
+        </where>
+    </select>
+    
+    <select id="selectKgNodeInstanceById" parameterType="Long" resultMap="KgNodeInstanceResult">
+        <include refid="selectKgNodeInstanceVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertKgNodeInstance" parameterType="KgNodeInstance">
+        insert into kg_node_instance
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="classId != null">class_id,</if>
+            <if test="label != null">label,</if>
+            <if test="name != null">name,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="createUser != null">create_user,</if>
+            <if test="valid != null">valid,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="classId != null">#{classId},</if>
+            <if test="label != null">#{label},</if>
+            <if test="name != null">#{name},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="createUser != null">#{createUser},</if>
+            <if test="valid != null">#{valid},</if>
+         </trim>
+    </insert>
+
+    <update id="updateKgNodeInstance" parameterType="KgNodeInstance">
+        update kg_node_instance
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="classId != null">class_id = #{classId},</if>
+            <if test="label != null">label = #{label},</if>
+            <if test="name != null">name = #{name},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="createUser != null">create_user = #{createUser},</if>
+            <if test="valid != null">valid = #{valid},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteKgNodeInstanceById" parameterType="Long">
+        delete from kg_node_instance where id = #{id}
+    </delete>
+
+    <delete id="deleteKgNodeInstanceByIds" parameterType="String">
+        delete from kg_node_instance where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>
