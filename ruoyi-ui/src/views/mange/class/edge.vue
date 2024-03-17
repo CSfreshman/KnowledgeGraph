@@ -224,7 +224,7 @@ export default {
         fromNodeId: null,
         toNodeId: null,
         createUser: null,
-        valid: null
+        valid: 1
       },
       edgePropertiesQueryParams: {
         pageNum: 1,
@@ -398,6 +398,7 @@ export default {
               this.getList();
             });
           } else {
+            this.form.valid = 1;
             addClass(this.form).then(response => {
               this.$modal.msgSuccess("新增成功");
               this.open = false;

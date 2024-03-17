@@ -1,5 +1,6 @@
 package com.ruoyi.system.service;
 
+import com.ruoyi.system.domain.KgEdgeInstance;
 import com.ruoyi.system.req.GraphReq;
 import com.ruoyi.system.utils.neo4j.Neo4jEdge;
 import com.ruoyi.system.utils.neo4j.Neo4jGraph;
@@ -22,4 +23,6 @@ public interface TestNeo4jService {
 
     // 插入一个节点到neo4j中
     Neo4jNode insertNodeToNeo4j(Neo4jNode node);
+
+    Neo4jGraph getEdgeInstanceGraph(KgEdgeInstance instance);
 }

@@ -3,6 +3,7 @@ package com.ruoyi.web.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ruoyi.common.core.domain.AjaxResult;
+import com.ruoyi.system.domain.KgEdgeInstance;
 import com.ruoyi.system.service.TestNeo4jService;
 import com.ruoyi.system.utils.neo4j.Neo4jGraph;
 import com.ruoyi.system.req.GraphReq;
@@ -54,5 +55,11 @@ public class GraphController {
     public AjaxResult updateNodeDetail(@RequestBody GraphReq req){
         System.out.println(req);
         return AjaxResult.success();
+    }
+
+    @PostMapping("/getEdgeInstanceGraph")
+    public Neo4jGraph getEdgeInstanceGraph(@RequestBody KgEdgeInstance instance){
+        System.out.println("getEdgeInstanceGraph:params:" + instance);
+        return testNeo4jService.getEdgeInstanceGraph(instance);
     }
 }

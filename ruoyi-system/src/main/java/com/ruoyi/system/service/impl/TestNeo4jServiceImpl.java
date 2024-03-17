@@ -1,6 +1,7 @@
 package com.ruoyi.system.service.impl;
 
 import cn.hutool.core.util.ObjectUtil;
+import com.ruoyi.system.domain.KgEdgeInstance;
 import com.ruoyi.system.req.GraphReq;
 import com.ruoyi.system.service.TestNeo4jService;
 import com.ruoyi.system.utils.neo4j.Neo4jEdge;
@@ -165,5 +166,16 @@ public class TestNeo4jServiceImpl implements TestNeo4jService {
         System.out.println("插入完成");
 
         return Neo4jGraph.parse(result).getNodes().toArray(new Neo4jNode[1])[0];
+    }
+
+    @Override
+    public Neo4jGraph getEdgeInstanceGraph(KgEdgeInstance instance) {
+        String cypher = "MATCH p=()-[r:`"+instance.getLabel()+"`]->() RETURN p";
+        System.out.println("getEdgeInstanceGraph:查询neo4j:cypher:" + cypher);
+        Session session = driver.session();
+        Result res = session.run(cypher);
+        Neo4jGraph resGraph = Neo4jGraph.parse(res);
+
+        return resGraph;
     }
 }
