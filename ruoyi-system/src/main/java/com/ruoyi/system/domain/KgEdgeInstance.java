@@ -2,6 +2,7 @@ package com.ruoyi.system.domain;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+import lombok.Data;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.ruoyi.common.annotation.Excel;
@@ -13,6 +14,7 @@ import com.ruoyi.common.core.domain.BaseEntity;
  * @author ruoyi
  * @date 2024-03-17
  */
+@Data
 public class KgEdgeInstance extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
@@ -40,10 +42,16 @@ public class KgEdgeInstance extends BaseEntity
     @JsonSerialize(using = ToStringSerializer.class)
     private Long fromNodeId;
 
+    @JsonSerialize(using = ToStringSerializer.class)
+    private Long fromNodeNeo4jId;
+
     /** 重点节点id */
     @Excel(name = "重点节点id")
     @JsonSerialize(using = ToStringSerializer.class)
     private Long toNodeId;
+
+    @JsonSerialize(using = ToStringSerializer.class)
+    private Long toNodeNeo4jId;
 
     /** 是否有效，1有效，0无效 */
     @Excel(name = "是否有效，1有效，0无效")
@@ -52,6 +60,8 @@ public class KgEdgeInstance extends BaseEntity
     /** 创建人id */
     @Excel(name = "创建人id")
     private Long createUser;
+
+    
 
     public void setId(Long id)
     {
@@ -126,18 +136,4 @@ public class KgEdgeInstance extends BaseEntity
         return createUser;
     }
 
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-            .append("id", getId())
-            .append("classId", getClassId())
-            .append("neo4jId", getNeo4jId())
-            .append("label", getLabel())
-            .append("fromNodeId", getFromNodeId())
-            .append("toNodeId", getToNodeId())
-            .append("valid", getValid())
-            .append("createTime", getCreateTime())
-            .append("createUser", getCreateUser())
-            .toString();
-    }
 }

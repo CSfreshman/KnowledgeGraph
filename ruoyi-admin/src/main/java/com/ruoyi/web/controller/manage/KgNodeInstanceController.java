@@ -58,6 +58,19 @@ public class KgNodeInstanceController extends BaseController
         return getDataTable(list);
     }
 
+    @PostMapping("/getAllByClassId")
+    public List<KgNodeInstance> getAllByClassId(@RequestBody Map<String,String> req)
+    {
+        System.out.println("getAllByClassId:请求参数:" + req);
+        // 根据classId查询
+        KgNodeInstance kgNodeInstance = new KgNodeInstance();
+        kgNodeInstance.setClassId(Long.valueOf((String) req.get("nodeClassId")));
+        // 查询有效的
+        kgNodeInstance.setValid(1L);
+        List<KgNodeInstance> list = kgNodeInstanceService.selectKgNodeInstanceList(kgNodeInstance);
+        return list;
+    }
+
     /**
      * 导出【请填写功能名称】列表
      */

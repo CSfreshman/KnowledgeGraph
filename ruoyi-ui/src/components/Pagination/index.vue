@@ -111,4 +111,8 @@ export default {
 .pagination-container.hidden {
   display: none;
 }
+
+.pagination {
+  font-size: 6px;
+}
 </style>

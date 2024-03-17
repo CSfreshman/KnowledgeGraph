@@ -9,6 +9,16 @@ export function listNode(query) {
   })
 }
 
+export function getAllByClassId(query) {
+  return request({
+    url: '/mange/instance/node/getAllByClassId',
+    method: 'post',
+    data: query
+  })
+}
+
+
+
 // 查询【请填写功能名称】详细
 export function getNode(id) {
   return request({

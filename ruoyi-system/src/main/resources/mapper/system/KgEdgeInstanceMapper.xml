@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.KgEdgeInstanceMapper">
+    
+    <resultMap type="KgEdgeInstance" id="KgEdgeInstanceResult">
+        <result property="id"    column="id"    />
+        <result property="classId"    column="class_id"    />
+        <result property="neo4jId"    column="neo4j_id"    />
+        <result property="label"    column="label"    />
+        <result property="fromNodeId"    column="from_node_id"    />
+        <result property="toNodeId"    column="to_node_id"    />
+        <result property="valid"    column="valid"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="createUser"    column="create_user"    />
+        <result property="fromNodeNeo4jId"    column="from_node_neo4j_id"    />
+        <result property="toNodeNeo4jId"    column="to_node_neo4j_id"    />
+    </resultMap>
+
+    <sql id="selectKgEdgeInstanceVo">
+        select id, class_id, neo4j_id, label, from_node_id, to_node_id, valid, create_time, create_user, from_node_neo4j_id, to_node_neo4j_id from kg_edge_instance
+    </sql>
+
+    <select id="selectKgEdgeInstanceList" parameterType="KgEdgeInstance" resultMap="KgEdgeInstanceResult">
+        <include refid="selectKgEdgeInstanceVo"/>
+        <where>  
+            <if test="classId != null "> and class_id = #{classId}</if>
+            <if test="neo4jId != null "> and neo4j_id = #{neo4jId}</if>
+            <if test="label != null  and label != ''"> and label = #{label}</if>
+            <if test="fromNodeId != null "> and from_node_id = #{fromNodeId}</if>
+            <if test="toNodeId != null "> and to_node_id = #{toNodeId}</if>
+            <if test="valid != null "> and valid = #{valid}</if>
+            <if test="createUser != null "> and create_user = #{createUser}</if>
+            <if test="fromNodeNeo4jId != null "> and from_node_neo4j_id = #{fromNodeNeo4jId}</if>
+            <if test="toNodeNeo4jId != null "> and to_node_neo4j_id = #{toNodeNeo4jId}</if>
+        </where>
+    </select>
+    
+    <select id="selectKgEdgeInstanceById" parameterType="Long" resultMap="KgEdgeInstanceResult">
+        <include refid="selectKgEdgeInstanceVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertKgEdgeInstance" parameterType="KgEdgeInstance">
+        insert into kg_edge_instance
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="classId != null">class_id,</if>
+            <if test="neo4jId != null">neo4j_id,</if>
+            <if test="label != null">label,</if>
+            <if test="fromNodeId != null">from_node_id,</if>
+            <if test="toNodeId != null">to_node_id,</if>
+            <if test="valid != null">valid,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="createUser != null">create_user,</if>
+            <if test="fromNodeNeo4jId != null">from_node_neo4j_id,</if>
+            <if test="toNodeNeo4jId != null">to_node_neo4j_id,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="classId != null">#{classId},</if>
+            <if test="neo4jId != null">#{neo4jId},</if>
+            <if test="label != null">#{label},</if>
+            <if test="fromNodeId != null">#{fromNodeId},</if>
+            <if test="toNodeId != null">#{toNodeId},</if>
+            <if test="valid != null">#{valid},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="createUser != null">#{createUser},</if>
+            <if test="fromNodeNeo4jId != null">#{fromNodeNeo4jId},</if>
+            <if test="toNodeNeo4jId != null">#{toNodeNeo4jId},</if>
+         </trim>
+    </insert>
+
+    <update id="updateKgEdgeInstance" parameterType="KgEdgeInstance">
+        update kg_edge_instance
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="classId != null">class_id = #{classId},</if>
+            <if test="neo4jId != null">neo4j_id = #{neo4jId},</if>
+            <if test="label != null">label = #{label},</if>
+            <if test="fromNodeId != null">from_node_id = #{fromNodeId},</if>
+            <if test="toNodeId != null">to_node_id = #{toNodeId},</if>
+            <if test="valid != null">valid = #{valid},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="createUser != null">create_user = #{createUser},</if>
+            <if test="fromNodeNeo4jId != null">from_node_neo4j_id = #{fromNodeNeo4jId},</if>
+            <if test="toNodeNeo4jId != null">to_node_neo4j_id = #{toNodeNeo4jId},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteKgEdgeInstanceById" parameterType="Long">
+        delete from kg_edge_instance where id = #{id}
+    </delete>
+
+    <delete id="deleteKgEdgeInstanceByIds" parameterType="String">
+        delete from kg_edge_instance where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>
