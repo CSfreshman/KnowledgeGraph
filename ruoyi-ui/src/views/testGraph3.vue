@@ -239,6 +239,7 @@ export default {
       this.visGraph.moveCenter(); //移动至中心位置
       this.generateLegend();//生成图例
 
+      this.reDefinedNodes();//重新设定为自定义节点
       this.reLayout();
     },
     generateLegend(){ //生成图例
@@ -537,6 +538,7 @@ export default {
       this.visGraph.addNodes(newNodes);
       this.visGraph.addEdges(newRelations);
 
+      this.reDefinedNodes();//重新设定为自定义节点
       this.reLayout();//执行动态布局计算
     },
     contractChildNode(node){ //收起节点的叶子节点
@@ -559,10 +561,53 @@ export default {
         Math.floor(180 * Math.random()) + "," +
         Math.floor(255 * Math.random());
     },
-    drawDefinedNode(node){ // 绘制自定义节点
+    reDefinedNodes(){ //重新设置所有节点为自定义绘制方法（新增节点后调用一下）
+      var that = this;
+      this.visGraph.nodes.forEach((node) =>{that.drawDefinedNode(node);});
+    },
+    drawDefinedNode(node){ // 绘制自定义节点(需要在新增节点后注册)
       node.drawNode = function(ctx){ //绘制自定义节点
         if(!this.openAnimation){ //通过openAnimation控制是否绘制自定义
-          this.drawOriginalNode(ctx);//系统内置绘制方法
+          //this.drawOriginalNode(ctx);//系统内置绘制方法
+          ctx.save();
+          ctx.beginPath();
+          this.paintShape(ctx);
+          ctx.closePath();
+
+          /*if ((this.showSelected || this.selected) && this.selectedBorderWidth > 0) {
+            ctx.lineWidth = this.borderWidth+this.selectedBorderWidth;
+            ctx.strokeStyle = `rgba(${this.selectedBorderColor},${this.alpha*this.selectedBorderAlpha})`;
+            ctx.stroke();
+          }
+
+          if (!this.selected && !this.showSelected  && this.borderWidth > 0) {
+            ctx.lineWidth = this.borderWidth;
+            ctx.strokeStyle = this.strokeStyle ? this.strokeStyle : `rgba(${this.borderColor},${this.alpha*this.borderAlpha})`;
+            ctx.stroke();
+          }*/
+
+          //绘制节点填充色和阴影的设置
+          if(this.fillColor){
+            ctx.shadowBlur = 10, //阴影的区域大小
+              ctx.shadowColor = `rgba(255,255,255,${this.alpha})`, //阴影颜色
+              ctx.shadowOffsetX = 2, //阴影X轴偏移量
+              ctx.shadowOffsetY = 2; //阴影Y轴偏移量
+
+            ctx.fillStyle = this.fillStyle ? this.fillStyle : `rgba(${this.fillColor},${this.alpha})`;
+            ctx.fill();
+          }
+          ctx.restore();
+
+          if (this.image) {
+            var globleAlpha = ctx.globalAlpha;
+            ctx.save();
+            ctx.globalAlpha = this.alpha;
+            this.drawNodeImg(ctx, this.image, -this.width / 2, -this.height / 2, this.width / 2);
+            ctx.globalAlpha = globleAlpha;
+            ctx.restore();
+          }
+          this.paintText(ctx);
+
         }else{
           //以下部分为自定义绘制部分，支持动画效果
           this.animate = this.animate>50?10:this.animate;
@@ -662,7 +707,7 @@ export default {
       if(!node.isExpand){
         node.fixed = true; //固定位置
         node.isExpand = true; //展开标识
-        node.openAnimation = true; //启用节点动画特效
+        //node.openAnimation = true; //启用节点动画特效
 
         that.expandNode(node);//节点双击展开
 
@@ -781,6 +826,7 @@ export default {
 
 <style scoped>
 
+
 #main-container {
   background-color: #FFFFFF;
   width:100vw;
@@ -799,7 +845,7 @@ export default {
   height: calc(100% - 105px);
   margin: 0 5px 5px 5px;
   padding: 0;
-  background-color: #fafafa;
+  background-color: #fff;
   border: 1px solid #ddd;
 }
 

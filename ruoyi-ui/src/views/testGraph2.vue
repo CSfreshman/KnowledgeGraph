@@ -1,36 +1,29 @@
 <template>
   <div id="main-container">
 
-    <div class="graph-nav">
-      <el-row :gutter="20">
-        <el-col :span="8"><div class="grid-content bg-purple">图谱名称：{{knowlegeInfo.name}}</div></el-col>
-        <el-col :span="8"><div class="grid-content bg-purple">图谱标识：{{knowlegeInfo.tag}}</div></el-col>
-        <el-col :span="8"><div class="grid-content bg-purple">图谱描述：{{knowlegeInfo.desc}}</div></el-col>
-      </el-row>
-      <el-row :gutter="20">
-        <el-col :span="8"><div class="grid-content bg-purple">实体数量：{{knowlegeInfo.nodeNum}}</div></el-col>
-        <el-col :span="8"><div class="grid-content bg-purple">关系数量：{{knowlegeInfo.relationNum}}</div></el-col>
-        <el-col :span="8"><div class="grid-content bg-purple">图谱权限：{{knowlegeInfo.permission}}</div></el-col>
-      </el-row>
-      <el-row :gutter="20">
-        <el-col :span="8">
-          <div class="grid-content bg-purple">属性展开：
-            <el-switch
-              v-model="properShow"
-              active-color="#13ce66"
-              active-text="开"
-              inactive-text="关"
-              @change="changeProperShow()">
-            </el-switch>
-          </div>
-        </el-col>
-      </el-row>
-    </div >
+    <!-- 页面顶部部分 -->
+    <div class="page-header">
+      <div class="drag-dot-wrap">
+        <div class="drag-dot" draggable="true" @dragstart="dragStart"></div>
+        <div class="dot-label">拖拽节点</div>
+      </div>
+      <div class="swtich-wrap">
+        <div class="grid-content">属性展开：
+          <el-switch
+            v-model="properShow"
+            active-color="#13ce66"
+            active-text="开"
+            inactive-text="关"
+            @change="changeProperShow()">
+          </el-switch>
+        </div>
+      </div>
+    </div>
 
     <!--图显示区域-->
     <div class="graph-area" v-loading="loading">
       <!-- 绘图面板区域 -->
-      <div id="graph-panel" style="width: 100%;height: 100%;"></div>
+      <div id="graph-panel" @dragenter.prevent  @dragover.prevent @drop="dropEnd" style="width: 100%;height: 100%;"></div>
 
       <!-- 图例区域 -->
       <div id="graph-legend" class="legend-wrap">
@@ -39,29 +32,92 @@
           <div class="item-label" :style="{'color': item.show ? '' : 'rgb(210,210,210)' }">{{ item.type }}</div>
         </div>
       </div>
-
-      <!-- 工具栏 -->
-      <div class="toolbar">
-        <div class="toolbar-item" @click="toolBarEvent('layout','fastFR')" title="网络布局"><i class="el-icon-cpu"></i></div>
-        <div class="toolbar-item" @click="toolBarEvent('layout','hubsize')" title="层次布局"><i class="el-icon-share"></i></div>
-
-        <div class="toolbar-item" @click="toolBarEvent('zoom','zoomOut')" title="放大"><i class="el-icon-zoom-in"></i></div>
-        <div class="toolbar-item" @click="toolBarEvent('zoom','auto')" title="适中"><i class="el-icon-help"></i></div>
-        <div class="toolbar-item" @click="toolBarEvent('zoom','zoomIn')" title="缩小"><i class="el-icon-zoom-out"></i></div>
-      </div>
     </div>
 
     <!-- 节点右键操作菜单 -->
     <div id="nodeRightMenuPanel" class="right-menu-layer">
       <button @click="showNodeDeteail()"><i class="el-icon-notebook-2"></i>节点属性</button>
-      <button @click="hideNode()"><i class="el-icon-s-release"></i>隐藏</button>
+      <button @click="showEditnodeRightMenuLayer()"><i class="el-icon-setting"></i>节点设置</button>
+      <el-popover placement="top" :width="180" ref="popoverNode">
+        <p>您确定要删除该节点吗?</p>
+        <div style="text-align: right; margin: 0">
+          <el-button size="mini" type="text" @click="popoverNodeClose()">取消</el-button>
+          <el-button type="primary" size="mini" @click="deleteNodeClick()">确定</el-button>
+        </div>
+        <template #reference>
+          <button><i class="el-icon-delete"></i>删除节点</button>
+        </template>
+      </el-popover>
+      <button @click="connectLink()"><i class="el-icon-share"></i>节点连接</button>
     </div>
 
     <!-- 连线右键操作对话栏 -->
     <div id="linkRightMenuPanel" class="right-menu-layer">
       <button @click="showLinkDetail()"><i class="el-icon-notebook-2"></i>关系属性</button>
-      <button @click="hideLink()"><i class="el-icon-s-release"></i>隐藏</button>
+      <button @click="resetLinkInfo()"><i class="el-icon-setting"></i>关系设置</button>
+      <el-popover placement="top" :width="180" ref="popoverLink">
+        <p>您确定要删除该关系吗?</p>
+        <div style="text-align: right; margin: 0">
+          <el-button size="mini" type="text" @click="popoverLinkClose()">取消</el-button>
+          <el-button type="primary" size="mini" @click="deleteLinkClick()">确定</el-button>
+        </div>
+        <template #reference>
+          <button><i class="el-icon-delete"></i>删除关系</button>
+        </template>
+      </el-popover>
     </div>
+
+    <!-- 节点设置弹框 -->
+    <el-drawer title="节点编辑" :visible.sync="editNodeDialog" :close-on-click-modal="false" ref="drawer" width="380px">
+      <div>
+        <el-form :model="editNode" label-width="100px">
+          <el-form-item label="节点ID">
+            <el-input v-model="editNode.id" disabled></el-input>
+          </el-form-item>
+          <el-form-item label="节点名称">
+            <el-input v-model="editNode.label"></el-input>
+          </el-form-item>
+          <el-form-item label="节点图标">
+            <el-select v-model="editNode.image" placeholder="请选择">
+              <el-option
+                v-for="item in imageArray"
+                :key="item.id"
+                :label="item.label"
+                :value="item.icon">
+              </el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="颜色(rgb)">
+            <el-color-picker v-model="editNode.color" :color-format="'rgb'" :show-alpha="false"></el-color-picker>
+          </el-form-item>
+        </el-form>
+        <div style="text-align: center;">
+          <el-button @click="editNodeDialog=false">取 消</el-button>
+          <el-button type="primary" @click="saveNodeInfo()">确 定</el-button>
+        </div>
+      </div>
+    </el-drawer>
+
+    <!-- 连线完成后，弹出关系属性设置 -->
+    <el-drawer title="关系属性设置" :visible.sync="relationSetPanel" :close-on-click-modal="false" ref="drawer" width="380px">
+      <div>
+        <el-form :model="relationInfo" label-width="100px">
+          <el-form-item label="起始实体">
+            <el-input v-model="relationInfo.source"></el-input>
+          </el-form-item>
+          <el-form-item label="目标实体">
+            <el-input v-model="relationInfo.target"></el-input>
+          </el-form-item>
+          <el-form-item label="关系类型">
+            <el-input v-model="relationInfo.label"></el-input>
+          </el-form-item>
+        </el-form>
+        <div style="text-align: center;">
+          <el-button @click="relationSetPanel=false">取 消</el-button>
+          <el-button type="primary" @click="saveRelationInfo()">确 定</el-button>
+        </div>
+      </div>
+    </el-drawer>
 
     <!-- 节点属性信息显示弹出层 -->
     <el-drawer title="节点属性信息" :modal-append-to-body="false" :wrapperClosable="false" :visible.sync="showNodeInfoDialog" size="380px" ref="drawer" >
@@ -180,12 +236,15 @@ export default {
       config,
       //示例数据
       demoData,
-      circleBgImage:require('@/assets/test/images/circle.png'),//节点背景图片
       // visGraph创建节点和连线数据集
       graphData: {
         nodes: [],
         links: []
       },
+      imageArray:[ //图片引用缓存定义
+        {id:'111',label:'图标一',icon : require('@/assets/test/images/icon.png')},
+        {id:'222',label:'图标二',icon : require('@/assets/test/images/icon1.png')}
+      ],
       graphLegend:[
         //{type:'图例一',color:'rgb(233,120,120)',show:true}
       ],//图例数组，根据数据的节点类型生成
@@ -203,9 +262,31 @@ export default {
         header:'提示信息', // 提示表头
         data:[] //提示内部的数据
       },
-      currentNode: {}, // 选中的节点对象
+      // 选中的节点对象
+      currentNode: {},
       attrbutes:[],//选中节点或连线的属性列表
-      currentLink: {},// 选中的连线对象
+      // 选中的连线对象
+      currentLink: {},
+      // 控制编辑节点对话框的显示
+      editNodeDialog: false,
+      // 节点在编辑对话框内的信息
+      editNode: {
+        id: '',
+        label: '',
+        image:'',
+        color: ''
+      },
+      //关系连线设置的右侧面板控制开关
+      relationSetPanel:false,
+      //设置的关系信息
+      relationInfo:{
+        id:'', //关系id,需要服务端保存后生成返回
+        sourceId:'',//起始节点的ID
+        source:'', //起始节点的名称
+        targetId:'', //目标节点的ID
+        target:'', //目标节点的名称
+        label:'' //关系类型名称
+      },
       //节点详细信息弹框
       showNodeInfoDialog:false,
       //关系连线信息弹层
@@ -213,7 +294,6 @@ export default {
       //属性节点详细弹层控制开关
       showProperNodeInfo:false,
       properNode:{},//属性节点
-      currentLayoutType:'fastFR',//当前布局类型，用于区分是否可以拖动
       loading: true
     }
   },
@@ -232,11 +312,12 @@ export default {
     // 创建全局绘图客户端对象
     createGraph () {
       this.visGraph = new VisGraph(document.getElementById('graph-panel'), this.config)
+      //this.visGraph.switchAnimate(true);
     },
     // 刷新知识图谱数据
     refreshGraphData () {
       this.visGraph.drawData(this.graphData)
-      this.visGraph.moveCenter(); //移动至中心位置
+      //this.visGraph.setZoom('auto')
       this.generateLegend();//生成图例
 
       this.reLayout();
@@ -257,7 +338,6 @@ export default {
         }
       });
 
-      this.graphLegend = [];
       for(var legend of legendMap.values()){
         this.graphLegend.push(legend); //加入图例记录
       }
@@ -320,28 +400,24 @@ export default {
       });
 
       if(properNodes.length>0){
-        that.visGraph.deleteNodes(properNodes);
+        that.visGraph.deleteNodes(properNodes);//删除属性节点
       }
     },
     // 执行布局算法
-    reLayout (alpha) {
+    reLayout () {
       var that = this;
-      if(alpha == null){
-        that.visLayout = null;
-        that.visLayout = new LayoutFactory(this.visGraph.getGraphData()).createLayout('fastFR');
-        that.visLayout.resetConfig({
-          friction: 0.8,
-          linkDistance: 200,
-          linkStrength: 0.2,
-          charge: -250,
-          gravity: 0.01,
-          noverlap:false,
-          size:[that.visGraph.stage.width,that.visGraph.stage.height]
-        });
-      }else{
-        that.visLayout.alpha += (alpha>1?0.2:alpha); //继续运动
-      }
 
+      that.visLayout = null;//置空原有布局对象
+      that.visLayout = new LayoutFactory(this.visGraph.getGraphData()).createLayout('fastFR');
+      that.visLayout.resetConfig({
+        friction: 0.8,
+        linkDistance: 200,
+        linkStrength: 0.2,
+        charge: -250,
+        gravity: 0.01,
+        noverlap:false,
+        size:[that.visGraph.stage.width,that.visGraph.stage.height]
+      });
       runLayout();//开始继续动画执行
 
       //通过动画帧控制控制布局算法的执行，有动画效果
@@ -349,11 +425,11 @@ export default {
         cancelAnimationFrame(that.layoutLoopName);//停止动画控制
         that.visLayout.runLayout();  //运行布局算法
         that.visGraph.refresh();
-        if(that.visLayout.alpha > 0.05){
+        if(that.visLayout.alpha > 0.1){
           that.layoutLoopName = requestAnimationFrame(runLayout);
         }else{
           if(that.visGraph.currentNode && that.visGraph.currentNode.isDragging){
-            that.visLayout.alpha = 0.1; //继续运动
+            that.visLayout.alpha = 0.5; //继续运动
             that.layoutLoopName = requestAnimationFrame(runLayout);
           }else{
             that.visLayout.alpha = 0; //停止运动
@@ -386,6 +462,103 @@ export default {
       let linkRightMenuLayer = document.getElementById('linkRightMenuPanel')
       linkRightMenuLayer.style.display = 'none'
     },
+    // 删除知识操作
+    async deleteNodeClick () {
+      /* const {data: res} = await deleteNode(this.currentNode.id)*/
+      this.deleteNodeAndProperNodes(this.currentNode)
+      this.$message.success('节点已删除')
+
+      this.cancelNodeRightMenu()
+      this.popoverNodeClose()
+    },
+    deleteNodeAndProperNodes(node){ //删除节点及其属性节点
+      var properNodes = (node.outLinks||[]).map(function(link){
+        return link.target.type == 'proper-virtual'?link.target:null;
+      }).filter((node)=>{
+        return node != null;
+      });
+
+      var that = this;
+      if(properNodes.length>0){
+        that.visGraph.deleteNodes(properNodes);//删除属性节点
+      }
+      this.visGraph.deleteNode(node);
+    },
+    // 关闭删除知识的对话框
+    popoverNodeClose () {
+      this.$refs.popoverNode.doClose()
+    },
+    // 删除知识联系操作
+    async deleteLinkClick () {
+      /* const {data: res} = await deleteLink(this.currentLink.properties.id)*/
+      this.visGraph.deleteLink(this.currentLink)
+
+      this.cancelLinkRightMenu()
+      this.popoverLinkClose()
+    },
+    // 关闭删除知识联系的对话框
+    popoverLinkClose () {
+      this.$refs.popoverLink.doClose()
+    },
+    // 确定保存节点操作事件
+    saveNodeInfo () {
+      this.currentNode.label = this.editNode.label||'未设置';
+      this.currentNode.fillColor = this.getColorRgb(this.editNode.color);
+      this.currentNode.setImage(this.editNode.image); //设置节点图片
+      this.editNodeDialog = false
+
+      //TODO 需要将节点的信息保存到服务端去
+    },
+    // 打开知识编辑对话框
+    showEditnodeRightMenuLayer () {
+      this.editNode.id = this.currentNode.id
+      this.editNode.label = this.currentNode.label
+      this.editNode.color = 'rgb('+this.currentNode.fillColor+')';
+
+      this.editNodeDialog = true
+      this.cancelNodeRightMenu()
+    },
+    //打开关系设置的面板
+    resetLinkInfo(){
+      var link = this.currentLink;
+      this.relationInfo = {
+        sourceId:link.source.id,
+        source:link.source.label,
+        targetId:link.target.id,
+        target:link.target.label,
+        label:link.label
+      };
+      this.relationSetPanel = true;
+      this.cancelLinkRightMenu()
+    },
+    getColorRgb(color) {
+      if (color && color.length > 0) {
+        color = color.replace('rgb(', '').replace(')', '');
+      } else {
+        color = null;
+      }
+      return color;
+    },
+    // 开始实体连线操作
+    connectLink () {
+      var that = this;
+      this.visGraph.beginAddLine(function(link){
+        that.currentLink = link; //设置为当前连线
+        that.resetLinkInfo();
+      });
+      this.cancelNodeRightMenu()
+    },
+    saveRelationInfo(){
+      //TODO 需要保存到服务端去，生成id，然后设置给连线
+      //console.log(this.relationInfo);
+      //示例生成服务端id
+      this.currentLink.id = 'line-'+this.randomId();//用服务端返回的id替换掉此处
+      this.currentLink.type = this.relationInfo.label;
+      this.currentLink.label = this.relationInfo.label;
+
+      this.relationSetPanel = false;
+      this.visGraph.refresh();
+    },
     showOrHideType(itemIndex){//图例的点击事件
       var legend = this.graphLegend[itemIndex];
       if(legend!=null){
@@ -397,7 +570,7 @@ export default {
         }
         this.graphLegend[itemIndex] = legend;
 
-        this.renderNodesByLegend();//重新渲染节点图例
+        this.renderNodesByLegend();
       }
     },
     renderNodesByLegend(){ //根据节点图例渲染
@@ -439,125 +612,29 @@ export default {
       this.tipLayer.show = true;
 
       const tipDom = document.getElementById('tip-layer');
-      tipDom.style.top = event.clientY+ 5  + 'px';
+      tipDom.style.top = event.clientY + 5 + 'px';
       tipDom.style.left = event.clientX + 10 +'px';
     },
-    hideNode(){ //隐藏节点(画布上的删除)
-      var properNodes = (this.visGraph.currentNode.outLinks||[]).map(function(link){
-        return link.target.type == 'proper-virtual'?link.target:null;
-      }).filter((node)=>{
-        return node != null;
-      });
-
+    //节点开始拖拽
+    dragStart(event){
+      event.stopPropagation();
+    },
+    //完成节点拖拽至画布操作
+    dropEnd(event){
+      event.stopPropagation();
       var that = this;
-      if(properNodes.length>0){
-        that.visGraph.deleteNodes(properNodes);//删除属性节点
-      }
-      this.visGraph.deleteNode(this.visGraph.currentNode);//删除当前节点
-
-      this.cancelNodeRightMenu();
-    },
-    hideLink(){//隐藏连线
-      this.visGraph.deleteLink(this.visGraph.currentLink);
-      this.cancelLinkRightMenu();
-    },
-    toolBarEvent(eventType,type){//工具栏事件
-      if(eventType == 'zoom'){
-        this.visGraph.setZoom(type);
-      }else if(eventType == 'layout'){
-        cancelAnimationFrame(this.layoutLoopName);
-        if(type == 'hubsize'){
-          this.sortLayout();
-        }else{
-          this.forceLayout();
-        }
-      }
-    },
-    sortLayout(){ //树形结构布局
-      this.currentLayoutType = 'hubsize';//设置当前布局类型
-      var tempLayout = new LayoutFactory(this.visGraph.getGraphData()).createLayout('hubsize');
-      tempLayout.resetConfig({
-        'layerDistance':150,
-        'nodeDistance':100,
-        'sortMethod':'hubsize',
-        'direction':'LR'
+      this.visGraph.addNodeForDrag({
+        id:'temp-node'+that.randomId(),
+        label:'自定义'
+      },function(node){
+        //TODO 节点添加到画布后，需要设置后保存至服务端
+        //console.log('节点已添加至画布',node);
+        that.currentNode = node;
+        that.showEditnodeRightMenuLayer();
       });
-      tempLayout.boolTransition=false;
-      tempLayout.runLayout();
-
-      this.visGraph.nodes.forEach(function(node) {
-        node.fixed = true;
-      });
-      this.visGraph.moveCenter();
     },
-    forceLayout(){ //力导向布局
-      this.currentLayoutType = 'fastFR';//设置当前布局类型
-      this.visGraph.nodes.forEach((node)=>{
-        node.fixed = false;
-      });
-      var tempLayout = new LayoutFactory(this.visGraph.getGraphData()).createLayout('fastFR');
-      tempLayout.resetConfig({
-        friction: 0.8,
-        linkDistance: 200,
-        linkStrength: 0.2,
-        charge: -250,
-        gravity: 0.01,
-        noverlap:false,
-        size:[this.visGraph.stage.width,this.visGraph.stage.height]
-      });
-
-      var count=0;
-      while(count++ <= 100){
-        tempLayout.runLayout();
-      }
-      this.visGraph.moveCenter();
-    },
-    expandNode(node){ //双击扩展节点数据
-      //TODO 需要从服务端查询节点数据,数据结构如demo2格式，以下为构造数据示例
-      var newNodes = [],newRelations=[];
-      for(var i=1;i<=10;i++){
-        var tempId = Math.round(Math.random()*999999999);
-        newNodes.push({
-          id: 'expandnode-'+tempId,
-          label:'扩展节点-'+i,
-          type:'扩展节点类型',
-          //color: this.randomColor()
-        });
-
-        newRelations.push({
-          id: 'exedge-'+tempId,
-          label:'扩展',
-          source: node.id,
-          target: 'expandnode-'+tempId
-        });
-      }
-
-      //计算新节点的旋转坐标
-      this.visGraph.incremaNodesCodinate(newNodes);
-      this.visGraph.addNodes(newNodes);
-      this.visGraph.addEdges(newRelations);
-
-      this.reLayout();//执行动态布局计算
-    },
-    contractChildNode(node){ //收起节点的叶子节点
-      var leafNodes = [],relations=[];
-      (node.outLinks || []).forEach(function(l) {
-        if ((l.target.outLinks || []).length == 0 && (l.target.inLinks || []).length == 1) {
-          leafNodes.push(l.target);
-          relations.push(l);
-        }
-      });
-
-      var that = this;
-      that.visGraph.deleteNodes(leafNodes);//删除叶子节点
-      that.visGraph.deleteLinks(relations);//删除叶子连线
-
-      this.reLayout();//执行动态布局计算
-    },
-    randomColor(){
-      return Math.floor(255 * Math.random()) + "," +
-        Math.floor(180 * Math.random()) + "," +
-        Math.floor(255 * Math.random());
+    randomId(){
+      return Math.round(Math.random() * 99999999);
     },
     drawDefinedNode(node){ // 绘制自定义节点
       node.drawNode = function(ctx){ //绘制自定义节点
@@ -613,42 +690,13 @@ export default {
           this.paintText(ctx);
         }
       }
-    },
-    drawAnimateCircleNode(node){ // 绘制旋转背景图
-      var that = this;
-
-      //实例化图片，作为背景图
-      if(node.circleBgImage == null){
-        var circleImg = new Image();
-        circleImg.setAttribute('crossOrigin', 'Anonymous');
-        circleImg.src = that.circleBgImage; //图片资源
-        circleImg.onload = function() {
-          node.circleBgImage = circleImg; //图片加载完成赋值
-        }
-      }
-
-      //绘制自定义节点方法重写
-      node.drawNode = function(ctx){
-        if(this.openAnimation){ //通过openAnimation控制是否绘制自定义
-          this.animate = this.animate>360?0:this.animate+=0.02;
-          var globleAlpha = ctx.globalAlpha;
-          ctx.save();
-          ctx.rotate(this.animate); //图片旋转动画控制
-          ctx.globalAlpha = this.alpha;
-          this.drawNodeImg(ctx,this.circleBgImage,-this.radius-15,-this.radius-15,this.radius+15);//绘制背景图
-          ctx.globalAlpha = globleAlpha;
-          ctx.restore();
-        }
-
-        this.drawOriginalNode(ctx);//调用系统内置绘制方法
-      }
     }
   },
   created () {
     var that = this;
 
     //节点的点击事件
-    this.config.node.onClick=function(event, node) {
+    this.config.node.onClick=function(event, node) { //节点点击事件回调
       node.color = 'rgb('+node.fillColor+')';
       that.currentNode = node;
       that.tipLayer.header = node.label||'';
@@ -658,45 +706,21 @@ export default {
     };
 
     //节点的双击事件
-    this.config.node.ondblClick=function(event, node) {
-      if(!node.isExpand){
-        node.fixed = true; //固定位置
-        node.isExpand = true; //展开标识
-        node.openAnimation = true; //启用节点动画特效
+    this.config.node.ondblClick=function(event, node) { //节点双击事件回调
+      /* node.color = 'rgb('+node.fillColor+')';
+      that.currentNode = node;
+      that.attrbutes = node.properties.attributes||[];
+      that.showNodeDeteail(); */
 
-        that.expandNode(node);//节点双击展开
-
-        that.drawDefinedNode(node); // 方案1：绘制自定义动画
-        //that.drawAnimateCircleNode(node); //方案2：绘制指定背景图
-
-        that.visGraph.switchAnimate(true); //开启全局动画开关（耗性能，按需开启和关闭）
-      }else{
-        node.fixed = false; //解除锁定
-        node.isExpand = false; //展开标识关闭
-        that.contractChildNode(node);//节点双击收起
-
-        node.openAnimation = false; //关闭节点动画特效
-        node.drawNode = null; //去掉自定义节点绘制
-        that.visGraph.switchAnimate(false); //关闭全局动画（减小性能开销）
-      }
-
-      that.tipLayer.show = false; //关闭提示层
-      that.generateLegend();//重新渲染图例类型
-    };
-
-    //节点鼠标弹起事件
-    this.config.node.onMouseUp=function(event, node) {
-      if(that.currentLayoutType == 'fastFR'){ //如果当前为力导向布局时才可触发力导计算
-        that.reLayout(0.2);
-      }
+      node.openAnimation = true; //启用节点动画特效
+      that.drawDefinedNode(node); // 注册自定义节点绘制方法
+      that.visGraph.switchAnimate(true);//开启动画示例
     };
 
     //节点拖拽事件
-    this.config.node.onMousedrag=function(event, node) {
+    this.config.node.onMousedrag=function(event, node) { //节点拖拽事件
       that.tipLayer.show = false; //关闭提示层
-      if(that.currentLayoutType == 'fastFR'){ //如果当前为力导向布局时才可触发力导计算
-        that.reLayout(0.05);
-      }
+      that.reLayout();
     };
 
     //连线的点击事件
@@ -787,43 +811,53 @@ export default {
   height:100vh;
 }
 /*****页面主要布局样式定义******/
-.graph-nav{
-  height: 80px;
-  background-color: #fff;
-  line-height: 26px;
-  font-size: 13px;
-  padding: 10px 20px;
+.page-header{
+  position: relative;
+  height: 60px;
 }
+
+.page-header .drag-dot-wrap{
+  position:absolute;
+  top:5px;
+  left:10px;
+  width: 120px;
+}
+
+.drag-dot-wrap .drag-dot{
+  display:inline-block;
+  width: 50px;
+  height: 50px;
+  border-radius:25px;
+  background-color: dodgerblue;
+  cursor: move;
+  touch-action: none;
+}
+
+.drag-dot-wrap .drag-dot:hover{
+  background-color: deepskyblue;
+}
+
+.drag-dot-wrap .dot-label{
+  position: absolute;
+  top: 18px;
+  left: 55px;
+  font-size: 13px;
+  color: #222;
+}
+.page-header .swtich-wrap{
+  position:absolute;
+  top:20px;
+  right:10px;
+  font-size: 13px;
+}
+
 .graph-area {
   position: relative;
-  height: calc(100% - 105px);
+  height: calc(100% - 75px);
   margin: 0 5px 5px 5px;
   padding: 0;
   background-color: #fafafa;
   border: 1px solid #ddd;
-}
-
-/******工具栏*******/
-.toolbar{
-  position: absolute;
-  right: 0px;
-  top: 0px;
-  background: #efefef;
-}
-
-.toolbar .toolbar-item{
-  width:40px;
-  height:40px;
-  line-height:40px;
-  font-size:18px;
-  text-align:center;
-  color:#888;
-  border-bottom:1px solid #ddd;
-  cursor: pointer;
-}
-
-.toolbar .toolbar-item:hover{
-  color:deepskyblue;
 }
 
 /*******图例区域样式定义*****/
