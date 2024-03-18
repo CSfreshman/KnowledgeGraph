@@ -8,6 +8,8 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
 
+import java.util.List;
+
 /**
  * 【请填写功能名称】对象 kg_edge_instance
  *
@@ -61,7 +63,8 @@ public class KgEdgeInstance extends BaseEntity
     @Excel(name = "创建人id")
     private Long createUser;
 
-    
+    // 属性列表
+    private List<KgEdgeInstaceProperties> props;
 
     public void setId(Long id)
     {

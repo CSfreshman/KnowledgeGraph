@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.KgEdgeInstacePropertiesMapper">
+
+    <resultMap type="KgEdgeInstaceProperties" id="KgEdgeInstacePropertiesResult">
+        <result property="id"    column="id"    />
+        <result property="edgeId"    column="edge_id"    />
+        <result property="name"    column="name"    />
+        <result property="value"    column="value"    />
+        <result property="valid"    column="valid"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="createUser"    column="create_user"    />
+        <result property="modityTime"    column="modity_time"    />
+        <result property="modityUser"    column="modity_user"    />
+        <result property="modityType"    column="modity_type"    />
+    </resultMap>
+
+    <sql id="selectKgEdgeInstacePropertiesVo">
+        select id, edge_id, name, value, valid, create_time, create_user, modity_time, modity_user, modity_type from kg_edge_instace_properties
+    </sql>
+
+    <select id="selectKgEdgeInstacePropertiesList" parameterType="KgEdgeInstaceProperties" resultMap="KgEdgeInstacePropertiesResult">
+        <include refid="selectKgEdgeInstacePropertiesVo"/>
+        <where>
+            <if test="edgeId != null "> and edge_id = #{edgeId}</if>
+            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+            <if test="value != null  and value != ''"> and value = #{value}</if>
+            <if test="valid != null "> and valid = #{valid}</if>
+            <if test="createUser != null "> and create_user = #{createUser}</if>
+            <if test="modityTime != null "> and modity_time = #{modityTime}</if>
+            <if test="modityUser != null "> and modity_user = #{modityUser}</if>
+            <if test="modityType != null  and modityType != ''"> and modity_type = #{modityType}</if>
+        </where>
+    </select>
+
+    <select id="selectKgEdgeInstacePropertiesById" parameterType="Long" resultMap="KgEdgeInstacePropertiesResult">
+        <include refid="selectKgEdgeInstacePropertiesVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertKgEdgeInstaceProperties" parameterType="KgEdgeInstaceProperties">
+        insert into kg_edge_instace_properties
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="edgeId != null">edge_id,</if>
+            <if test="name != null">name,</if>
+            <if test="value != null">value,</if>
+            <if test="valid != null">valid,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="createUser != null">create_user,</if>
+            <if test="modityTime != null">modity_time,</if>
+            <if test="modityUser != null">modity_user,</if>
+            <if test="modityType != null">modity_type,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="edgeId != null">#{edgeId},</if>
+            <if test="name != null">#{name},</if>
+            <if test="value != null">#{value},</if>
+            <if test="valid != null">#{valid},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="createUser != null">#{createUser},</if>
+            <if test="modityTime != null">#{modityTime},</if>
+            <if test="modityUser != null">#{modityUser},</if>
+            <if test="modityType != null">#{modityType},</if>
+        </trim>
+    </insert>
+
+    <update id="updateKgEdgeInstaceProperties" parameterType="KgEdgeInstaceProperties">
+        update kg_edge_instace_properties
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="edgeId != null">edge_id = #{edgeId},</if>
+            <if test="name != null">name = #{name},</if>
+            <if test="value != null">value = #{value},</if>
+            <if test="valid != null">valid = #{valid},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="createUser != null">create_user = #{createUser},</if>
+            <if test="modityTime != null">modity_time = #{modityTime},</if>
+            <if test="modityUser != null">modity_user = #{modityUser},</if>
+            <if test="modityType != null">modity_type = #{modityType},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteKgEdgeInstacePropertiesById" parameterType="Long">
+        delete from kg_edge_instace_properties where id = #{id}
+    </delete>
+
+    <delete id="deleteKgEdgeInstacePropertiesByIds" parameterType="String">
+        delete from kg_edge_instace_properties where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

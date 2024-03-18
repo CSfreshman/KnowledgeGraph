@@ -1,6 +1,7 @@
 package com.ruoyi.system.service.impl;
 
 import cn.hutool.core.util.ObjectUtil;
+import com.ruoyi.system.domain.KgEdgeInstaceProperties;
 import com.ruoyi.system.domain.KgEdgeInstance;
 import com.ruoyi.system.req.GraphReq;
 import com.ruoyi.system.service.TestNeo4jService;
@@ -177,5 +178,31 @@ public class TestNeo4jServiceImpl implements TestNeo4jService {
         Neo4jGraph resGraph = Neo4jGraph.parse(res);
 
         return resGraph;
+    }
+
+    // 新增边
+    @Override
+    public Neo4jEdge addEdge(KgEdgeInstance kgEdgeInstance) {
+        String cypher = "MATCH (startNode) WHERE ID(startNode) = " + kgEdgeInstance.getFromNodeNeo4jId() + "\n"
+                + "MATCH (endNode) WHERE ID(endNode) = " + kgEdgeInstance.getToNodeNeo4jId() + "\n"
+                + "CREATE (startNode)-[r:" + kgEdgeInstance.getLabel() + " {";
+        StringBuilder builder = new StringBuilder();
+        for (KgEdgeInstaceProperties prop : kgEdgeInstance.getProps()) {
+            builder.append(prop.getName());
+            builder.append(": ");
+            builder.append("'" + prop.getValue() + "'");
+            builder.append(",");
+        }
+        if(builder.length() > 0){
+            builder.deleteCharAt(builder.length() - 1);
+        }
+        builder.append("}]->(endNode) RETURN r");
+
+        cypher+=builder;
+
+        System.out.println("新建关系实例:cypher:" + cypher);
+        Session session = driver.session();
+        Result res = session.run(cypher);
+        return Neo4jGraph.parse(res).getEdges().toArray(new Neo4jEdge[1])[0];
     }
 }

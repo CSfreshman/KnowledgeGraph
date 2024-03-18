@@ -25,4 +25,6 @@ public interface TestNeo4jService {
     Neo4jNode insertNodeToNeo4j(Neo4jNode node);
 
     Neo4jGraph getEdgeInstanceGraph(KgEdgeInstance instance);
+
+    Neo4jEdge addEdge(KgEdgeInstance kgEdgeInstance);
 }

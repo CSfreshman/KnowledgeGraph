@@ -2,6 +2,14 @@ package com.ruoyi.web.controller.manage;
 
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
+
+import cn.hutool.core.util.IdUtil;
+import com.ruoyi.common.utils.DateUtils;
+import com.ruoyi.common.utils.SecurityUtils;
+import com.ruoyi.system.domain.KgEdgeInstaceProperties;
+import com.ruoyi.system.service.IKgEdgeInstacePropertiesService;
+import com.ruoyi.system.service.TestNeo4jService;
+import com.ruoyi.system.utils.neo4j.Neo4jEdge;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,6 +41,12 @@ public class KgEdgeInstanceController extends BaseController
 {
     @Autowired
     private IKgEdgeInstanceService kgEdgeInstanceService;
+
+    @Autowired
+    private IKgEdgeInstacePropertiesService kgEdgeInstacePropertiesService;
+
+    @Autowired
+    private TestNeo4jService neo4jService;
 
     /**
      * 查询【请填写功能名称】列表
@@ -70,16 +84,35 @@ public class KgEdgeInstanceController extends BaseController
     }
 
     /**
-     * 新增【请填写功能名称】
+     * 新增
      */
     @PreAuthorize("@ss.hasPermi('system:instance:add')")
-    @Log(title = "【请填写功能名称】", businessType = BusinessType.INSERT)
+    @Log(title = "新增关系实例", businessType = BusinessType.INSERT)
     @PostMapping
     public AjaxResult add(@RequestBody KgEdgeInstance kgEdgeInstance)
     {
-        System.out.println(kgEdgeInstance);
-        return null;
-//        return toAjax(kgEdgeInstanceService.insertKgEdgeInstance(kgEdgeInstance));
+        System.out.println("新增关系实例:req:" + kgEdgeInstance);
+        // 首先添加到neo4j中
+        Neo4jEdge edge = neo4jService.addEdge(kgEdgeInstance);
+        System.out.println("neo4j中新建的关系"+edge);
+        kgEdgeInstance.setNeo4jId(edge.getId());
+        kgEdgeInstance.setId(IdUtil.getSnowflakeNextId());
+        kgEdgeInstance.setValid(1L);
+        kgEdgeInstance.setCreateUser(SecurityUtils.getUserId());
+        kgEdgeInstance.setCreateTime(DateUtils.getNowDate());
+        int count1 = kgEdgeInstanceService.insertKgEdgeInstance(kgEdgeInstance);
+        int count2 = 0;
+        List<KgEdgeInstaceProperties> props = kgEdgeInstance.getProps();
+        for (KgEdgeInstaceProperties prop : props) {
+            prop.setId(IdUtil.getSnowflakeNextId());
+            prop.setEdgeId(edge.getId());
+            prop.setCreateUser(SecurityUtils.getUserId());
+            prop.setCreateTime(DateUtils.getNowDate());
+            prop.setValid(1L);
+            count2+=kgEdgeInstacePropertiesService.insertKgEdgeInstaceProperties(prop);
+        }
+
+        return toAjax(count1 + count2);
     }
 
     /**

@@ -294,7 +294,7 @@ export default {
     submit() {
       this.open = false;
       addNode(this.form).then(resp=>{
-
+        this.getNodeInstanceList()
       })
     },
 

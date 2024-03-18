@@ -75,7 +75,7 @@
 
         <div v-for="(prop, index) in form.props" :key="index">
           <el-row><el-col>
-            <el-form-item :label="prop.key" label-width="100">
+            <el-form-item :label="prop.name" label-width="100">
               <el-input v-model="prop.value"></el-input>
             </el-form-item>
           </el-col></el-row>
@@ -264,7 +264,7 @@ export default {
       listClassProperties(edgeClassPropQueryParams).then(resp=>{
         this.edgeClassPropsList = resp.rows;
         this.edgeClassPropsList.forEach(it=>{
-          this.form.props.push({key:it.name,value: ''})
+          this.form.props.push({name:it.name,value: ''})
         })
       })
 
@@ -282,7 +282,10 @@ export default {
       console.log("表单数据")
       console.log(this.form)
       addEdgeInstance(this.form).then(resp=>{
-
+        this.open = false;
+        this.$modal.msgSuccess("添加成功");
+        // 重新请求数据
+        this.getEdgeInstanceGraph();
       })
 
 
