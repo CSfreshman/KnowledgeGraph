@@ -9,6 +9,14 @@ export function listNode(query) {
   })
 }
 
+export function getAll(query) {
+  return request({
+    url: '/mange/instance/node/getAll',
+    method: 'post',
+    data: query
+  })
+}
+
 export function getAllByClassId(query) {
   return request({
     url: '/mange/instance/node/getAllByClassId',

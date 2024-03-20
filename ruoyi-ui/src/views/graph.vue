@@ -54,7 +54,7 @@
     <!-- 连线右键操作对话栏 -->
     <div id="linkRightMenuPanel" class="right-menu-layer">
       <button @click="showLinkDetail()"><i class="el-icon-notebook-2"></i>关系属性</button>
-      <button @click="resetLinkInfo()"><i class="el-icon-setting"></i>关系设置</button>
+      <button @click="handleEditEdgeButton()"><i class="el-icon-setting"></i>关系设置</button>
       <el-popover placement="top" :width="180" ref="popoverLink">
         <p>您确定要删除该关系吗?</p>
         <div style="text-align: right; margin: 0">
@@ -134,23 +134,29 @@
           <el-form-item label="目标实体">
             <el-input v-model="relationInfo.target" disabled></el-input>
           </el-form-item>
-          <div v-if="canChooseEdgeClassList.length > 0">
-            <el-form-item label="选择关系类型">
-              <el-select v-model="relationInfo.classId" placeholder="请选择" @change="changeNodeClassProps">
-                <el-option
-                  v-for="item in canChooseEdgeClassList"
-                  :key="item.id"
-                  :label="item.label"
-                  :value="item.id">
-                </el-option>
-              </el-select>
-            </el-form-item>
+          <div v-if="!editEdge">
+            <div v-if="canChooseEdgeClassList.length > 0">
+              <el-form-item label="选择关系类型">
+                <el-select v-model="relationInfo.classId" placeholder="请选择" @change="changeEdgeClassProps">
+                  <el-option
+                    v-for="item in canChooseEdgeClassList"
+                    :key="item.id"
+                    :label="item.label"
+                    :value="item.id">
+                  </el-option>
+                </el-select>
+              </el-form-item>
+            </div>
+            <div v-if="canChooseEdgeClassList.length == 0">
+              <el-form-item label="关系类型">
+                <el-input disabled value="没有找到匹配的关系，请先去建立关系类型"></el-input>
+              </el-form-item>
+            </div>
           </div>
-          <div v-if="canChooseEdgeClassList.length == 0">
-            <el-form-item label="输入关系名">
-              <el-input></el-input>
-            </el-form-item>
+          <div v-if="editEdge">
+            <el-form-item label="选择关系类型"><el-input disabled v-model="this.currentLink.label"></el-input></el-form-item>
           </div>
+
 
         </el-form>
         <div style="text-align: center;">
@@ -243,7 +249,7 @@
 
     <!-- 节点或连线属性提示 -->
     <div id="tip-layer" class="tip-wrap" v-show="tipLayer.show">
-      <div class="tip-header">{{tipLayer.header}}</div>
+      <div class="tip-header">{{tipLayer.header}}    <el-button @click="tipLayer.show = false">取消</el-button></div>
       <div class="tip-body">
         <el-table
           :data="tipLayer.data"
@@ -268,8 +274,9 @@ import { config } from '@/assets/test/defaultConfig.js'
 import { demoData } from '@/assets/test/demo2.js'
 import {getAllGraph} from "@/api/graph"
 import { getAllNodeClass  } from "@/api/mange/class/node";
-import {addNode} from "@/api/mange/instance/node";
+import {addNode, getAll as getAllNode} from "@/api/mange/instance/node";
 import { getAll as getAllEdgeClass } from "@/api/mange/class/edge";
+import {addEdgeInstance, updateInstance, getAllEdge} from "@/api/mange/instance/edge"
 
 export default {
   data () {
@@ -330,11 +337,17 @@ export default {
       relationInfo:{
         id:'', //关系id,需要服务端保存后生成返回
         sourceId:'',//起始节点的ID
+        fromNodeNeo4jId: '',
+        fromNodeId: '',
         source:'', //起始节点的名称
         targetId:'', //目标节点的ID
+        toNodeNeo4jId: '',
+        toNodeId: '',
         target:'', //目标节点的名称
         label:'', //关系类型名称
-        classId: '' // 关系类型id
+        classId: '', // 关系类型id
+        props: [],
+        neo4jId: ''
       },
       //节点详细信息弹框
       showNodeInfoDialog:false,
@@ -345,8 +358,11 @@ export default {
       properNode:{},//属性节点
       loading: true,
       nodeClassList: '',
+      allNodeList: '',
+      allEdgeList: '',
       edgeClassList: '',
       edit: false,
+      editEdge: false,
       classTypeText: '',
       // 根据选择起点终点实体自动匹配可能的关系
       canChooseEdgeClassList: ''
@@ -627,11 +643,17 @@ export default {
 
     cancelNodeInfo() {
       this.editNodeDialog = false;
-      this.visGraph.deleteNode(this.currentNode);
+      if(!this.edit){
+        this.visGraph.deleteNode(this.currentNode);
+      }
+
     },
     cancelRelationInfo() {
       this.relationSetPanel = false;
-      this.visGraph.deleteLink(this.currentLink)
+      if(!this.editEdge){
+        this.visGraph.deleteLink(this.currentLink)
+      }
+
     },
 
     // 点击编辑按钮，需要和添加区分开
@@ -658,8 +680,33 @@ export default {
       this.editNodeDialog = true
       this.cancelNodeRightMenu()
     },
+
+    // 编辑关系属性
+    handleEditEdgeButton(){
+      this.editEdge = true;
+      console.log("编辑关系属性" + this.editEdge)
+      console.log("当前关系：")
+      console.log(this.currentLink)
+      var link = this.currentLink;
+      this.relationInfo = {
+        sourceId:link.source.id,
+        source:link.source.label,
+        targetId:link.target.id,
+        target:link.target.label,
+        label:link.label,
+        classId: this.edgeClassList.find(it=>it.label == link.label).id,
+        neo4jId: this.currentLink.id,
+        id: this.allEdgeList.find(it=>it.neo4jId == this.currentLink.id).id
+      };
+
+      this.relationSetPanel = true;
+      this.cancelLinkRightMenu();
+    },
+
     //打开关系设置的面板
     resetLinkInfo(){
+      this.editEdge = false;
+      console.log("新增关系信息" + this.editEdge)
       var link = this.currentLink;
       this.relationInfo = {
         sourceId:link.source.id,
@@ -668,6 +715,8 @@ export default {
         target:link.target.label,
         label:link.label
       };
+
+
 
       // 清空可选关系类型
       this.canChooseEdgeClassList = []
@@ -708,7 +757,26 @@ export default {
     },
     saveRelationInfo(){
       //TODO 需要保存到服务端去，生成id，然后设置给连线
-      //console.log(this.relationInfo);
+      console.log(this.relationInfo);
+      this.relationInfo.fromNodeNeo4jId = this.relationInfo.sourceId
+      this.relationInfo.toNodeNeo4jId = this.relationInfo.targetId
+      this.relationInfo.fromNodeId = this.allNodeList.find(it=>it.neo4jId == this.relationInfo.fromNodeNeo4jId).id;
+      this.relationInfo.toNodeId = this.allNodeList.find(it=>it.neo4jId == this.relationInfo.toNodeNeo4jId).id;
+
+      if(this.editEdge){
+        // 执行更新逻辑
+        updateInstance(this.relationInfo).then(resp=>{
+          this.drawGraphData()
+        })
+      }else{
+        addEdgeInstance(this.relationInfo).then(resp=>{
+          this.drawGraphData()
+        })
+      }
+
+      this.editEdge = false;
+
+
       //示例生成服务端id
       this.currentLink.id = 'line-'+this.randomId();//用服务端返回的id替换掉此处
       this.currentLink.type = this.relationInfo.label;
@@ -853,6 +921,14 @@ export default {
       }
     },
 
+    changeEdgeClassProps() {
+      console.log("选择的关系类型");
+      console.log(this.relationInfo.classId);
+      var edgeClass = this.edgeClassList.find(edgeClass=>edgeClass.id == this.relationInfo.classId)
+      console.log();
+      this.relationInfo.label = edgeClass.label
+    },
+
     // 选择节点类型后修改editNode中的props
     changeNodeClassProps() {
       // 更改前先清空原来的props
@@ -985,10 +1061,19 @@ export default {
     });
 
     getAllEdgeClass({valid:1}).then(resp=>{
-      this.edgeClassList = resp.rows;
+      this.edgeClassList = resp;
       console.log("可选择的关系类型⬇");
       console.log(this.edgeClassList)
+    });
+
+    getAllNode({valid:1}).then(resp=>{
+      this.allNodeList = resp;
     })
+
+    getAllEdge({valid:1}).then(resp=>{
+      this.allEdgeList = resp;
+    })
+
   },
   destroyed(){
     cancelAnimationFrame(this.layoutLoopName);
@@ -1018,9 +1103,9 @@ export default {
 
 .drag-dot-wrap .drag-dot{
   display:inline-block;
-  width: 50px;
-  height: 50px;
-  border-radius:25px;
+  width: 30px;
+  height: 30px;
+  border-radius:15px;
   background-color: dodgerblue;
   cursor: move;
   touch-action: none;
@@ -1032,14 +1117,14 @@ export default {
 
 .drag-dot-wrap .dot-label{
   position: absolute;
-  top: 18px;
+  top: 6px;
   left: 55px;
   font-size: 13px;
   color: #222;
 }
 .page-header .swtich-wrap{
   position:absolute;
-  top:20px;
+  top:10px;
   right:10px;
   font-size: 13px;
 }

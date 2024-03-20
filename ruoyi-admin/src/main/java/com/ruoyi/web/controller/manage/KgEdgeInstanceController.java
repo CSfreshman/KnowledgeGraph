@@ -4,6 +4,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 
 import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.ObjectUtil;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.system.domain.KgEdgeInstaceProperties;
@@ -60,6 +61,13 @@ public class KgEdgeInstanceController extends BaseController
         return getDataTable(list);
     }
 
+    @GetMapping("/getAll")
+    public List<KgEdgeInstance> getAll(KgEdgeInstance kgEdgeInstance)
+    {
+        List<KgEdgeInstance> list = kgEdgeInstanceService.selectKgEdgeInstanceList(kgEdgeInstance);
+        return list;
+    }
+
     /**
      * 导出【请填写功能名称】列表
      */
@@ -103,14 +111,17 @@ public class KgEdgeInstanceController extends BaseController
         int count1 = kgEdgeInstanceService.insertKgEdgeInstance(kgEdgeInstance);
         int count2 = 0;
         List<KgEdgeInstaceProperties> props = kgEdgeInstance.getProps();
-        for (KgEdgeInstaceProperties prop : props) {
-            prop.setId(IdUtil.getSnowflakeNextId());
-            prop.setEdgeId(edge.getId());
-            prop.setCreateUser(SecurityUtils.getUserId());
-            prop.setCreateTime(DateUtils.getNowDate());
-            prop.setValid(1L);
-            count2+=kgEdgeInstacePropertiesService.insertKgEdgeInstaceProperties(prop);
+        if(ObjectUtil.isNotNull(props)){
+            for (KgEdgeInstaceProperties prop : props) {
+                prop.setId(IdUtil.getSnowflakeNextId());
+                prop.setEdgeId(edge.getId());
+                prop.setCreateUser(SecurityUtils.getUserId());
+                prop.setCreateTime(DateUtils.getNowDate());
+                prop.setValid(1L);
+                count2+=kgEdgeInstacePropertiesService.insertKgEdgeInstaceProperties(prop);
+            }
         }
+
 
         return toAjax(count1 + count2);
     }

@@ -58,6 +58,11 @@ public class KgNodeInstanceController extends BaseController
         return getDataTable(list);
     }
 
+    @PostMapping("/getAll")
+    public List<KgNodeInstance> getAll(@RequestBody KgNodeInstance kgNodeInstance){
+        return kgNodeInstanceService.selectKgNodeInstanceList(kgNodeInstance);
+    }
+
     @PostMapping("/getAllByClassId")
     public List<KgNodeInstance> getAllByClassId(@RequestBody Map<String,String> req)
     {

@@ -8,6 +8,14 @@ export function getEdgeInstanceGraph(label){
   })
 }
 
+export function getAllEdge(query) {
+  return request({
+    url: '/mange/instance/edge/getAll',
+    method: 'get',
+    params: query
+  })
+}
+
 
 // 查询【请填写功能名称】列表
 export function listInstance(query) {

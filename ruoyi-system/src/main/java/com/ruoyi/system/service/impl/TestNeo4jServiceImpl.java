@@ -187,12 +187,15 @@ public class TestNeo4jServiceImpl implements TestNeo4jService {
                 + "MATCH (endNode) WHERE ID(endNode) = " + kgEdgeInstance.getToNodeNeo4jId() + "\n"
                 + "CREATE (startNode)-[r:" + kgEdgeInstance.getLabel() + " {";
         StringBuilder builder = new StringBuilder();
-        for (KgEdgeInstaceProperties prop : kgEdgeInstance.getProps()) {
-            builder.append(prop.getName());
-            builder.append(": ");
-            builder.append("'" + prop.getValue() + "'");
-            builder.append(",");
+        if(!ObjectUtil.isNull(kgEdgeInstance.getProps())){
+            for (KgEdgeInstaceProperties prop : kgEdgeInstance.getProps()) {
+                builder.append(prop.getName());
+                builder.append(": ");
+                builder.append("'" + prop.getValue() + "'");
+                builder.append(",");
+            }
         }
+
         if(builder.length() > 0){
             builder.deleteCharAt(builder.length() - 1);
         }
