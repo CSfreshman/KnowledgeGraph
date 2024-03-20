@@ -6,7 +6,10 @@ import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
+import com.ruoyi.system.domain.KgEdgeClassProperties;
 import com.ruoyi.system.domain.KgNodeClass;
+import com.ruoyi.system.mapper.KgEdgeClassPropertiesMapper;
+import com.ruoyi.system.mapper.KgEdgeInstacePropertiesMapper;
 import com.ruoyi.system.mapper.KgNodeClassMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,6 +32,8 @@ public class KgEdgeClassServiceImpl implements IKgEdgeClassService
     @Autowired
     private KgNodeClassMapper kgNodeClassMapper;
 
+    @Autowired
+    private KgEdgeClassPropertiesMapper edgeClassPropertiesMapper;
     /**
      * 查询【请填写功能名称】
      *
@@ -78,6 +83,11 @@ public class KgEdgeClassServiceImpl implements IKgEdgeClassService
                     it.setToNodeClassName(toNodeClass.getName());
                 }
             }
+            KgEdgeClassProperties req = new KgEdgeClassProperties();
+            req.setEdgeId(it.getId());
+            req.setValid(1L);
+            it.setProps(edgeClassPropertiesMapper.selectKgEdgeClassPropertiesList(req));
+
         });
         return kgEdgeClasses;
     }

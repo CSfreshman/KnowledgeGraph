@@ -46,6 +46,14 @@ public class KgEdgeClassController extends BaseController
         return getDataTable(list);
     }
 
+    @GetMapping("/getAll")
+    public List<KgEdgeClass> getAll(KgEdgeClass kgEdgeClass)
+    {
+
+        List<KgEdgeClass> list = kgEdgeClassService.selectKgEdgeClassList(kgEdgeClass);
+        return list;
+    }
+
     /**
      * 导出【请填写功能名称】列表
      */

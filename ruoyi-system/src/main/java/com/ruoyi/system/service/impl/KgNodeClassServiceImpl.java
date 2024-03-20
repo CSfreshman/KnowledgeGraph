@@ -4,6 +4,8 @@ import java.util.List;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.utils.uuid.IdUtils;
+import com.ruoyi.system.domain.KgNodeClassProperties;
+import com.ruoyi.system.mapper.KgNodeClassPropertiesMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,6 +25,8 @@ public class KgNodeClassServiceImpl implements IKgNodeClassService
 {
     @Autowired
     private KgNodeClassMapper kgNodeClassMapper;
+    @Autowired
+    private KgNodeClassPropertiesMapper propertiesMapper;
 
     /**
      * 查询【请填写功能名称】
@@ -45,7 +49,14 @@ public class KgNodeClassServiceImpl implements IKgNodeClassService
     @Override
     public List<KgNodeClass> selectKgNodeClassList(KgNodeClass kgNodeClass)
     {
-        return kgNodeClassMapper.selectKgNodeClassList(kgNodeClass);
+        List<KgNodeClass> kgNodeClasses = kgNodeClassMapper.selectKgNodeClassList(kgNodeClass);
+        for (KgNodeClass nodeClass : kgNodeClasses) {
+            KgNodeClassProperties req = new KgNodeClassProperties();
+            req.setValid(1);
+            req.setNodeId(nodeClass.getId());
+            nodeClass.setProps(propertiesMapper.selectKgNodeClassPropertiesList(req));
+        }
+        return kgNodeClasses;
     }
 
     /**
@@ -104,7 +115,12 @@ public class KgNodeClassServiceImpl implements IKgNodeClassService
     @Override
     public List<KgNodeClass> getAll(KgNodeClass kgNodeClass) {
         List<KgNodeClass> kgNodeClasses = kgNodeClassMapper.selectKgNodeClassList(kgNodeClass);
-
+        for (KgNodeClass nodeClass : kgNodeClasses) {
+            KgNodeClassProperties req = new KgNodeClassProperties();
+            req.setValid(1);
+            req.setNodeId(nodeClass.getId());
+            nodeClass.setProps(propertiesMapper.selectKgNodeClassPropertiesList(req));
+        }
         return kgNodeClasses;
     }
 }

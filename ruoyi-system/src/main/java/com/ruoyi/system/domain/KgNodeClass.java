@@ -3,10 +3,13 @@ package com.ruoyi.system.domain;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+import lombok.Data;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
+
+import java.util.List;
 
 /**
  * 【请填写功能名称】对象 kg_node_class
@@ -14,6 +17,7 @@ import com.ruoyi.common.core.domain.BaseEntity;
  * @author ruoyi
  * @date 2024-03-04
  */
+@Data
 public class KgNodeClass extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
@@ -34,51 +38,5 @@ public class KgNodeClass extends BaseEntity
     @Excel(name = "是否有效，1有效，0无效")
     private Long valid;
 
-    public void setId(Long id)
-    {
-        this.id = id;
-    }
-
-    public Long getId()
-    {
-        return id;
-    }
-    public void setName(String name)
-    {
-        this.name = name;
-    }
-
-    public String getName()
-    {
-        return name;
-    }
-    public void setCreateUser(Long createUser)
-    {
-        this.createUser = createUser;
-    }
-
-    public Long getCreateUser()
-    {
-        return createUser;
-    }
-    public void setValid(Long valid)
-    {
-        this.valid = valid;
-    }
-
-    public Long getValid()
-    {
-        return valid;
-    }
-
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-            .append("id", getId())
-            .append("name", getName())
-            .append("createTime", getCreateTime())
-            .append("createUser", getCreateUser())
-            .append("valid", getValid())
-            .toString();
-    }
+    private List<KgNodeClassProperties> props;
 }

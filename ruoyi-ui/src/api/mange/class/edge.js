@@ -9,6 +9,15 @@ export function listClass(query) {
   })
 }
 
+// 查询【请填写功能名称】列表
+export function getAll(query) {
+  return request({
+    url: '/mange/class/edge/getAll',
+    method: 'get',
+    params: query
+  })
+}
+
 // 查询【请填写功能名称】详细
 export function getClass(id) {
   return request({
