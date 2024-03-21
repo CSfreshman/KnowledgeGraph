@@ -3,6 +3,7 @@ package com.ruoyi.system.service.impl;
 import cn.hutool.core.util.ObjectUtil;
 import com.ruoyi.system.domain.KgEdgeInstaceProperties;
 import com.ruoyi.system.domain.KgEdgeInstance;
+import com.ruoyi.system.domain.KgNodeClass;
 import com.ruoyi.system.req.GraphReq;
 import com.ruoyi.system.service.TestNeo4jService;
 import com.ruoyi.system.utils.neo4j.Neo4jEdge;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -207,5 +209,60 @@ public class TestNeo4jServiceImpl implements TestNeo4jService {
         Session session = driver.session();
         Result res = session.run(cypher);
         return Neo4jGraph.parse(res).getEdges().toArray(new Neo4jEdge[1])[0];
+    }
+
+    @Override
+    public Neo4jGraph getByNodeClass(List<KgNodeClass> nodeClassList) {
+        String cypher = "";
+        int count = 0;
+        StringBuilder builder = new StringBuilder();
+        StringBuilder builder1 = new StringBuilder();
+        for (KgNodeClass nodeClass : nodeClassList) {
+            builder.append("MATCH (p")
+                    .append(count)
+                    .append(":`")
+                    .append(nodeClass.getName())
+                    .append("`)")
+                    .append("RETURN p" + count + " AS node")
+                            .append(" UNION ");
+            builder1.append(",p").append(count);
+            count++;
+        }
+        // 删除逗号
+        if(nodeClassList.size() > 1){
+            builder.delete(builder.length() - 7, builder.length() - 1);
+        }
+        builder1.deleteCharAt(0);
+        cypher+=builder;
+//        cypher+=" RETURN " + builder1;
+        System.out.println("getByNodeClass:cypher:\n" + cypher);
+        Session session = driver.session();
+        Result res = session.run(cypher);
+        Neo4jGraph parse = Neo4jGraph.parse(res);
+        System.out.println(parse);
+        return parse;
+    }
+
+    // 通过给定的节点类型查询其中的关系
+    @Override
+    public Neo4jGraph getEdgeByNodeClass(List<KgNodeClass> nodeClassList) {
+        StringBuilder builder = new StringBuilder();
+        for (KgNodeClass nodeClass : nodeClassList) {
+            builder.append(",'").append(nodeClass.getName()).append("'");
+        }
+        builder.deleteCharAt(0);
+        String cypher = "MATCH (n)-[r]->(m)\n" +
+                "WHERE ANY(label IN labels(n) WHERE label IN ["
+                + builder + "]) "
+                + "AND ANY(label IN labels(m) WHERE label IN ["
+                + builder + "]) "
+                + "RETURN n, r, m";
+
+        System.out.println("getEdgeByNodeClass:cypher:\n" + cypher);
+        Session session = driver.session();
+        Result res = session.run(cypher);
+        Neo4jGraph parse = Neo4jGraph.parse(res);
+        System.out.println(parse);
+        return parse;
     }
 }

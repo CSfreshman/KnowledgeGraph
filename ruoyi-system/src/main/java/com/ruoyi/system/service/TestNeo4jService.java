@@ -1,11 +1,13 @@
 package com.ruoyi.system.service;
 
 import com.ruoyi.system.domain.KgEdgeInstance;
+import com.ruoyi.system.domain.KgNodeClass;
 import com.ruoyi.system.req.GraphReq;
 import com.ruoyi.system.utils.neo4j.Neo4jEdge;
 import com.ruoyi.system.utils.neo4j.Neo4jGraph;
 import com.ruoyi.system.utils.neo4j.Neo4jNode;
 
+import java.util.List;
 import java.util.Set;
 
 public interface TestNeo4jService {
@@ -27,4 +29,8 @@ public interface TestNeo4jService {
     Neo4jGraph getEdgeInstanceGraph(KgEdgeInstance instance);
 
     Neo4jEdge addEdge(KgEdgeInstance kgEdgeInstance);
+
+    Neo4jGraph getByNodeClass(List<KgNodeClass> nodeClassList);
+
+    Neo4jGraph getEdgeByNodeClass(List<KgNodeClass> nodeClassList);
 }

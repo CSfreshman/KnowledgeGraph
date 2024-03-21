@@ -4,6 +4,7 @@ import java.util.Date;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
+import lombok.Data;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.ruoyi.common.annotation.Excel;
@@ -15,6 +16,7 @@ import com.ruoyi.common.core.domain.BaseEntity;
  * @author ruoyi
  * @date 2024-03-04
  */
+@Data
 public class KgNodeClassProperties extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
@@ -56,102 +58,4 @@ public class KgNodeClassProperties extends BaseEntity
     /** 修改类型，1新增，0删除 */
     @Excel(name = "修改类型，1新增，0删除")
     private Long modifyType;
-
-    public void setId(Long id)
-    {
-        this.id = id;
-    }
-
-    public Long getId()
-    {
-        return id;
-    }
-    public void setName(String name)
-    {
-        this.name = name;
-    }
-
-    public String getName()
-    {
-        return name;
-    }
-    public void setType(String type)
-    {
-        this.type = type;
-    }
-
-    public String getType()
-    {
-        return type;
-    }
-    public void setCreateUser(Long createUser)
-    {
-        this.createUser = createUser;
-    }
-
-    public Long getCreateUser()
-    {
-        return createUser;
-    }
-    public void setNodeId(Long nodeId)
-    {
-        this.nodeId = nodeId;
-    }
-
-    public Long getNodeId()
-    {
-        return nodeId;
-    }
-    public void setValid(Integer valid)
-    {
-        this.valid = valid;
-    }
-
-    public Integer getValid()
-    {
-        return valid;
-    }
-    public void setModifyTime(Date modifyTime)
-    {
-        this.modifyTime = modifyTime;
-    }
-
-    public Date getModifyTime()
-    {
-        return modifyTime;
-    }
-    public void setModifyUser(Long modifyUser)
-    {
-        this.modifyUser = modifyUser;
-    }
-
-    public Long getModifyUser()
-    {
-        return modifyUser;
-    }
-    public void setModifyType(Long modifyType)
-    {
-        this.modifyType = modifyType;
-    }
-
-    public Long getModifyType()
-    {
-        return modifyType;
-    }
-
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-            .append("id", getId())
-            .append("name", getName())
-            .append("type", getType())
-            .append("createTime", getCreateTime())
-            .append("createUser", getCreateUser())
-            .append("nodeId", getNodeId())
-            .append("valid", getValid())
-            .append("modifyTime", getModifyTime())
-            .append("modifyUser", getModifyUser())
-            .append("modifyType", getModifyType())
-            .toString();
-    }
 }

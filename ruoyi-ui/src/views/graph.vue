@@ -1124,8 +1124,8 @@ export default {
 }
 .page-header .swtich-wrap{
   position:absolute;
-  top:10px;
-  right:10px;
+  top:15px;
+  right:25px;
   font-size: 13px;
 }
 

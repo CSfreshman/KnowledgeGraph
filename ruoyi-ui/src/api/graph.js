@@ -6,3 +6,11 @@ export function getAllGraph() {
     method: 'get'
   })
 }
+
+export function graphSelect(data) {
+  return request({
+    url: '/graph/graphSelect',
+    method: 'post',
+    data: data
+  })
+}
