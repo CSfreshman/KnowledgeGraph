@@ -97,6 +97,7 @@
 
 import {getAll as getAllEdgeClass} from "@/api/mange/class/edge";
 import {getAll as getAllNodeInstance} from "@/api/mange/instance/node"
+import {pathAnalyse} from "@/api/graph";
 
 export default {
   name: "networkAnalysis",
@@ -130,7 +131,7 @@ export default {
     // 执行分析动作
     analyse() {
       var formData = {
-        edgeList: this.checkedIds,
+        edgeClassList: this.checkedIds,
         fromNode: this.fromNode,
         toNode: this.toNode,
         isShortest: this.isShortest,
@@ -138,6 +139,10 @@ export default {
       }
       console.log("分析表单数据如下")
       console.log(formData)
+
+      pathAnalyse(formData).then(resp=>{
+
+      })
 
     },
 

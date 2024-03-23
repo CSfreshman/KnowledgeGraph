@@ -1,6 +1,7 @@
 package com.ruoyi.system.service.impl;
 
 import cn.hutool.core.util.ObjectUtil;
+import com.ruoyi.system.domain.KgEdgeClass;
 import com.ruoyi.system.domain.KgEdgeInstaceProperties;
 import com.ruoyi.system.domain.KgEdgeInstance;
 import com.ruoyi.system.domain.KgNodeClass;
@@ -263,6 +264,71 @@ public class TestNeo4jServiceImpl implements TestNeo4jService {
         Result res = session.run(cypher);
         Neo4jGraph parse = Neo4jGraph.parse(res);
         System.out.println(parse);
+        return parse;
+    }
+
+    // 图谱路径分析
+    @Override
+    public Neo4jGraph pathAnalyse(GraphReq req) {
+        if(ObjectUtil.isEmpty(req.getFromNode()) || ObjectUtil.isEmpty(req.getToNode())
+                || ObjectUtil.isEmpty(req.getFromNode().getName())
+                ||ObjectUtil.isEmpty(req.getToNode().getName())){
+            System.out.println("起点或终点为空");
+            throw new RuntimeException("起点或终点为空");
+        }
+
+        // 最大值为5
+        if(req.getMaxDegree() >= 5){
+            req.setMaxDegree(5);
+        }
+
+        String cypher = "";
+        StringBuilder edgeClassListStr = new StringBuilder();
+
+        if(ObjectUtil.isNotNull(req.getEdgeClassList())){
+            for (KgEdgeClass edgeClass : req.getEdgeClassList()) {
+                edgeClassListStr.append(",'")
+                        .append(edgeClass.getLabel())
+                        .append("'");
+            }
+            edgeClassListStr.deleteCharAt(0);
+            edgeClassListStr.insert(0,'[');
+            edgeClassListStr.append(']');
+        }
+        if(req.getIsShortest()){
+            cypher+="MATCH (a), (b)\n" +
+                    "WHERE id(a) = " + req.getFromNode().getNeo4jId() + " " +
+                    "AND id(b) = " + req.getToNode().getNeo4jId() + " \n" +
+                    "MATCH p=allShortestPaths((a)-[*]-(b))\n";
+            if(ObjectUtil.isNotEmpty(req.getEdgeClassList())){
+                cypher+="WHERE all(rel in relationships(p) WHERE type(rel) in " + edgeClassListStr + ") \n";
+            }
+            cypher+="RETURN p";
+
+        }else{
+            cypher+="MATCH p=(a)-[r*.." + req.getMaxDegree() + "]-(b)\n" +
+                    "WHERE id(a) = " + req.getFromNode().getNeo4jId() + " AND id(b) = " + req.getToNode().getNeo4jId() + " \n";
+            if(ObjectUtil.isNotEmpty(req.getEdgeClassList())){
+                cypher+="AND all(rel in relationships(p) WHERE type(rel) IN " + edgeClassListStr + ") \n";
+
+            }
+            cypher+="RETURN p";
+        }
+
+
+
+        System.out.println("cypher = \n" + cypher);
+
+        Session session = driver.session();
+        Result run = session.run(cypher);
+        Neo4jGraph parse = Neo4jGraph.parse(run);
+        System.out.println(parse);
+        System.out.println(parse.getNodes());
+        System.out.println(parse.getNodes().size());
+        System.out.println(parse.getEdges());
+        System.out.println(parse.getEdges().size());
+
+
         return parse;
     }
 }

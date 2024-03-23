@@ -92,4 +92,18 @@ public class GraphController {
         return neo4jGraph;
     }
 
+    // 路径分析
+    @PostMapping("/analyse/path")
+    public Neo4jGraph pathAnalyse(@RequestBody GraphReq req){
+        System.out.println("pathAnalyse:req:" + req);
+        Neo4jGraph neo4jGraph = testNeo4jService.pathAnalyse(req);
+        return neo4jGraph;
+    }
+
+    // 中心多度探寻
+
+
+    // 中心度计算
+
+
 }

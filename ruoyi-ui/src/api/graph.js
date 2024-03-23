@@ -14,3 +14,11 @@ export function graphSelect(data) {
     data: data
   })
 }
+
+export function pathAnalyse(data) {
+  return request({
+    url: '/graph/analyse/path',
+    method: 'post',
+    data: data
+  })
+}

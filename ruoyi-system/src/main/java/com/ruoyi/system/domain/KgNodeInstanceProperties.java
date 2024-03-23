@@ -2,6 +2,7 @@ package com.ruoyi.system.domain;
 
 import java.util.Date;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.Data;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.ruoyi.common.annotation.Excel;
@@ -9,10 +10,11 @@ import com.ruoyi.common.core.domain.BaseEntity;
 
 /**
  * 【请填写功能名称】对象 kg_node_instance_properties
- * 
+ *
  * @author ruoyi
  * @date 2024-03-16
  */
+@Data
 public class KgNodeInstanceProperties extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
@@ -52,102 +54,4 @@ public class KgNodeInstanceProperties extends BaseEntity
     /** 修改类型，1新增，0删除 */
     @Excel(name = "修改类型，1新增，0删除")
     private Long modityType;
-
-    public void setId(Long id) 
-    {
-        this.id = id;
-    }
-
-    public Long getId() 
-    {
-        return id;
-    }
-    public void setNodeId(Long nodeId) 
-    {
-        this.nodeId = nodeId;
-    }
-
-    public Long getNodeId() 
-    {
-        return nodeId;
-    }
-    public void setName(String name) 
-    {
-        this.name = name;
-    }
-
-    public String getName() 
-    {
-        return name;
-    }
-    public void setValue(String value) 
-    {
-        this.value = value;
-    }
-
-    public String getValue() 
-    {
-        return value;
-    }
-    public void setCreateUser(Long createUser) 
-    {
-        this.createUser = createUser;
-    }
-
-    public Long getCreateUser() 
-    {
-        return createUser;
-    }
-    public void setValid(Long valid) 
-    {
-        this.valid = valid;
-    }
-
-    public Long getValid() 
-    {
-        return valid;
-    }
-    public void setModityTime(Date modityTime) 
-    {
-        this.modityTime = modityTime;
-    }
-
-    public Date getModityTime() 
-    {
-        return modityTime;
-    }
-    public void setModityUser(Long modityUser) 
-    {
-        this.modityUser = modityUser;
-    }
-
-    public Long getModityUser() 
-    {
-        return modityUser;
-    }
-    public void setModityType(Long modityType) 
-    {
-        this.modityType = modityType;
-    }
-
-    public Long getModityType() 
-    {
-        return modityType;
-    }
-
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-            .append("id", getId())
-            .append("nodeId", getNodeId())
-            .append("name", getName())
-            .append("value", getValue())
-            .append("createTime", getCreateTime())
-            .append("createUser", getCreateUser())
-            .append("valid", getValid())
-            .append("modityTime", getModityTime())
-            .append("modityUser", getModityUser())
-            .append("modityType", getModityType())
-            .toString();
-    }
 }

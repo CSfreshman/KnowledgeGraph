@@ -977,7 +977,7 @@ export default {
     //节点拖拽事件
     this.config.node.onMousedrag=function(event, node) { //节点拖拽事件
       that.tipLayer.show = false; //关闭提示层
-      that.reLayout();
+      //that.reLayout();
     };
 
     //连线的点击事件
