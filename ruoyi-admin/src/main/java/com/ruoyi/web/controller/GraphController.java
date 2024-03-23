@@ -67,6 +67,7 @@ public class GraphController {
         return testNeo4jService.getEdgeInstanceGraph(instance);
     }
 
+//    图谱检索
     @PostMapping("/graphSelect")
     public Neo4jGraph graphSelect(@RequestBody GraphReq req){
         System.out.println("graphSelect:req:" + req);
