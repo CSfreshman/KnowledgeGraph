@@ -101,7 +101,13 @@ public class GraphController {
     }
 
     // 中心多度探寻
+    @PostMapping("/analyse/centerMultiDegree")
+    public Neo4jGraph centerMultiDegree(@RequestBody GraphReq req){
+        System.out.println("centerMultiDegree:req:" + req);
+        Neo4jGraph neo4jGraph = testNeo4jService.centerMultiDegree(req);
+        return neo4jGraph;
 
+    }
 
     // 中心度计算
 

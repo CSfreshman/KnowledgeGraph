@@ -35,4 +35,6 @@ public interface TestNeo4jService {
     Neo4jGraph getEdgeByNodeClass(List<KgNodeClass> nodeClassList);
 
     Neo4jGraph pathAnalyse(GraphReq req);
+
+    Neo4jGraph centerMultiDegree(GraphReq req);
 }

@@ -22,3 +22,11 @@ export function pathAnalyse(data) {
     data: data
   })
 }
+
+export function centerMultiDegree(data) {
+  return request({
+    url: '/graph/analyse/centerMultiDegree',
+    method: 'post',
+    data: data
+  })
+}

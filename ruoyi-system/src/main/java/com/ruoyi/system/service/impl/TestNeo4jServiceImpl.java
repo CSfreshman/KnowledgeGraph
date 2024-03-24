@@ -278,7 +278,7 @@ public class TestNeo4jServiceImpl implements TestNeo4jService {
         }
 
         // 最大值为5
-        if(req.getMaxDegree() >= 5){
+        if(!req.getIsShortest() && req.getMaxDegree() >= 5){
             req.setMaxDegree(5);
         }
 
@@ -330,5 +330,11 @@ public class TestNeo4jServiceImpl implements TestNeo4jService {
 
 
         return parse;
+    }
+
+    // 中心多度探寻
+    @Override
+    public Neo4jGraph centerMultiDegree(GraphReq req) {
+        return null;
     }
 }

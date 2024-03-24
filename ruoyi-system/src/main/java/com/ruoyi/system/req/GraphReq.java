@@ -39,4 +39,18 @@ public class GraphReq {
 
     // 最大度数
     private Integer maxDegree;
+
+//    中心多度探寻
+    // 参与分析的关系类型
+//    private List<KgEdgeClass> edgeList;
+
+    // 参与分析的关系类型
+    private List<KgNodeClass> nodeList;
+
+    // 选择的度数
+    private Integer selectedDegree;
+
+    // 分析实体
+    private KgNodeInstance analyseNode;
+
 }
