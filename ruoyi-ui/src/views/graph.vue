@@ -38,6 +38,7 @@
     <div id="nodeRightMenuPanel" class="right-menu-layer">
       <button @click="showNodeDeteail()"><i class="el-icon-notebook-2"></i>节点属性</button>
       <button @click="handleEditButton()"><i class="el-icon-setting"></i>节点编辑</button>
+      <button @click="goToDetail()"><i class="el-icon-setting"></i>查看详情</button>
       <el-popover placement="top" :width="180" ref="popoverNode">
         <p>您确定要删除该节点吗?</p>
         <div style="text-align: right; margin: 0">
@@ -947,6 +948,14 @@ export default {
 
     beforeCloseDrawer(flag) {
       this.flag = true;
+    },
+
+    goToDetail() {
+      var data = this.currentNode;
+      this.$router.push({
+        path: '/nodeDetail',
+        query: {data}
+      })
     }
   },
   created () {

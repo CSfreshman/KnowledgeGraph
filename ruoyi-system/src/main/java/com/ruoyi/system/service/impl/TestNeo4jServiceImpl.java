@@ -96,6 +96,7 @@ public class TestNeo4jServiceImpl implements TestNeo4jService {
         return edges;
     }
 
+    // 查询n度子图
     @Override
     public Neo4jGraph getNodeDetailByNodeId(GraphReq req) {
         System.out.println("开始查询节点详情-以该节点为中心的N度网络");
@@ -299,14 +300,14 @@ public class TestNeo4jServiceImpl implements TestNeo4jService {
             cypher+="MATCH (a), (b)\n" +
                     "WHERE id(a) = " + req.getFromNode().getNeo4jId() + " " +
                     "AND id(b) = " + req.getToNode().getNeo4jId() + " \n" +
-                    "MATCH p=allShortestPaths((a)-[*]-(b))\n";
+                    "MATCH p=allShortestPaths((a)-[*]->(b))\n";
             if(ObjectUtil.isNotEmpty(req.getEdgeClassList())){
                 cypher+="WHERE all(rel in relationships(p) WHERE type(rel) in " + edgeClassListStr + ") \n";
             }
             cypher+="RETURN p";
 
         }else{
-            cypher+="MATCH p=(a)-[r*.." + req.getMaxDegree() + "]-(b)\n" +
+            cypher+="MATCH p=(a)-[r*.." + req.getMaxDegree() + "]->(b)\n" +
                     "WHERE id(a) = " + req.getFromNode().getNeo4jId() + " AND id(b) = " + req.getToNode().getNeo4jId() + " \n";
             if(ObjectUtil.isNotEmpty(req.getEdgeClassList())){
                 cypher+="AND all(rel in relationships(p) WHERE type(rel) IN " + edgeClassListStr + ") \n";
@@ -322,11 +323,7 @@ public class TestNeo4jServiceImpl implements TestNeo4jService {
         Session session = driver.session();
         Result run = session.run(cypher);
         Neo4jGraph parse = Neo4jGraph.parse(run);
-        System.out.println(parse);
-        System.out.println(parse.getNodes());
-        System.out.println(parse.getNodes().size());
-        System.out.println(parse.getEdges());
-        System.out.println(parse.getEdges().size());
+        showNeo4j(parse);
 
 
         return parse;
@@ -335,6 +332,60 @@ public class TestNeo4jServiceImpl implements TestNeo4jService {
     // 中心多度探寻
     @Override
     public Neo4jGraph centerMultiDegree(GraphReq req) {
-        return null;
+
+        StringBuilder builderEdge = new StringBuilder();
+        StringBuilder builderNode = new StringBuilder();
+        if(ObjectUtil.isNotEmpty(req.getEdgeClassList())){
+
+            for (KgEdgeClass edgeClass : req.getEdgeClassList()) {
+                builderEdge.append("|").append(edgeClass.getLabel());
+            }
+            builderEdge.deleteCharAt(0);
+        }
+
+        if(ObjectUtil.isNotEmpty(req.getNodeClassList())){
+            for (KgNodeClass nodeClass : req.getNodeClassList()) {
+                builderNode.append("|").append(nodeClass.getName());
+            }
+            builderNode.deleteCharAt(0);
+        }
+
+//        String cypher = "MATCH (startNode)\n" +
+//                "WHERE id(startNode) = " + req.getAnalyseNode().getNeo4jId() +
+//                "\n" +
+//                "CALL apoc.path.subgraphNodes(startNode, {\n" +
+//                "  relationshipFilter: '"+builderEdge+"',\n" +
+//                "  labelFilter: '"+builderNode+"',\n" +
+//                "  minLevel: 1,\n" +
+//                "  maxLevel: "+req.getSelectedDegree()+"\n" +
+//                "})\n" +
+//                "YIELD node\n" +
+//                "MATCH p = shortestPath((startNode)-[*]-(node))\n" +
+//                "RETURN startNode, relationships(p) as relationships, node";
+        // 向外发散的关系网络(如果不希望得到向外发散的网络，只需要将箭头'>'删除即可)
+        String cypher =
+                "MATCH path = " +
+                        "(n)-[:"+builderEdge+"*.."+req.getSelectedDegree()+"]->(related:"+builderNode+") " +
+                        "WHERE id(n) = "+req.getAnalyseNode().getNeo4jId()+" \n" +
+                "RETURN nodes(path) AS nodes, relationships(path) AS relationships";
+
+        System.out.println("centerMultiDegree:cypher:\n" + cypher);
+        Session session = driver.session();
+        Result run = session.run(cypher);
+        Neo4jGraph parse = Neo4jGraph.parse1(run);
+        showNeo4j(parse);
+        return parse;
+    }
+
+    public void showNeo4j(Neo4jGraph parse){
+        System.out.println(parse);
+        for (Neo4jNode node : parse.getNodes()) {
+            System.out.println(node + "\n");
+        }
+        System.out.println(parse.getNodes().size());
+        for (Neo4jEdge edge : parse.getEdges()) {
+            System.out.println(edge + "\n");
+        }
+        System.out.println(parse.getEdges().size());
     }
 }

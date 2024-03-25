@@ -45,7 +45,18 @@ public class Neo4jGraph {
                     Relationship relationship = value.asRelationship();
                     graph.addNeo4jEdge(new Neo4jEdge(relationship));
                 }else {
-                    log.error("目前不支持{}类型的查询数据解析。", type.name());
+                    if("LIST OF ANY?".equals(type.name())){
+                        for (Value value1 : value.values()) {
+                            Type type1 = value1.type();
+                            if (type1.name().equals(TypeConstructor.RELATIONSHIP.name())) {
+                                Relationship relationship = value1.asRelationship();
+                                graph.addNeo4jEdge(new Neo4jEdge(relationship));
+                            }
+                        }
+                    }else{
+                        log.error("目前不支持{}类型的查询数据解析。", type.name());
+                    }
+
                 }
             }
         }
