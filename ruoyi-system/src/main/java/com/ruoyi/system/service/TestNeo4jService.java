@@ -37,4 +37,6 @@ public interface TestNeo4jService {
     Neo4jGraph pathAnalyse(GraphReq req);
 
     Neo4jGraph centerMultiDegree(GraphReq req);
+
+    Neo4jGraph centralityCalculation(GraphReq req);
 }

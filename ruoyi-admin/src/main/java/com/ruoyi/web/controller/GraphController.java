@@ -110,6 +110,11 @@ public class GraphController {
     }
 
     // 中心度计算
-
+    @PostMapping("/calculation/centrality")
+    public  Neo4jGraph centralityCalculation(@RequestBody GraphReq req){
+        System.out.println("centralityCalculation:req" + req);
+        Neo4jGraph neo4jGraph = testNeo4jService.centralityCalculation(req);
+        return null;
+    }
 
 }

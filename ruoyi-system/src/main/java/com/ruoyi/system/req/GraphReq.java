@@ -24,7 +24,7 @@ public class GraphReq {
 
     private List<KgEdgeClass> edgeClassList;
 
-//    路径分析
+    // 路径分析
     // 参与分析的关系类型
     private List<KgEdgeClass> edgeList;
 
@@ -40,7 +40,7 @@ public class GraphReq {
     // 最大度数
     private Integer maxDegree;
 
-//    中心多度探寻
+    // 中心多度探寻
     // 参与分析的关系类型
 //    private List<KgEdgeClass> edgeList;
 
@@ -52,5 +52,10 @@ public class GraphReq {
 
     // 分析实体
     private KgNodeInstance analyseNode;
+
+    // 中心度计算开始
+    private Integer selectedCenterDegreeModel;
+
+    // 中心度计算结束
 
 }

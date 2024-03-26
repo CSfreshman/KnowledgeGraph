@@ -30,3 +30,11 @@ export function centerMultiDegree(data) {
     data: data
   })
 }
+
+export function centralityCalculation(data) {
+  return request({
+    url: '/graph/calculation/centrality',
+    method: 'post',
+    data: data
+  })
+}

@@ -1,17 +1,17 @@
 <template>
   <div id="main-container">
     <el-row>
-      <el-col span="7">
+      <el-col :span="7" v-if="showLeft">
         <!--    左侧表单内容-->
         <div id="left-container">
 
           <!--      头部-->
           <div>
             <el-row>
-              <el-col span="12">
+              <el-col :span="12">
                 <el-button size="medium" @click="showPath = true">路径分析</el-button>
               </el-col>
-              <el-col span="12">
+              <el-col :span="12">
                 <el-button size="medium" @click="showPath = false">中心多度探寻</el-button>
               </el-col>
             </el-row>
@@ -174,15 +174,32 @@
         </div>
       </el-col>
 
-      <el-col span="17">
+      <el-col :span="showLeft ? 17 : 24">
         <!--    图谱-->
         <div id="right-container">
+          <el-button @click="showLeft = !showLeft"  size="medium">{{this.showLeft?"隐藏表单":"显示表单"}}</el-button>
           <!-- 绘图面板区域 -->
           <div id="graph-panel" style="height: 100%"></div>
         </div>
       </el-col>
     </el-row>
 
+
+    <!-- 节点或连线属性提示 -->
+    <div id="tip-layer" class="tip-wrap" v-show="tipLayer.show">
+      <div class="tip-header">{{tipLayer.header}}    <el-button @click="tipLayer.show = false">取消</el-button></div>
+      <div class="tip-body">
+        <el-table
+          :data="tipLayer.data"
+          border
+          size="small"
+          style="width:100%;">
+          <el-table-column prop="name" label="属性"></el-table-column>
+          <el-table-column prop="value"  label="属性值"></el-table-column>
+          <!--          <el-table-column prop="unit" label="单位" width="100"></el-table-column>-->
+        </el-table>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -202,6 +219,7 @@ export default {
   name: "networkAnalysis",
   data() {
     return {
+      showLeft: true,
       showPath: true,
       isShortest: true,
       allEdgeClassList: [],
@@ -237,6 +255,11 @@ export default {
       layoutLoopName:null,//布局循环对象
       graphLegend:[],
       loading: true,
+      tipLayer:{ //提示层配置
+        show : false, //是否显示提示层
+        header:'提示信息', // 提示表头
+        data:[] //提示内部的数据
+      },
     }
   },
   methods: {
@@ -506,6 +529,15 @@ export default {
     },
     randomId(){
       return Math.round(Math.random() * 99999999);
+    },
+
+    //显示提示层
+    showTipLayer(event){
+      this.tipLayer.show = true;
+
+      const tipDom = document.getElementById('tip-layer');
+      tipDom.style.top = event.clientY + 5 + 'px';
+      tipDom.style.left = event.clientX + 10 +'px';
     },
 
   },
