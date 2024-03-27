@@ -386,7 +386,7 @@ public class TestNeo4jServiceImpl implements TestNeo4jService {
     ORDER BY degreeCentrality DESC
      */
     @Override
-    public Neo4jGraph centralityCalculation(GraphReq req) {
+    public Map<Object,Integer> centralityCalculation(GraphReq req) {
         String cypher = "MATCH (n";
         StringBuilder builder = new StringBuilder();
         if(ObjectUtil.isNotEmpty(req.getNodeClassList())){
@@ -410,16 +410,11 @@ public class TestNeo4jServiceImpl implements TestNeo4jService {
         System.out.println("centralityCalculation:cyher:\n" + cypher);
         Session session = driver.session();
         Result result = session.run(cypher);
-        Neo4jGraph.parse(result);
-        /*
-        TODO:
-        可以先将这里的中心度指标的查询结果保存在一个Map<nep4jId:centrality>中，然后再查询一次，查询出指定节点类型的子网，
-        再遍历一遍之前的Map，就可以得到这些节点的中心度
+        Map<Object,Integer> result1 = Neo4jGraph.centralityCalculation(result);
 
-        返回结果可虑更改一下，可以返回Neo4jGraph和Map，然后由前端来添加属性，并进行渲染
-         */
+        System.out.println(result1);
 
-        return null;
+        return result1;
     }
 
     // 打印图谱内容

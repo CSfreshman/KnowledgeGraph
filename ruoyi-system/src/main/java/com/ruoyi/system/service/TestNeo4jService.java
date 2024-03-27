@@ -8,6 +8,7 @@ import com.ruoyi.system.utils.neo4j.Neo4jGraph;
 import com.ruoyi.system.utils.neo4j.Neo4jNode;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public interface TestNeo4jService {
@@ -38,5 +39,5 @@ public interface TestNeo4jService {
 
     Neo4jGraph centerMultiDegree(GraphReq req);
 
-    Neo4jGraph centralityCalculation(GraphReq req);
+    Map<Object,Integer> centralityCalculation(GraphReq req);
 }

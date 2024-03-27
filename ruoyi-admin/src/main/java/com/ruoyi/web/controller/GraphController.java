@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.system.domain.KgEdgeInstance;
 import com.ruoyi.system.domain.KgNodeClass;
+import com.ruoyi.system.req.GraphResp;
 import com.ruoyi.system.service.TestNeo4jService;
 import com.ruoyi.system.utils.neo4j.Neo4jEdge;
 import com.ruoyi.system.utils.neo4j.Neo4jGraph;
@@ -111,10 +112,28 @@ public class GraphController {
 
     // 中心度计算
     @PostMapping("/calculation/centrality")
-    public  Neo4jGraph centralityCalculation(@RequestBody GraphReq req){
+    public  GraphResp centralityCalculation(@RequestBody GraphReq req){
         System.out.println("centralityCalculation:req" + req);
-        Neo4jGraph neo4jGraph = testNeo4jService.centralityCalculation(req);
-        return null;
+        Map<Object,Integer> map = testNeo4jService.centralityCalculation(req);
+
+        Neo4jGraph neo4jGraph = new Neo4jGraph();
+        // 根据节点类型查询
+        if(ObjectUtil.isNotNull(req.getNodeClassList())){
+            Neo4jGraph res1 = testNeo4jService.getByNodeClass(req.getNodeClassList());
+            Neo4jGraph res2 = testNeo4jService.getEdgeByNodeClass(req.getNodeClassList());
+            for (Neo4jNode node : res1.getNodes()) {
+                neo4jGraph.addNeo4jNode(node);
+            }
+            for (Neo4jEdge edge : res2.getEdges()) {
+                neo4jGraph.addNeo4jEdge(edge);
+            }
+        }
+
+        GraphResp resp = new GraphResp();
+
+        resp.setGraph(neo4jGraph);
+        resp.setCentrality(map);
+        return resp;
     }
 
 }

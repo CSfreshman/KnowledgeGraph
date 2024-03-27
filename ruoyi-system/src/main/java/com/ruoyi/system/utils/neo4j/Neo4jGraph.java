@@ -11,8 +11,11 @@ import org.neo4j.driver.types.Node;
 import org.neo4j.driver.types.Path;
 import org.neo4j.driver.types.Relationship;
 import org.neo4j.driver.types.Type;
+import org.springframework.security.core.parameters.P;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @Data
@@ -61,6 +64,31 @@ public class Neo4jGraph {
             }
         }
         return graph;
+    }
+
+    // 中心度计算，结果以<neo4jId,centrality>的键值对形式返回
+    public static Map<Object, Integer> centralityCalculation(Result result) {
+        if (result == null) return null;
+        Map<Object, Integer> map = new HashMap<>();
+        List<Record> records = result.list();
+        for (Record record : records) {
+            List<Value> values = record.values();
+            Object neo4jId = null;
+            Integer centrality = null;
+            for (Value value : values) {
+                Type type = value.type();
+                if (type.name().equals(TypeConstructor.NODE.name())) {
+                    Node node = value.asNode();
+                    neo4jId = node.id();
+                }else{
+                    centrality = value.asInt();
+                }
+            }
+
+            map.put(neo4jId,centrality);
+        }
+
+        return map;
     }
 
     public void addNeo4jNode(Neo4jNode neo4jNode) {
