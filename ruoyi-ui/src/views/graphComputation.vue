@@ -195,7 +195,7 @@ export default {
       console.log(formData)
 
       centralityCalculation(formData).then(resp=>{
-
+        this.drawGraphData(0,resp.graph);
       })
     },
 

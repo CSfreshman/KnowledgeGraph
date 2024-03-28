@@ -1,95 +1,111 @@
 <template>
   <div id="main-container">
     <div id="page-header">
-      <el-form :model="formData" label-width="100px" :inline="true">
-        <el-row>
-          <el-col span="5">
-            <el-form-item label="实体名称">
-              <el-input size="mini" style="width: 80px;" v-model="formData.nodeName"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col span="11">
-<!--            <el-form-item label="请输入关系名称">-->
-<!--              <el-input size="mini" style="width: 160px;" v-model="formData.edgeName"></el-input>-->
-<!--            </el-form-item>-->
-            <el-form-item label="关系起点">
-              <el-input size="mini" style="width: 70px;" v-model="formData.fromNodeName"></el-input>
-            </el-form-item>
-
-            <el-form-item label="关系终点">
-              <el-input size="mini" style="width: 70px;" v-model="formData.toNodeName"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col span="8">
-
-            <el-button @click="doQuery()" icon="el-icon-search">查询</el-button>
-
-            <el-button @click="openDialog = true" icon="el-icon-edit">添加更多</el-button>
-
-            <el-button @click="showAllCondition = !showAllCondition">{{showAllCondition?"折叠":"展开"}}</el-button>
-          </el-col>
-        </el-row>
-        <div v-if="showAllCondition">
-          <el-row>
-            <el-col span="8">
-              <el-form-item label="选择实体类型">
-                <el-select v-model="selectedNodeClassId" placeholder="选择实体类型" @change="selectNodeClass" size="mini">
-                  <el-option
-                    v-for="item in nodeClassList"
-                    :key="item.id"
-                    :label="item.label == null ? item.name : item.label"
-                    :value="item.id"
-                  >
-                  </el-option>
-                </el-select>
-              </el-form-item>
-            </el-col>
-            <el-col span="8">
-              <el-form-item label="选择关系类型">
-                <el-select v-model="selectedEdgeClassId" placeholder="选择实体类型" @change="selectEdgeClass" size="mini">
-                  <el-option
-                    v-for="item in edgeClassList"
-                    :key="item.id"
-                    :label="item.label == null ? item.name : item.label"
-                    :value="item.id"
-                  >
-                  </el-option>
-                </el-select>
-              </el-form-item>
-            </el-col>
-          </el-row>
-
-          <el-row>
-            <el-tag
-              v-for="item in selectedNodeClassList"
-              :key="item.id"
-              closable
-              @close="handleTagCloseForNodeClass(item)"
-              style="margin-left: 10px;"
-            >
-              {{item.name}}
-            </el-tag>
-          </el-row>
-          <el-row style="margin-top: 10px">
-            <el-tag
-              v-for="item in selectedEdgeClassList"
-              :key="item.id"
-              closable
-              @close="handleTagCloseForEdgeClass(item)"
-              style="margin-left: 10px;"
-            >
-              {{item.label}}
-            </el-tag>
-          </el-row>
+      <el-card>
+        <div>
+          <el-button @click="selectIndex = 1">实体查询</el-button>
+          <el-button @click="selectIndex = 2">关系查询</el-button>
+          <el-button @click="selectIndex = 3">类型联合查询</el-button>
+          <el-button @click="doQuery()" icon="el-icon-search">查询</el-button>
+          <el-button @click="" icon="el-icon-delete">清空表单</el-button>
         </div>
 
-      </el-form>
+        <el-form :model="formData" label-width="100px" :inline="true">
+          <el-row v-if="selectIndex == 1">
+            <el-col>
+              <el-form-item label="实体名称">
+                <el-input size="mini" style="width: 100px;" v-model="formData.nodeName"></el-input>
+              </el-form-item>
+            </el-col>
+
+<!--            <el-col span="8">-->
+
+<!--              <el-button @click="doQuery()" icon="el-icon-search">查询</el-button>-->
+
+<!--              <el-button @click="openDialog = true" icon="el-icon-edit">添加更多</el-button>-->
+
+<!--              <el-button @click="showAllCondition = !showAllCondition">{{showAllCondition?"折叠":"展开"}}</el-button>-->
+<!--            </el-col>-->
+          </el-row>
+
+          <el-row v-if="selectIndex == 2">
+
+            <!--            <el-form-item label="请输入关系名称">-->
+            <!--              <el-input size="mini" style="width: 160px;" v-model="formData.edgeName"></el-input>-->
+            <!--            </el-form-item>-->
+            <el-form-item label="关系起点名称">
+              <el-input size="mini" style="width: 100px;" v-model="formData.fromNodeName"></el-input>
+            </el-form-item>
+
+            <el-form-item label="关系终点名称">
+              <el-input size="mini" style="width: 100px;" v-model="formData.toNodeName"></el-input>
+            </el-form-item>
+          </el-row>
+          <div v-if="selectIndex == 3">
+            <el-row>
+              <el-col span="8">
+                <el-form-item label="选择实体类型">
+                  <el-select v-model="selectedNodeClassId" placeholder="选择实体类型" @change="selectNodeClass" size="mini">
+                    <el-option
+                      v-for="item in nodeClassList"
+                      :key="item.id"
+                      :label="item.label == null ? item.name : item.label"
+                      :value="item.id"
+                    >
+                    </el-option>
+                  </el-select>
+                </el-form-item>
+              </el-col>
+              <el-col span="8">
+                <el-form-item label="选择关系类型">
+                  <el-select v-model="selectedEdgeClassId" placeholder="选择实体类型" @change="selectEdgeClass" size="mini">
+                    <el-option
+                      v-for="item in edgeClassList"
+                      :key="item.id"
+                      :label="item.label == null ? item.name : item.label"
+                      :value="item.id"
+                    >
+                    </el-option>
+                  </el-select>
+                </el-form-item>
+              </el-col>
+            </el-row>
+
+            <el-row>
+              <el-tag
+                v-for="item in selectedNodeClassList"
+                :key="item.id"
+                closable
+                @close="handleTagCloseForNodeClass(item)"
+                style="margin-left: 10px;"
+              >
+                {{item.name}}
+              </el-tag>
+            </el-row>
+            <el-row style="margin-top: 10px">
+              <el-tag
+                v-for="item in selectedEdgeClassList"
+                :key="item.id"
+                closable
+                @close="handleTagCloseForEdgeClass(item)"
+                style="margin-left: 10px;"
+                type="success"
+              >
+                {{item.label}}
+              </el-tag>
+            </el-row>
+          </div>
+
+        </el-form>
+      </el-card>
+
     </div>
 
     <div id="page-body">
       <el-button style="margin-right: 50px">保留当前图谱</el-button>
     </div>
 
+<!--    下面的对话框不需要使用了-->
     <div>
       <el-dialog
         title="添加更多查询条件"
@@ -144,6 +160,8 @@ export default {
   name: "graphSelect",
   data() {
     return {
+      // 选中的查询方式
+      selectIndex: 1,
       showAllCondition: false,
       openDialog: false,
       nodeClassList: '',
@@ -217,6 +235,8 @@ export default {
       console.log("查询参数");
       this.formData.nodeClassList = this.selectedNodeClassList;
       this.formData.edgeClassList = this.selectedEdgeClassList;
+      // 查询方式，1为实体查询，2为关系查询，3为类型联合查询
+      this.formData.selectIndex = this.selectIndex;
       console.log(this.formData)
 
       graphSelect(this.formData).then(resp=>{

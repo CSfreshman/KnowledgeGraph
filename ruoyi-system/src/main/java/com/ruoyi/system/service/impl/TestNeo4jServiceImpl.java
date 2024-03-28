@@ -1,10 +1,7 @@
 package com.ruoyi.system.service.impl;
 
 import cn.hutool.core.util.ObjectUtil;
-import com.ruoyi.system.domain.KgEdgeClass;
-import com.ruoyi.system.domain.KgEdgeInstaceProperties;
-import com.ruoyi.system.domain.KgEdgeInstance;
-import com.ruoyi.system.domain.KgNodeClass;
+import com.ruoyi.system.domain.*;
 import com.ruoyi.system.req.GraphReq;
 import com.ruoyi.system.service.TestNeo4jService;
 import com.ruoyi.system.utils.neo4j.Neo4jEdge;
@@ -268,6 +265,43 @@ public class TestNeo4jServiceImpl implements TestNeo4jService {
         return parse;
     }
 
+    @Override
+    public Neo4jGraph getGraphByNodeOrEdgeClass(List<KgNodeClass> nodeClassList, List<KgEdgeClass> edgeClassList){
+        StringBuilder builder = new StringBuilder();
+        StringBuilder builder1 = new StringBuilder();
+
+        String cypher = "MATCH (n)-[r]->(m) WHERE 1=1\n";
+
+        if(ObjectUtil.isNotEmpty(nodeClassList)){
+            for (KgNodeClass nodeClass : nodeClassList) {
+                builder.append(",'").append(nodeClass.getName()).append("'");
+            }
+            builder.deleteCharAt(0);
+            cypher+="AND ANY(label IN labels(n) WHERE label IN ["
+                    + builder + "]) "
+                    + "AND ANY(label IN labels(m) WHERE label IN ["
+                    + builder + "]) \n";
+        }
+
+        if(ObjectUtil.isNotEmpty(edgeClassList)){
+            for (KgEdgeClass edgeClass : edgeClassList) {
+                builder1.append(",'").append(edgeClass.getLabel()).append("'");
+            }
+            builder1.deleteCharAt(0);
+            cypher+="AND type(r) IN ["+builder1+"]\n";
+        }
+
+        cypher+="RETURN n, r, m";
+
+        System.out.println("getGraphByNodeOrEdgeClass:cypher:\n" + cypher);
+
+        Result result = driver.session().run(cypher);
+        Neo4jGraph parse = Neo4jGraph.parse(result);
+        return parse;
+
+    }
+
+
     // 图谱路径分析
     @Override
     public Neo4jGraph pathAnalyse(GraphReq req) {
@@ -416,6 +450,31 @@ public class TestNeo4jServiceImpl implements TestNeo4jService {
 
         return result1;
     }
+
+    // 根据节点名称进行模糊查询
+    @Override
+    public Neo4jGraph getNodeByName(String nodeName) {
+        String cypher = "MATCH (p)\n" +
+                "WHERE p.name CONTAINS '"+nodeName+"'\n" +
+                "RETURN p";
+        System.out.println("getNodeByName:cypher:\n" + cypher);
+        Result result = driver.session().run(cypher);
+        Neo4jGraph parse = Neo4jGraph.parse(result);
+        return parse;
+    }
+
+    @Override
+    public Neo4jGraph getEdgeByFromOrToNodeName(String fromNodeName, String toNodeName) {
+        String cypher = "MATCH (start)-[r]->(end)\n" +
+                "WHERE start.name CONTAINS '"+fromNodeName+"' " +
+                "AND end.name CONTAINS '"+toNodeName+"'\n" +
+                "RETURN start, r, end";
+        System.out.println("getEdgeByFromOrToNodeName:cypher:\n" + cypher);
+        Result result = driver.session().run(cypher);
+        Neo4jGraph parse = Neo4jGraph.parse(result);
+        return parse;
+    }
+
 
     // 打印图谱内容
     public void showNeo4j(Neo4jGraph parse){

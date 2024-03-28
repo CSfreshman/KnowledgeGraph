@@ -24,6 +24,13 @@ public class GraphReq {
 
     private List<KgEdgeClass> edgeClassList;
 
+    // 查询方式，1为实体查询，2为关系查询，3为类型联合查询
+    private Integer selectIndex;
+    // 关系起点名称
+    private String fromNodeName;
+    // 关系终点名称
+    private String toNodeName;
+
     // 路径分析
     // 参与分析的关系类型
     private List<KgEdgeClass> edgeList;

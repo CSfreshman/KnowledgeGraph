@@ -1,7 +1,9 @@
 package com.ruoyi.system.service;
 
+import com.ruoyi.system.domain.KgEdgeClass;
 import com.ruoyi.system.domain.KgEdgeInstance;
 import com.ruoyi.system.domain.KgNodeClass;
+import com.ruoyi.system.domain.KgNodeInstance;
 import com.ruoyi.system.req.GraphReq;
 import com.ruoyi.system.utils.neo4j.Neo4jEdge;
 import com.ruoyi.system.utils.neo4j.Neo4jGraph;
@@ -40,4 +42,10 @@ public interface TestNeo4jService {
     Neo4jGraph centerMultiDegree(GraphReq req);
 
     Map<Object,Integer> centralityCalculation(GraphReq req);
+
+    Neo4jGraph getNodeByName(String nodeName);
+
+    Neo4jGraph getEdgeByFromOrToNodeName(String fromNodeName, String toNodeName);
+
+    Neo4jGraph getGraphByNodeOrEdgeClass(List<KgNodeClass> nodeClassList, List<KgEdgeClass> edgeClassList);
 }

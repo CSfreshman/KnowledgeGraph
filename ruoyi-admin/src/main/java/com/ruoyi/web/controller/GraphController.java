@@ -74,22 +74,20 @@ public class GraphController {
         System.out.println("graphSelect:req:" + req);
         Neo4jGraph neo4jGraph = new Neo4jGraph();
 
-        // 根据节点类型查询
-        if(ObjectUtil.isNotNull(req.getNodeClassList())){
-            Neo4jGraph res1 = testNeo4jService.getByNodeClass(req.getNodeClassList());
-            Neo4jGraph res2 = testNeo4jService.getEdgeByNodeClass(req.getNodeClassList());
-            for (Neo4jNode node : res1.getNodes()) {
-                neo4jGraph.addNeo4jNode(node);
+        if(req.getSelectIndex() == 1){
+            // 根据实体的名称查询
+            if(ObjectUtil.isEmpty(req.getNodeName())){
+                throw new RuntimeException("实体名称不能为空");
             }
-            for (Neo4jEdge edge : res2.getEdges()) {
-                neo4jGraph.addNeo4jEdge(edge);
-            }
+            neo4jGraph = testNeo4jService.getNodeByName(req.getNodeName());
+        }else if(req.getSelectIndex() == 2){
+            // 根据关系的名称查询，
+            neo4jGraph = testNeo4jService.getEdgeByFromOrToNodeName(req.getFromNodeName(),req.getToNodeName());
+        }else {
+            neo4jGraph = testNeo4jService.getGraphByNodeOrEdgeClass(req.getNodeClassList(),req.getEdgeClassList());
         }
 
-        // 根据关系类型查询
-//        MATCH (n)-[r]->(m)
-//                WHERE type(r) IN ['并发症','疾病类型']
-//        RETURN n, r, m
+
         return neo4jGraph;
     }
 
