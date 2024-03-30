@@ -221,16 +221,15 @@ public class TestNeo4jServiceImpl implements TestNeo4jService {
                     .append(count)
                     .append(":`")
                     .append(nodeClass.getName())
-                    .append("`)")
+                    .append("`) ")
                     .append("RETURN p" + count + " AS node")
                             .append(" UNION ");
             builder1.append(",p").append(count);
             count++;
         }
-        // 删除逗号
-        if(nodeClassList.size() > 1){
-            builder.delete(builder.length() - 7, builder.length() - 1);
-        }
+
+        builder.delete(builder.length() - 7, builder.length() - 1);
+
         builder1.deleteCharAt(0);
         cypher+=builder;
 //        cypher+=" RETURN " + builder1;

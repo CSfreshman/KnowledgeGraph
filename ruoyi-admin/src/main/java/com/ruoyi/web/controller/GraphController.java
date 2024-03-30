@@ -85,6 +85,14 @@ public class GraphController {
             neo4jGraph = testNeo4jService.getEdgeByFromOrToNodeName(req.getFromNodeName(),req.getToNodeName());
         }else {
             neo4jGraph = testNeo4jService.getGraphByNodeOrEdgeClass(req.getNodeClassList(),req.getEdgeClassList());
+            if(ObjectUtil.isEmpty(req.getEdgeClassList())){
+                // 如果关系类型为空，就查询出所有的节点类型，以及这些节点之间的关系
+                Neo4jGraph byNodeClass = testNeo4jService.getByNodeClass(req.getNodeClassList());
+                for (Neo4jNode node : byNodeClass.getNodes()) {
+                    neo4jGraph.getNodes().add(node);
+                }
+            }
+
         }
 
 
