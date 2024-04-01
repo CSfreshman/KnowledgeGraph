@@ -123,8 +123,8 @@ public class TestNeo4jServiceImpl implements TestNeo4jService {
         for (Map.Entry<String, Object> entry : req.getProps().entrySet()) {
             paramsStr.append("n.");
             paramsStr.append(entry.getKey());
-            paramsStr.append(" = ");
-            paramsStr.append(entry.getValue());
+            paramsStr.append(" = ").append("'");
+            paramsStr.append(entry.getValue()).append("'");
             paramsStr.append(",");
         }
         if(paramsStr.length() > 0){

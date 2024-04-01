@@ -1,9 +1,32 @@
 <template>
   <div id="main-container">
-    <div id="charts-container" style="display: flex;">
-      <div id="node-container"></div>
-      <div id="edge-container"></div>
-    </div>
+    <el-row>
+      <el-col :span="10">
+        <div id="graph-container">
+          <el-card>
+            <div slot="header" class="card-header">
+              <span>图谱数据统计</span>
+            </div>
+            <div id="node-container"></div>
+            <div id="edge-container"></div>
+          </el-card>
+        </div>
+      </el-col>
+
+      <el-col :span="14">
+        <div id="system-container">
+          <el-card>
+            <div slot="header" class="card-header">
+              <span>系统数据统计</span>
+            </div>
+
+          </el-card>
+        </div>
+      </el-col>
+    </el-row>
+
+
+
 
 
 
@@ -102,20 +125,34 @@ export default {
     width:100vw;
     height:100vh;
   }
-  #charts-container{
+  #graph-container{
     background-color: #FFFFFF;
-    width: 100vw;
-    height:50vh;
+
+    height:100vh;
+
   }
+
+  #system-container{
+    background-color: #FEC171;
+
+    height:100vh;
+
+  }
+
   #node-container {
     background-color: #FFFFFF;
-    width: 50vw;
-
+    width: 40vw;
+    height:50vh;
   }
 
   #edge-container {
     background-color: #FFFFFF;
-    width: 50vw;
+    width: 40vw;
+    height:50vh;
+  }
 
+  .card-header {
+    font-size: 18px;
+    font-weight: bold;
   }
 </style>

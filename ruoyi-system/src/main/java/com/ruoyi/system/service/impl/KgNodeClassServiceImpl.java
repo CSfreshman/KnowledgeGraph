@@ -1,11 +1,15 @@
 package com.ruoyi.system.service.impl;
 
 import java.util.List;
+import java.util.logging.Handler;
+
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.utils.uuid.IdUtils;
+import com.ruoyi.system.domain.KgHistory;
 import com.ruoyi.system.domain.KgNodeClassProperties;
 import com.ruoyi.system.mapper.KgNodeClassPropertiesMapper;
+import com.ruoyi.system.myEnum.HistoryEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,6 +31,8 @@ public class KgNodeClassServiceImpl implements IKgNodeClassService
     private KgNodeClassMapper kgNodeClassMapper;
     @Autowired
     private KgNodeClassPropertiesMapper propertiesMapper;
+    @Autowired
+    private KgHistoryServiceImpl historyService;
 
     /**
      * 查询【请填写功能名称】
@@ -73,6 +79,15 @@ public class KgNodeClassServiceImpl implements IKgNodeClassService
         kgNodeClass.setId(cn.hutool.core.util.IdUtil.getSnowflakeNextId());
         kgNodeClass.setValid(1L);
         kgNodeClass.setCreateUser(SecurityUtils.getUserId());
+
+        KgHistory history = new KgHistory();
+        // 新增
+        history.setType(1);
+        history.setTargetType(1);
+        history.setTargetId(kgNodeClass.getId());
+        history.setTargetName(kgNodeClass.getName());
+        historyService.insertKgHistory(history);
+
         return kgNodeClassMapper.insertKgNodeClass(kgNodeClass);
     }
 

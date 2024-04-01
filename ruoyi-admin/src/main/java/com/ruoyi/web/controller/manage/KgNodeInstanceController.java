@@ -4,7 +4,9 @@ import java.util.*;
 import javax.servlet.http.HttpServletResponse;
 
 import cn.hutool.core.util.IdUtil;
+import com.ruoyi.system.domain.KgHistory;
 import com.ruoyi.system.domain.KgNodeInstanceProperties;
+import com.ruoyi.system.service.IKgHistoryService;
 import com.ruoyi.system.service.IKgNodeInstancePropertiesService;
 import com.ruoyi.system.service.TestNeo4jService;
 import com.ruoyi.system.utils.neo4j.Neo4jNode;
@@ -45,6 +47,9 @@ public class KgNodeInstanceController extends BaseController
 
     @Autowired
     private TestNeo4jService neo4jService;
+
+    @Autowired
+    private IKgHistoryService historyService;
 
     /**
      * 查询【请填写功能名称】列表
@@ -129,6 +134,16 @@ public class KgNodeInstanceController extends BaseController
             properties.setName((String)map.get("key"));
             properties.setValue((String)map.get("value"));
             nodePropsMap.put((String)map.get("key"),map.get("value"));
+
+            // 历史记录
+            KgHistory history1 = new KgHistory();
+            // 新增
+            history1.setType(1);
+            history1.setTargetType(4);
+            history1.setTargetId(properties.getId());
+            history1.setTargetName(properties.getName());
+            historyService.insertKgHistory(history1);
+
             count2+=kgNodeInstancePropertiesService.insertKgNodeInstanceProperties(properties);
         }
 
@@ -143,6 +158,16 @@ public class KgNodeInstanceController extends BaseController
         System.out.println(neo4jNode);
 
         instance.setNeo4jId(Long.valueOf(neo4jNode.getId().toString()));
+
+        // 历史记录
+        KgHistory history = new KgHistory();
+        // 新增
+        history.setType(1);
+        history.setTargetType(3);
+        history.setTargetId(instance.getId());
+        history.setTargetName(instance.getName());
+        historyService.insertKgHistory(history);
+
         int count1 = kgNodeInstanceService.insertKgNodeInstance(instance);
 
         return toAjax(count1 + count2);

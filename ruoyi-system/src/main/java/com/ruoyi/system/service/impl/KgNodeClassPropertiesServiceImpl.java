@@ -5,6 +5,7 @@ import java.util.List;
 import cn.hutool.core.util.IdUtil;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
+import com.ruoyi.system.domain.KgHistory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.ruoyi.system.mapper.KgNodeClassPropertiesMapper;
@@ -22,7 +23,8 @@ public class KgNodeClassPropertiesServiceImpl implements IKgNodeClassPropertiesS
 {
     @Autowired
     private KgNodeClassPropertiesMapper kgNodeClassPropertiesMapper;
-
+    @Autowired
+    private KgHistoryServiceImpl historyService;
     /**
      * 查询【请填写功能名称】
      *
@@ -59,6 +61,15 @@ public class KgNodeClassPropertiesServiceImpl implements IKgNodeClassPropertiesS
         kgNodeClassProperties.setCreateTime(DateUtils.getNowDate());
         kgNodeClassProperties.setId(IdUtil.getSnowflakeNextId());
         kgNodeClassProperties.setCreateUser(SecurityUtils.getUserId());
+
+        KgHistory history = new KgHistory();
+        // 新增
+        history.setType(1);
+        history.setTargetType(2);
+        history.setTargetId(kgNodeClassProperties.getId());
+        history.setTargetName(kgNodeClassProperties.getName());
+        historyService.insertKgHistory(history);
+
         return kgNodeClassPropertiesMapper.insertKgNodeClassProperties(kgNodeClassProperties);
     }
 
@@ -100,6 +111,16 @@ public class KgNodeClassPropertiesServiceImpl implements IKgNodeClassPropertiesS
         kgNodeClassProperties.setModifyTime(DateUtils.getNowDate());
         kgNodeClassProperties.setModifyUser(SecurityUtils.getUserId());
         kgNodeClassProperties.setModifyType(0L);
+
+        // 历史记录
+        KgHistory history = new KgHistory();
+        // 删除
+        history.setType(2);
+        history.setTargetType(2);
+        history.setTargetId(kgNodeClassProperties.getId());
+        history.setTargetName(kgNodeClassProperties.getName());
+        historyService.insertKgHistory(history);
+
         // 更新数据
         return updateKgNodeClassProperties(kgNodeClassProperties);
 

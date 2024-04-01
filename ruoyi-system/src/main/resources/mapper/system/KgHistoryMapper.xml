@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.KgHistoryMapper">
+    
+    <resultMap type="KgHistory" id="KgHistoryResult">
+        <result property="id"    column="id"    />
+        <result property="type"    column="type"    />
+        <result property="targetId"    column="target_id"    />
+        <result property="targetType"    column="target_type"    />
+        <result property="targetName"    column="target_name"    />
+        <result property="originValue"    column="origin_value"    />
+        <result property="curValue"    column="cur_value"    />
+        <result property="time"    column="time"    />
+        <result property="userId"    column="user_id"    />
+    </resultMap>
+
+    <sql id="selectKgHistoryVo">
+        select id, type, target_id, target_type, target_name, origin_value, cur_value, time, user_id from kg_history
+    </sql>
+
+    <select id="selectKgHistoryList" parameterType="KgHistory" resultMap="KgHistoryResult">
+        <include refid="selectKgHistoryVo"/>
+        <where>  
+            <if test="type != null "> and type = #{type}</if>
+            <if test="targetId != null "> and target_id = #{targetId}</if>
+            <if test="targetType != null "> and target_type = #{targetType}</if>
+            <if test="targetName != null  and targetName != ''"> and target_name like concat('%', #{targetName}, '%')</if>
+            <if test="originValue != null  and originValue != ''"> and origin_value = #{originValue}</if>
+            <if test="curValue != null  and curValue != ''"> and cur_value = #{curValue}</if>
+            <if test="time != null "> and time = #{time}</if>
+            <if test="userId != null "> and user_id = #{userId}</if>
+        </where>
+    </select>
+    
+    <select id="selectKgHistoryById" parameterType="Long" resultMap="KgHistoryResult">
+        <include refid="selectKgHistoryVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertKgHistory" parameterType="KgHistory">
+        insert into kg_history
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="type != null">type,</if>
+            <if test="targetId != null">target_id,</if>
+            <if test="targetType != null">target_type,</if>
+            <if test="targetName != null">target_name,</if>
+            <if test="originValue != null">origin_value,</if>
+            <if test="curValue != null">cur_value,</if>
+            <if test="time != null">time,</if>
+            <if test="userId != null">user_id,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="type != null">#{type},</if>
+            <if test="targetId != null">#{targetId},</if>
+            <if test="targetType != null">#{targetType},</if>
+            <if test="targetName != null">#{targetName},</if>
+            <if test="originValue != null">#{originValue},</if>
+            <if test="curValue != null">#{curValue},</if>
+            <if test="time != null">#{time},</if>
+            <if test="userId != null">#{userId},</if>
+         </trim>
+    </insert>
+
+    <update id="updateKgHistory" parameterType="KgHistory">
+        update kg_history
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="type != null">type = #{type},</if>
+            <if test="targetId != null">target_id = #{targetId},</if>
+            <if test="targetType != null">target_type = #{targetType},</if>
+            <if test="targetName != null">target_name = #{targetName},</if>
+            <if test="originValue != null">origin_value = #{originValue},</if>
+            <if test="curValue != null">cur_value = #{curValue},</if>
+            <if test="time != null">time = #{time},</if>
+            <if test="userId != null">user_id = #{userId},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteKgHistoryById" parameterType="Long">
+        delete from kg_history where id = #{id}
+    </delete>
+
+    <delete id="deleteKgHistoryByIds" parameterType="String">
+        delete from kg_history where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>
