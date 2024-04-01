@@ -48,4 +48,6 @@ public interface TestNeo4jService {
     Neo4jGraph getEdgeByFromOrToNodeName(String fromNodeName, String toNodeName);
 
     Neo4jGraph getGraphByNodeOrEdgeClass(List<KgNodeClass> nodeClassList, List<KgEdgeClass> edgeClassList);
+
+    List<Map<String,Integer>> statistic();
 }

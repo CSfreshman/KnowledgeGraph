@@ -38,3 +38,10 @@ export function centralityCalculation(data) {
     data: data
   })
 }
+
+export function statistic() {
+  return request({
+    url: '/graph/statistic',
+    method: 'post'
+  })
+}

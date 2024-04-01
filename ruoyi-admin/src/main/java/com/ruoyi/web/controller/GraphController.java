@@ -142,4 +142,10 @@ public class GraphController {
         return resp;
     }
 
+    // 统计图谱中实体的种类与数量
+    @PostMapping("/statistic")
+    public List<Map<String,Integer>> statistic(){
+        return testNeo4jService.statistic();
+    }
+
 }

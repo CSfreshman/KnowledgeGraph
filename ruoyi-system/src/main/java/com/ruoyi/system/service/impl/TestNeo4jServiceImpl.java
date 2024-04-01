@@ -15,10 +15,7 @@ import org.springframework.data.neo4j.core.Neo4jTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 
 @Service
@@ -486,5 +483,57 @@ public class TestNeo4jServiceImpl implements TestNeo4jService {
             System.out.println(edge + "\n");
         }
         System.out.println(parse.getEdges().size());
+    }
+
+    public List<Map<String,Integer>> statistic(){
+
+        List<Map<String,Integer>> resMapList = new ArrayList<>();
+
+        Map<String,Integer> nodeMap = new HashMap<>();
+        Map<String,Integer> edgeMap = new HashMap<>();
+
+        // 节点的类型与数量
+        Result nodeResult = driver.session().run("MATCH (n)\n" +
+                "RETURN labels(n) AS Type, count(*) AS Count");
+
+        List<Record> records = nodeResult.list();
+        for (Record record : records) {
+            String curKey = "";
+            Integer curVal = 0;
+            for (Value value : record.values()) {
+                //System.out.println(value);
+                if("LIST OF ANY?".equals(value.type().name())){
+                    curKey = value.asList().get(0).toString();
+                }else if("INTEGER".equals(value.type().name())){
+                    curVal = Integer.valueOf(value.toString());
+                }
+            }
+            nodeMap.put(curKey,curVal);
+        }
+        System.out.println(nodeMap);
+
+        // 关系的类型与数量
+        Result edgeResult = driver.session().run("MATCH ()-[r]->()\n" +
+                "RETURN type(r) AS Type, count(*) AS Count");
+
+        List<Record> records2 = edgeResult.list();
+        for (Record record : records2) {
+            String curKey = "";
+            Integer curVal = 0;
+            for (Value value : record.values()) {
+                if("STRING".equals(value.type().name())){
+                    curKey = value.asString();
+                }else if("INTEGER".equals(value.type().name())){
+                    curVal = value.asInt();
+                }
+            }
+            edgeMap.put(curKey,curVal);
+        }
+        System.out.println(edgeMap);
+
+        resMapList.add(nodeMap);
+        resMapList.add(edgeMap);
+
+        return resMapList;
     }
 }
