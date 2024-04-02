@@ -130,7 +130,7 @@ public class GraphController {
 
     // 中心度计算
     @PostMapping("/calculation/centrality")
-    public  GraphResp centralityCalculation(@RequestBody GraphReq req){
+    public GraphResp centralityCalculation(@RequestBody GraphReq req){
         System.out.println("centralityCalculation:req" + req);
         Map<Object,Integer> map = testNeo4jService.centralityCalculation(req);
 
@@ -152,6 +152,15 @@ public class GraphController {
         resp.setGraph(neo4jGraph);
         resp.setCentrality(map);
         return resp;
+    }
+
+    // 相似度计算
+    @PostMapping("/calculation/similarity")
+    public GraphResp centralitySimilarity(@RequestBody GraphReq req){
+        System.out.println("centralitySimilarity:req" + req);
+        Map<Object,Integer> map = testNeo4jService.centralitySimilarity(req);
+        return null;
+
     }
 
     // 统计图谱中实体的种类与数量

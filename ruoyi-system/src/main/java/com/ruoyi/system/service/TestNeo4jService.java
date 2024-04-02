@@ -54,4 +54,6 @@ public interface TestNeo4jService {
     Integer deleteNodeByNeo4jId(GraphReq req);
 
     int deleteEdgeByNeo4jId(GraphReq req);
+
+    Map<Object, Integer> centralitySimilarity(GraphReq req);
 }

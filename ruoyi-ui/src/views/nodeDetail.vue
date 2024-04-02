@@ -1,17 +1,13 @@
 <template>
   <div>
-    <el-card id="main-container">
-      <el-row>
-        <el-col span="6">
+
+    <el-row>
+      <el-col :span="6">
+        <el-card>
+          <div slot="header" class="card-header">
+            <span>属性列表</span>
+          </div>
           <div id="prop-container">
-            <el-row>
-              <el-col span="3">
-                属性
-              </el-col>
-              <el-col span="2">
-                <el-button @click="">修改</el-button>
-              </el-col>
-            </el-row>
             <el-row>
               <div>
                 <el-row>
@@ -19,20 +15,17 @@
                     <el-tag
                       v-for="(labelItem, index) in showData.labels"
                       :key="index"
-                      :color="showData.color"
                       size="medium"
                       class="rounded-tag"
-                      type="info"
-
+                      style="margin-top: 10px; margin-left: 10px"
                     >
                       {{labelItem}}
                     </el-tag>
 
                     <el-tag
-                      :color="showData.color"
                       size="medium"
                       class="rounded-tag"
-                      type="info"
+                      style="margin-top: 10px; margin-left: 10px"
                     >{{showData.label}}</el-tag>
                   </template>
                 </el-row>
@@ -43,35 +36,39 @@
                 <!--                    </el-col>-->
                 <!--                  </el-row>-->
                 <!--                </template>-->
-
-                <template>
-                  <div>
-                    <el-table :data="tableData" :show-header="false" style="width: 100%"  :border=true stripe>
-                      <el-table-column>
-                        <template slot-scope="scope">
-                          <span>{{ scope.row.key }}</span>
-                        </template>
-                      </el-table-column>
-                      <el-table-column>
-                        <template slot-scope="scope">
-                          <span>{{ scope.row.value }}</span>
-                        </template>
-                      </el-table-column>
-                      <el-table-column>
-                        <template slot-scope="scope">
-                          <el-button type="text" icon="el-icon-edit" @click="updateProp(scope.row)" size="mini" circle></el-button>
-                        </template>
-                      </el-table-column>
-                    </el-table>
-                  </div>
-                </template>
               </div>
             </el-row>
+            <el-row>
+              <template>
+                <div style="margin-top: 15px;">
+                  <el-table :data="tableData" :show-header="false" style="width: 100%"  :border=true stripe>
+                    <el-table-column>
+                      <template slot-scope="scope">
+                        <span>{{ scope.row.key }}</span>
+                      </template>
+                    </el-table-column>
+                    <el-table-column>
+                      <template slot-scope="scope">
+                        <span>{{ scope.row.value }}</span>
+                      </template>
+                    </el-table-column>
+                    <el-table-column>
+                      <template slot-scope="scope">
+                        <el-button type="text" icon="el-icon-edit" @click="updateProp(scope.row)" size="mini" circle></el-button>
+                      </template>
+                    </el-table-column>
+                  </el-table>
+                </div>
+              </template>
+            </el-row>
           </div>
-        </el-col>
-        <el-col span="18">
-          <div id="network-container">
-            <div id="network-head">
+        </el-card>
+
+      </el-col>
+      <el-col :span="18">
+        <div id="network-container">
+          <el-card>
+            <div slot="header" class="card-header">
               <el-row>
                 <el-col span="9">
                   {{ headText }}
@@ -89,16 +86,15 @@
                   <el-button @click="deleteNode">删除</el-button>
                 </el-col>
               </el-row>
-
             </div>
-            <div id="network-body">
-
-            </div>
+            <div id="network-body"></div>
             <div id="network-bottom"></div>
-          </div>
-        </el-col>
-      </el-row>
-    </el-card>
+          </el-card>
+
+        </div>
+      </el-col>
+  </el-row>
+
 
     <div>
       <el-dialog title="修改属性" :visible.sync="open" width="500px" append-to-body>
@@ -180,7 +176,7 @@ export default {
 
         // 选中的节点高亮
         var highLightNode = this.nodes.find(node=>node.id == this.nodeId);
-        highLightNode.color = 'orange';
+        highLightNode.color = 'red';
         var index = this.nodes.findIndex(node => node.id === this.nodeId);
         this.nodes[index] = highLightNode;
         console.log(this.nodes)
@@ -270,7 +266,9 @@ export default {
     // 删除节点
     deleteNode(){
       deleteNode(this.nodeId).then(resp=>{
-
+        this.$router.push({
+          path: '/graph'
+        })
       })
     }
 
@@ -288,7 +286,7 @@ export default {
   }
 
   #prop-container {
-    background-color: #ececec;
+    background-color: #FFFFFF;
     height:100vh;
   }
 
@@ -315,5 +313,10 @@ export default {
   .rounded-tag {
     border-radius: 20px; /* 调整圆角大小 */
     color: #000000;
+  }
+
+  .card-header {
+    font-size: 18px;
+    font-weight: bold;
   }
 </style>

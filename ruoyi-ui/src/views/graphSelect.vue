@@ -120,6 +120,28 @@
       </div>
     </div>
 
+    <!-- 节点右键操作菜单 -->
+    <div id="nodeRightMenuPanel" class="right-menu-layer">
+
+      <button @click="goToDetail()"><i class="el-icon-setting"></i>查看详情</button>
+
+    </div>
+
+    <!-- 连线右键操作对话栏 -->
+    <div id="linkRightMenuPanel" class="right-menu-layer">
+      <button @click="showLinkDetail()"><i class="el-icon-notebook-2"></i>关系属性</button>
+      <button @click="handleEditEdgeButton()"><i class="el-icon-setting"></i>关系设置</button>
+      <el-popover placement="top" :width="180" ref="popoverLink">
+        <p>您确定要删除该关系吗?</p>
+        <div style="text-align: right; margin: 0">
+          <el-button size="mini" type="text" @click="popoverLinkClose()">取消</el-button>
+          <el-button type="primary" size="mini" @click="deleteLinkClick()">确定</el-button>
+        </div>
+        <template #reference>
+          <button><i class="el-icon-delete"></i>删除关系</button>
+        </template>
+      </el-popover>
+    </div>
 <!--    下面的对话框不需要使用了-->
     <div>
       <el-dialog
@@ -486,6 +508,13 @@ export default {
       tipDom.style.left = event.clientX + 10 +'px';
     },
 
+    goToDetail() {
+      var data = this.currentNode;
+      this.$router.push({
+        path: '/nodeDetail',
+        query: {data}
+      })
+    }
 
   },
   mounted() {

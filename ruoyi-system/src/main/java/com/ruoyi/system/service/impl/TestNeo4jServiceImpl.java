@@ -604,4 +604,11 @@ public class TestNeo4jServiceImpl implements TestNeo4jService {
 
         return 0;
     }
+
+    // 相似度计算
+    @Override
+    public Map<Object, Integer> centralitySimilarity(GraphReq req) {
+
+        return null;
+    }
 }
