@@ -67,6 +67,13 @@ public class GraphController {
         return AjaxResult.success();
     }
 
+    @PostMapping("/deleteEdge")
+    public AjaxResult deleteEdge(@RequestBody GraphReq req){
+        System.out.println(req);
+        int count = testNeo4jService.deleteEdgeByNeo4jId(req);
+        return AjaxResult.success();
+    }
+
     @PostMapping("/getEdgeInstanceGraph")
     public Neo4jGraph getEdgeInstanceGraph(@RequestBody KgEdgeInstance instance){
         System.out.println("getEdgeInstanceGraph:params:" + instance);

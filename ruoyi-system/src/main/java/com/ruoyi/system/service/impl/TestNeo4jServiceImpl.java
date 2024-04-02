@@ -580,4 +580,28 @@ public class TestNeo4jServiceImpl implements TestNeo4jService {
         Integer count4 = 0;
         return count1+count2+count3+count4;
     }
+
+    // 删除关系
+    @Override
+    public int deleteEdgeByNeo4jId(GraphReq req) {
+
+//        edgeInstanceService.deleteEdgeByNodeNeo4jId(nodeId);
+
+        Long edgeId = req.getEdgeId();
+        if(ObjectUtil.isEmpty(edgeId)){
+            System.out.println("edgeNeo4jId为空");
+            return 0;
+        }
+        // 删除节点的时候会同时删除与之相连的关系
+        String cypher = " MATCH ()-[r]-()\n" +
+                "        WHERE id(r) = "+edgeId+"\n" +
+                "        DELETE r";
+        System.out.println("deleteEdgeByNeo4jId:cypher:\n");
+        System.out.println(cypher);
+        driver.session().run(cypher);
+
+        Integer count2 = edgeInstanceService.deleteEdgeByNeo4jId(edgeId);
+
+        return 0;
+    }
 }

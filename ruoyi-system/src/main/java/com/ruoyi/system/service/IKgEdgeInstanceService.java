@@ -60,4 +60,6 @@ public interface IKgEdgeInstanceService
     public int deleteKgEdgeInstanceById(Long id);
 
     Integer deleteEdgeByNodeNeo4jId(Long nodeId);
+
+    Integer deleteEdgeByNeo4jId(Long edgeId);
 }

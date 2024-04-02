@@ -273,7 +273,7 @@ import VisGraph from '@/assets/test/js/graphvis.20230812.js'
 import LayoutFactory from '@/assets/test/js/graphvis.layout.min.js'
 import { config } from '@/assets/test/defaultConfig.js'
 import { demoData } from '@/assets/test/demo2.js'
-import {deleteNode, getAllGraph} from "@/api/graph"
+import {deleteEdge, deleteNode, getAllGraph} from "@/api/graph"
 import { getAllNodeClass  } from "@/api/mange/class/node";
 import {addNode, getAll as getAllNode} from "@/api/mange/instance/node";
 import { getAll as getAllEdgeClass } from "@/api/mange/class/edge";
@@ -612,6 +612,11 @@ export default {
     async deleteLinkClick () {
       /* const {data: res} = await deleteLink(this.currentLink.properties.id)*/
       this.visGraph.deleteLink(this.currentLink)
+
+      // 向服务端发送请求，删除关系
+      deleteEdge({edgeId:this.currentLink.id}).then(resp=>{
+
+      })
 
       this.cancelLinkRightMenu()
       this.popoverLinkClose()

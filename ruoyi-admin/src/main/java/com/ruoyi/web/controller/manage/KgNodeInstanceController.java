@@ -4,6 +4,7 @@ import java.util.*;
 import javax.servlet.http.HttpServletResponse;
 
 import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.ObjectUtil;
 import com.ruoyi.system.domain.KgHistory;
 import com.ruoyi.system.domain.KgNodeInstanceProperties;
 import com.ruoyi.system.service.IKgHistoryService;
@@ -113,6 +114,16 @@ public class KgNodeInstanceController extends BaseController
         System.out.println(req);
         KgNodeInstance instance = new KgNodeInstance();
 
+        // 去重处理，保证节点实体名称的唯一性
+        instance.setName((String)req.get("name"));
+        instance.setValid(1l);
+        List<KgNodeInstance> kgNodeInstances = kgNodeInstanceService.selectKgNodeInstanceList(instance);
+        if(ObjectUtil.isNotEmpty(kgNodeInstances)){
+            // 如果存在重名实体，抛出名称重复异常
+            throw new RuntimeException("实体名称重复");
+        }
+
+        instance = new KgNodeInstance();
         // 构造实体实例数据
         instance.setLabel((String)req.get("label"));
         instance.setName((String)req.get("name"));

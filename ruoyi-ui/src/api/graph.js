@@ -54,3 +54,10 @@ export function deleteNode(data) {
   })
 }
 
+export function deleteEdge(data) {
+  return request({
+    url: '/graph/deleteEdge',
+    method: 'post',
+    data: data
+  })
+}

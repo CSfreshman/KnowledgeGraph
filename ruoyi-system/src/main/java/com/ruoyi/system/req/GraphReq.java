@@ -12,6 +12,8 @@ import java.util.Map;
 public class GraphReq {
     private Long nodeId;
 
+    private Long edgeId;
+
     private int degree;
 
     private Map<String, Object> props;

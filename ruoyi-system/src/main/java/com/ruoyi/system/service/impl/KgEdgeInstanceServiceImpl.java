@@ -126,7 +126,7 @@ public class KgEdgeInstanceServiceImpl implements IKgEdgeInstanceService
 
             KgHistory history = new KgHistory();
             history.setType(2);
-            history.setTargetType(5);
+            history.setTargetType(7);
             history.setTargetId(item.getId());
             history.setTargetName(item.getLabel());
             historyService.insertKgHistory(history);
@@ -138,5 +138,31 @@ public class KgEdgeInstanceServiceImpl implements IKgEdgeInstanceService
 
 
         return list1.size();
+    }
+
+    @Override
+    public Integer deleteEdgeByNeo4jId(Long edgeId) {
+        KgEdgeInstance instance = new KgEdgeInstance();
+        instance.setNeo4jId(edgeId);
+        List<KgEdgeInstance> list1 = selectKgEdgeInstanceList(instance);
+        if(ObjectUtil.isEmpty(list1)){
+            return 0;
+        }
+        KgEdgeInstance item = list1.get(0);
+        // 逻辑删除
+        item.setValid(0L);
+        updateKgEdgeInstance(item);
+
+        // 历史记录
+        KgHistory history = new KgHistory();
+        history.setType(2);
+        history.setTargetType(7);
+        history.setTargetId(item.getId());
+        history.setTargetName(item.getLabel());
+        historyService.insertKgHistory(history);
+
+        System.out.println("删除关系属性");
+        edgeInstacePropertiesService.deleteByEdgeId(item.getId());
+        return 1;
     }
 }

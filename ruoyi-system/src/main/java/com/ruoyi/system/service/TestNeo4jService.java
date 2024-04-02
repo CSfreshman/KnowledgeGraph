@@ -52,4 +52,6 @@ public interface TestNeo4jService {
     List<Map<String,Integer>> statistic();
 
     Integer deleteNodeByNeo4jId(GraphReq req);
+
+    int deleteEdgeByNeo4jId(GraphReq req);
 }
