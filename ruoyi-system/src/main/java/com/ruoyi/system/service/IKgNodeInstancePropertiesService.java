@@ -2,6 +2,7 @@ package com.ruoyi.system.service;
 
 import java.util.List;
 import com.ruoyi.system.domain.KgNodeInstanceProperties;
+import com.ruoyi.system.req.GraphReq;
 
 /**
  * 【请填写功能名称】Service接口
@@ -58,4 +59,6 @@ public interface IKgNodeInstancePropertiesService
      * @return 结果
      */
     public int deleteKgNodeInstancePropertiesById(Long id);
+
+    int updateByNodeNeo4jId(GraphReq req);
 }

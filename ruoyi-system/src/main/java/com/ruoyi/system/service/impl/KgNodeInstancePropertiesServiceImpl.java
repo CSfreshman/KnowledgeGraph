@@ -1,13 +1,22 @@
 package com.ruoyi.system.service.impl;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import cn.hutool.core.util.IdUtil;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
+import com.ruoyi.system.domain.KgHistory;
+import com.ruoyi.system.mapper.KgHistoryMapper;
+import com.ruoyi.system.req.GraphReq;
+import com.ruoyi.system.service.IKgHistoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.ruoyi.system.mapper.KgNodeInstancePropertiesMapper;
 import com.ruoyi.system.domain.KgNodeInstanceProperties;
 import com.ruoyi.system.service.IKgNodeInstancePropertiesService;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * 【请填写功能名称】Service业务层处理
@@ -20,6 +29,9 @@ public class KgNodeInstancePropertiesServiceImpl implements IKgNodeInstancePrope
 {
     @Autowired
     private KgNodeInstancePropertiesMapper kgNodeInstancePropertiesMapper;
+
+    @Autowired
+    private IKgHistoryService historyService;
 
     /**
      * 查询【请填写功能名称】
@@ -94,5 +106,42 @@ public class KgNodeInstancePropertiesServiceImpl implements IKgNodeInstancePrope
     public int deleteKgNodeInstancePropertiesById(Long id)
     {
         return kgNodeInstancePropertiesMapper.deleteKgNodeInstancePropertiesById(id);
+    }
+
+    // 根据节点的neo4jId修改节点属性
+    @Override
+    @Transactional
+    public int updateByNodeNeo4jId(GraphReq req){
+        List<KgNodeInstanceProperties> byNodeNeo4jId = kgNodeInstancePropertiesMapper.getByNodeNeo4jId(req.getNodeId());
+        System.out.println(byNodeNeo4jId);
+
+        // 所有需要修改的记录
+        List<KgNodeInstanceProperties> updateList = byNodeNeo4jId.stream().filter(it -> req.getProps().keySet().contains(it.getName())).collect(Collectors.toList());
+        System.out.println(updateList);
+
+        int count = 0;
+        for (KgNodeInstanceProperties properties : updateList) {
+            // 历史记录
+            KgHistory history = new KgHistory();
+            history.setType(3);
+            history.setTargetType(4);
+            history.setTargetId(properties.getId());
+            history.setTargetName(properties.getName());
+            history.setOriginValue(properties.getValue());
+            history.setCurValue(req.getProps().get(properties.getName()).toString());
+            historyService.insertKgHistory(history);
+
+            // 更新原始属性记录
+            properties.setValid(0l);
+            kgNodeInstancePropertiesMapper.updateKgNodeInstanceProperties(properties);
+
+            // 新增一条新的记录
+            properties.setValue(req.getProps().get(properties.getName()).toString());
+            properties.setId(IdUtil.getSnowflakeNextId());
+            insertKgNodeInstanceProperties(properties);
+            count++;
+
+        }
+        return count;
     }
 }

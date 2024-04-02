@@ -7,6 +7,7 @@ import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.system.domain.KgEdgeInstance;
 import com.ruoyi.system.domain.KgNodeClass;
 import com.ruoyi.system.req.GraphResp;
+import com.ruoyi.system.service.IKgNodeInstancePropertiesService;
 import com.ruoyi.system.service.TestNeo4jService;
 import com.ruoyi.system.utils.neo4j.Neo4jEdge;
 import com.ruoyi.system.utils.neo4j.Neo4jGraph;
@@ -25,6 +26,8 @@ import java.util.Map;
 public class GraphController {
     @Autowired
     private TestNeo4jService testNeo4jService;
+    @Autowired
+    private IKgNodeInstancePropertiesService nodeInstancePropertiesService;
 
     @GetMapping("/getAllGraph")
     public Neo4jGraph getAllGraph(){
@@ -53,6 +56,7 @@ public class GraphController {
         req.setProps(reqMap);
         System.out.println(req);
         int res = testNeo4jService.updateNodeDetail(req);
+        int res1 = nodeInstancePropertiesService.updateByNodeNeo4jId(req);
         return AjaxResult.success();
     }
 
