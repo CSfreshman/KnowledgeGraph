@@ -8,7 +8,9 @@ import cn.hutool.core.util.ObjectUtil;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.system.domain.KgEdgeInstaceProperties;
+import com.ruoyi.system.domain.KgHistory;
 import com.ruoyi.system.service.IKgEdgeInstacePropertiesService;
+import com.ruoyi.system.service.IKgHistoryService;
 import com.ruoyi.system.service.TestNeo4jService;
 import com.ruoyi.system.utils.neo4j.Neo4jEdge;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -48,6 +50,8 @@ public class KgEdgeInstanceController extends BaseController
 
     @Autowired
     private TestNeo4jService neo4jService;
+    @Autowired
+    private IKgHistoryService historyService;
 
     /**
      * 查询【请填写功能名称】列表
@@ -109,6 +113,15 @@ public class KgEdgeInstanceController extends BaseController
         kgEdgeInstance.setCreateUser(SecurityUtils.getUserId());
         kgEdgeInstance.setCreateTime(DateUtils.getNowDate());
         int count1 = kgEdgeInstanceService.insertKgEdgeInstance(kgEdgeInstance);
+
+        KgHistory history = new KgHistory();
+        history.setType(1);
+        history.setTargetType(7);
+        history.setTargetId(kgEdgeInstance.getId());
+        history.setTargetName(kgEdgeInstance.getLabel());
+        historyService.insertKgHistory(history);
+
+
         int count2 = 0;
         List<KgEdgeInstaceProperties> props = kgEdgeInstance.getProps();
         if(ObjectUtil.isNotNull(props)){
@@ -119,6 +132,12 @@ public class KgEdgeInstanceController extends BaseController
                 prop.setCreateTime(DateUtils.getNowDate());
                 prop.setValid(1L);
                 count2+=kgEdgeInstacePropertiesService.insertKgEdgeInstaceProperties(prop);
+                KgHistory history1 = new KgHistory();
+                history.setType(1);
+                history.setTargetType(8);
+                history.setTargetId(prop.getId());
+                history.setTargetName(prop.getName());
+                historyService.insertKgHistory(history);
             }
         }
 
