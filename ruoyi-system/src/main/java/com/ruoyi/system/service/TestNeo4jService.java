@@ -50,4 +50,6 @@ public interface TestNeo4jService {
     Neo4jGraph getGraphByNodeOrEdgeClass(List<KgNodeClass> nodeClassList, List<KgEdgeClass> edgeClassList);
 
     List<Map<String,Integer>> statistic();
+
+    Integer deleteNodeByNeo4jId(GraphReq req);
 }

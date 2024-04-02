@@ -3,7 +3,7 @@
 PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.system.mapper.KgEdgeInstanceMapper">
-    
+
     <resultMap type="KgEdgeInstance" id="KgEdgeInstanceResult">
         <result property="id"    column="id"    />
         <result property="classId"    column="class_id"    />
@@ -24,7 +24,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="selectKgEdgeInstanceList" parameterType="KgEdgeInstance" resultMap="KgEdgeInstanceResult">
         <include refid="selectKgEdgeInstanceVo"/>
-        <where>  
+        <where>
             <if test="classId != null "> and class_id = #{classId}</if>
             <if test="neo4jId != null "> and neo4j_id = #{neo4jId}</if>
             <if test="label != null  and label != ''"> and label = #{label}</if>
@@ -36,12 +36,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="toNodeNeo4jId != null "> and to_node_neo4j_id = #{toNodeNeo4jId}</if>
         </where>
     </select>
-    
+
     <select id="selectKgEdgeInstanceById" parameterType="Long" resultMap="KgEdgeInstanceResult">
         <include refid="selectKgEdgeInstanceVo"/>
         where id = #{id}
     </select>
-        
+
     <insert id="insertKgEdgeInstance" parameterType="KgEdgeInstance">
         insert into kg_edge_instance
         <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -94,9 +94,15 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </delete>
 
     <delete id="deleteKgEdgeInstanceByIds" parameterType="String">
-        delete from kg_edge_instance where id in 
+        delete from kg_edge_instance where id in
         <foreach item="id" collection="array" open="(" separator="," close=")">
             #{id}
         </foreach>
     </delete>
+
+    <update id="deleteEdgeByNodeNeo4jId" parameterType="Long">
+        update kg_edge_instance
+        SET valid = 0
+        WHERE from_node_neo4j_id = #{nodeId} OR to_node_neo4j_id = #{nodeId}
+    </update>
 </mapper>

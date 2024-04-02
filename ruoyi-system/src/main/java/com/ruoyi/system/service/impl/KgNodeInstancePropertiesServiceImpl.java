@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.ObjectUtil;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.system.domain.KgHistory;
@@ -143,5 +144,31 @@ public class KgNodeInstancePropertiesServiceImpl implements IKgNodeInstancePrope
 
         }
         return count;
+    }
+
+
+    @Override
+    public int deleteByNodeId(Long nodeId){
+        KgNodeInstanceProperties properties = new KgNodeInstanceProperties();
+        properties.setNodeId(nodeId);
+
+        List<KgNodeInstanceProperties> propertiesList = selectKgNodeInstancePropertiesList(properties);
+        if(ObjectUtil.isEmpty(propertiesList)){
+            return 0;
+        }
+        for (KgNodeInstanceProperties item : propertiesList) {
+            item.setValid(0l);
+            updateKgNodeInstanceProperties(item);
+
+            KgHistory history = new KgHistory();
+            history.setType(2);
+            history.setTargetType(4);
+            history.setTargetId(item.getId());
+            history.setTargetName(item.getName());
+            historyService.insertKgHistory(history);
+        }
+
+        return propertiesList.size();
+
     }
 }

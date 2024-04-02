@@ -84,4 +84,10 @@
             #{id}
         </foreach>
     </delete>
+
+    <update id="deleteNodeInstanceByNeo4jId" parameterType="Long">
+        update kg_node_instance
+        SET valid = 0
+        where neo4j_id = #{nodeId}
+    </update>
 </mapper>

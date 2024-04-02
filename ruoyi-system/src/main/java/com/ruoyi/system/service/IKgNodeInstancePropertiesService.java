@@ -61,4 +61,6 @@ public interface IKgNodeInstancePropertiesService
     public int deleteKgNodeInstancePropertiesById(Long id);
 
     int updateByNodeNeo4jId(GraphReq req);
+
+    int deleteByNodeId(Long id);
 }

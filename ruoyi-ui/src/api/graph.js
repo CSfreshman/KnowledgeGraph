@@ -45,3 +45,12 @@ export function statistic() {
     method: 'post'
   })
 }
+
+export function deleteNode(data) {
+  return request({
+    url: '/graph/deleteNode',
+    method: 'post',
+    data: data
+  })
+}
+

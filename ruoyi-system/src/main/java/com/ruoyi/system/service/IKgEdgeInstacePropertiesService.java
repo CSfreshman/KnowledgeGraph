@@ -58,4 +58,6 @@ public interface IKgEdgeInstacePropertiesService
      * @return 结果
      */
     public int deleteKgEdgeInstacePropertiesById(Long id);
+
+    int deleteByEdgeId(Long id);
 }

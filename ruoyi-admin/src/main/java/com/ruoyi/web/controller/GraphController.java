@@ -61,8 +61,9 @@ public class GraphController {
     }
 
     @PostMapping("/deleteNode")
-    public AjaxResult updateNodeDetail(@RequestBody GraphReq req){
+    public AjaxResult deleteNode(@RequestBody GraphReq req){
         System.out.println(req);
+        int count = testNeo4jService.deleteNodeByNeo4jId(req);
         return AjaxResult.success();
     }
 

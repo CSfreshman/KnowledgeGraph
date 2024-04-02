@@ -59,4 +59,6 @@ public interface IKgNodeInstanceService
      * @return 结果
      */
     public int deleteKgNodeInstanceById(Long id);
+
+    Integer deleteNodeInstanceByNeo4jId(Long nodeId);
 }

@@ -5,15 +5,15 @@ import com.ruoyi.system.domain.KgEdgeInstance;
 
 /**
  * 【请填写功能名称】Mapper接口
- * 
+ *
  * @author ruoyi
  * @date 2024-03-17
  */
-public interface KgEdgeInstanceMapper 
+public interface KgEdgeInstanceMapper
 {
     /**
      * 查询【请填写功能名称】
-     * 
+     *
      * @param id 【请填写功能名称】主键
      * @return 【请填写功能名称】
      */
@@ -21,7 +21,7 @@ public interface KgEdgeInstanceMapper
 
     /**
      * 查询【请填写功能名称】列表
-     * 
+     *
      * @param kgEdgeInstance 【请填写功能名称】
      * @return 【请填写功能名称】集合
      */
@@ -29,7 +29,7 @@ public interface KgEdgeInstanceMapper
 
     /**
      * 新增【请填写功能名称】
-     * 
+     *
      * @param kgEdgeInstance 【请填写功能名称】
      * @return 结果
      */
@@ -37,7 +37,7 @@ public interface KgEdgeInstanceMapper
 
     /**
      * 修改【请填写功能名称】
-     * 
+     *
      * @param kgEdgeInstance 【请填写功能名称】
      * @return 结果
      */
@@ -45,7 +45,7 @@ public interface KgEdgeInstanceMapper
 
     /**
      * 删除【请填写功能名称】
-     * 
+     *
      * @param id 【请填写功能名称】主键
      * @return 结果
      */
@@ -53,9 +53,11 @@ public interface KgEdgeInstanceMapper
 
     /**
      * 批量删除【请填写功能名称】
-     * 
+     *
      * @param ids 需要删除的数据主键集合
      * @return 结果
      */
     public int deleteKgEdgeInstanceByIds(Long[] ids);
+
+    public int deleteEdgeByNodeNeo4jId(Long nodeId);
 }

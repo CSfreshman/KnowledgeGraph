@@ -3,6 +3,8 @@ package com.ruoyi.system.service.impl;
 import cn.hutool.core.util.ObjectUtil;
 import com.ruoyi.system.domain.*;
 import com.ruoyi.system.req.GraphReq;
+import com.ruoyi.system.service.IKgEdgeInstanceService;
+import com.ruoyi.system.service.IKgNodeInstanceService;
 import com.ruoyi.system.service.TestNeo4jService;
 import com.ruoyi.system.utils.neo4j.Neo4jEdge;
 import com.ruoyi.system.utils.neo4j.Neo4jGraph;
@@ -25,6 +27,12 @@ public class TestNeo4jServiceImpl implements TestNeo4jService {
 
     @Resource
     private Neo4jTemplate neo4jTemplate;
+
+    @Autowired
+    private IKgNodeInstanceService nodeInstanceService;
+
+    @Autowired
+    private IKgEdgeInstanceService edgeInstanceService;
 
     private Driver driver = GraphDatabase.driver("bolt://8.130.96.64:7687", AuthTokens.basic("neo4j", "809434255wzw"));
 
@@ -485,6 +493,7 @@ public class TestNeo4jServiceImpl implements TestNeo4jService {
         System.out.println(parse.getEdges().size());
     }
 
+    @Override
     public List<Map<String,Integer>> statistic(){
 
         List<Map<String,Integer>> resMapList = new ArrayList<>();
@@ -535,5 +544,40 @@ public class TestNeo4jServiceImpl implements TestNeo4jService {
         resMapList.add(edgeMap);
 
         return resMapList;
+    }
+
+    // 根据neo4jId删除节点
+    @Override
+    public Integer deleteNodeByNeo4jId(GraphReq req){
+        Long nodeId = req.getNodeId();
+        if(ObjectUtil.isEmpty(nodeId)){
+            System.out.println("nodeNeo4jId为空");
+            return 0;
+        }
+        // 删除节点的时候会同时删除与之相连的关系
+        String cypher = "MATCH (n)\n" +
+                "WHERE id(n) = "+nodeId+"\n" +
+                "DETACH DELETE n;";
+        System.out.println("deleteNodeByNeo4jId:cypher:\n");
+        System.out.println(cypher);
+        driver.session().run(cypher);
+
+
+        // 删除节点实例
+        System.out.println("删除节点实例");
+        Integer count1 = nodeInstanceService.deleteNodeInstanceByNeo4jId(nodeId);
+
+        // 删除与之相连的关系
+        System.out.println("删除与之相连的关系");
+        Integer count2 = edgeInstanceService.deleteEdgeByNodeNeo4jId(nodeId);
+
+        // 删除节点的属性
+//        System.out.println("删除节点的属性");
+        Integer count3 = 0;
+
+        // 删除关系的属性
+//        System.out.println("删除关系的属性");
+        Integer count4 = 0;
+        return count1+count2+count3+count4;
     }
 }
