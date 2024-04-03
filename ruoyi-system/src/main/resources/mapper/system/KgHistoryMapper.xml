@@ -3,7 +3,7 @@
 PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.system.mapper.KgHistoryMapper">
-    
+
     <resultMap type="KgHistory" id="KgHistoryResult">
         <result property="id"    column="id"    />
         <result property="type"    column="type"    />
@@ -22,7 +22,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="selectKgHistoryList" parameterType="KgHistory" resultMap="KgHistoryResult">
         <include refid="selectKgHistoryVo"/>
-        <where>  
+        <where>
             <if test="type != null "> and type = #{type}</if>
             <if test="targetId != null "> and target_id = #{targetId}</if>
             <if test="targetType != null "> and target_type = #{targetType}</if>
@@ -32,13 +32,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="time != null "> and time = #{time}</if>
             <if test="userId != null "> and user_id = #{userId}</if>
         </where>
+        ORDER BY `time` DESC
     </select>
-    
+
     <select id="selectKgHistoryById" parameterType="Long" resultMap="KgHistoryResult">
         <include refid="selectKgHistoryVo"/>
         where id = #{id}
     </select>
-        
+
     <insert id="insertKgHistory" parameterType="KgHistory">
         insert into kg_history
         <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -85,7 +86,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </delete>
 
     <delete id="deleteKgHistoryByIds" parameterType="String">
-        delete from kg_history where id in 
+        delete from kg_history where id in
         <foreach item="id" collection="array" open="(" separator="," close=")">
             #{id}
         </foreach>
