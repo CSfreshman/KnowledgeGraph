@@ -441,7 +441,7 @@ public class TestNeo4jServiceImpl implements TestNeo4jService {
         }
 
         cypher += ")\n" +
-                "OPTIONAL MATCH (n)-[r]-()\n" +
+                "OPTIONAL MATCH (n)-[r]->()\n" +
                 "WITH n, COUNT(r) as degreeCentrality\n" +
                 "RETURN n, degreeCentrality\n" +
                 "ORDER BY degreeCentrality DESC";
@@ -610,7 +610,7 @@ public class TestNeo4jServiceImpl implements TestNeo4jService {
 
     // 相似度计算
     @Override
-    public Map<Object, Integer> centralitySimilarity(GraphReq req) {
+    public List<GraphDto> centralitySimilarity(GraphReq req) {
         if(ObjectUtil.isEmpty(req.getEdgeClassList())){
             throw new RuntimeException("关系类型不能为空");
         }
@@ -663,15 +663,12 @@ public class TestNeo4jServiceImpl implements TestNeo4jService {
 
             }
             dtoList.add(dto);
-
         }
 
         for (GraphDto dto : dtoList) {
             System.out.println(dto);
-            System.out.println();
         }
 
-
-        return null;
+        return dtoList;
     }
 }

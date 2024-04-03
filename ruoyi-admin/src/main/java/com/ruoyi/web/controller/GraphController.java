@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.system.domain.KgEdgeInstance;
 import com.ruoyi.system.domain.KgNodeClass;
+import com.ruoyi.system.domain.dto.GraphDto;
 import com.ruoyi.system.req.GraphResp;
 import com.ruoyi.system.service.IKgNodeInstancePropertiesService;
 import com.ruoyi.system.service.TestNeo4jService;
@@ -158,9 +159,10 @@ public class GraphController {
     @PostMapping("/calculation/similarity")
     public GraphResp centralitySimilarity(@RequestBody GraphReq req){
         System.out.println("centralitySimilarity:req" + req);
-        Map<Object,Integer> map = testNeo4jService.centralitySimilarity(req);
-        return null;
-
+        List<GraphDto> dtoList = testNeo4jService.centralitySimilarity(req);
+        GraphResp resp = new GraphResp();
+        resp.setDtoList(dtoList);
+        return resp;
     }
 
     // 统计图谱中实体的种类与数量

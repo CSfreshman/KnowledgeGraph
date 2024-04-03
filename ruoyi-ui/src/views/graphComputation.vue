@@ -166,7 +166,7 @@ export default {
   data() {
     return {
       // 展示中心度计算
-      showCenterDegree: false,
+      showCenterDegree: true,
       // 中心度模型
       centerDegreeModel: [
         {id:1, name: "Degree Centrality"},

@@ -4,6 +4,7 @@ import com.ruoyi.system.domain.KgEdgeClass;
 import com.ruoyi.system.domain.KgEdgeInstance;
 import com.ruoyi.system.domain.KgNodeClass;
 import com.ruoyi.system.domain.KgNodeInstance;
+import com.ruoyi.system.domain.dto.GraphDto;
 import com.ruoyi.system.req.GraphReq;
 import com.ruoyi.system.utils.neo4j.Neo4jEdge;
 import com.ruoyi.system.utils.neo4j.Neo4jGraph;
@@ -55,5 +56,5 @@ public interface TestNeo4jService {
 
     int deleteEdgeByNeo4jId(GraphReq req);
 
-    Map<Object, Integer> centralitySimilarity(GraphReq req);
+    List<GraphDto> centralitySimilarity(GraphReq req);
 }
