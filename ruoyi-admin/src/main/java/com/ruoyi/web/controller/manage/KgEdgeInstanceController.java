@@ -5,6 +5,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
+import com.ruoyi.common.constant.HttpStatus;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.system.domain.KgEdgeInstaceProperties;
@@ -104,6 +105,17 @@ public class KgEdgeInstanceController extends BaseController
     public AjaxResult add(@RequestBody KgEdgeInstance kgEdgeInstance)
     {
         System.out.println("新增关系实例:req:" + kgEdgeInstance);
+
+        KgEdgeInstance test = new KgEdgeInstance();
+        test.setLabel(kgEdgeInstance.getLabel());
+        test.setFromNodeId(kgEdgeInstance.getFromNodeId());
+        test.setToNodeId(kgEdgeInstance.getToNodeId());
+        test.setValid(1l);
+        if(ObjectUtil.isNotEmpty(kgEdgeInstanceService.selectKgEdgeInstanceList(test))){
+//            return new AjaxResult(5001, "关系重复");
+            throw new RuntimeException("关系重复");
+        }
+
         // 首先添加到neo4j中
         Neo4jEdge edge = neo4jService.addEdge(kgEdgeInstance);
         System.out.println("neo4j中新建的关系"+edge);

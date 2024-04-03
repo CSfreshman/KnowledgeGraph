@@ -766,6 +766,9 @@ export default {
       this.cancelNodeRightMenu()
     },
     saveRelationInfo(){
+
+      this.visGraph.deleteLink(this.currentLink)
+
       //TODO 需要保存到服务端去，生成id，然后设置给连线
       console.log(this.relationInfo);
       this.relationInfo.fromNodeNeo4jId = this.relationInfo.sourceId
@@ -780,6 +783,12 @@ export default {
         })
       }else{
         addEdgeInstance(this.relationInfo).then(resp=>{
+          //console.log(resp)
+          // if(resp.code === 5001){
+          //   this.visGraph.deleteLink(this.currentLink)
+          // }else{
+          //   this.drawGraphData()
+          // }
           this.drawGraphData()
         })
       }

@@ -101,6 +101,14 @@ public class KgEdgeClassServiceImpl implements IKgEdgeClassService
     @Override
     public int insertKgEdgeClass(KgEdgeClass kgEdgeClass)
     {
+
+        KgEdgeClass test = new KgEdgeClass();
+        test.setLabel(kgEdgeClass.getLabel());
+        test.setValid(1l);
+        if(ObjectUtil.isNotEmpty(selectKgEdgeClassList(test))){
+            throw new RuntimeException("关系名称重复");
+        }
+
         kgEdgeClass.setCreateTime(DateUtils.getNowDate());
         kgEdgeClass.setId(IdUtil.getSnowflakeNextId());
         kgEdgeClass.setCreateUser(SecurityUtils.getUserId());

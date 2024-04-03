@@ -3,8 +3,10 @@ package com.ruoyi.system.service.impl;
 import java.util.List;
 
 import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.ObjectUtil;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
+import com.ruoyi.system.domain.KgEdgeClass;
 import com.ruoyi.system.domain.KgNodeClassProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -57,6 +59,15 @@ public class KgEdgeClassPropertiesServiceImpl implements IKgEdgeClassPropertiesS
     @Override
     public int insertKgEdgeClassProperties(KgEdgeClassProperties kgEdgeClassProperties)
     {
+
+        KgEdgeClassProperties test = new KgEdgeClassProperties();
+        test.setName(kgEdgeClassProperties.getName());
+        test.setEdgeId(kgEdgeClassProperties.getEdgeId());
+        test.setValid(1l);
+        if(ObjectUtil.isNotEmpty(selectKgEdgeClassPropertiesList(test))){
+            throw new RuntimeException("属性名称重复");
+        }
+
         kgEdgeClassProperties.setCreateTime(DateUtils.getNowDate());
         kgEdgeClassProperties.setId(IdUtil.getSnowflakeNextId());
         kgEdgeClassProperties.setCreateUser(SecurityUtils.getUserId());

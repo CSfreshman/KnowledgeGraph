@@ -61,6 +61,7 @@ public class KgNodeClassPropertiesServiceImpl implements IKgNodeClassPropertiesS
     {
 
         KgNodeClassProperties test = new KgNodeClassProperties();
+        test.setNodeId(kgNodeClassProperties.getNodeId());
         test.setName(kgNodeClassProperties.getName());
         test.setValid(1);
         if(ObjectUtil.isNotEmpty(selectKgNodeClassPropertiesList(test))){
