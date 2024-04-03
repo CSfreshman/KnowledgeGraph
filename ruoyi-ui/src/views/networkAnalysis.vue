@@ -9,10 +9,10 @@
           <div>
             <el-row>
               <el-col :span="12">
-                <el-button size="medium" @click="showPath = true">路径分析</el-button>
+                <el-button size="medium" @click="showPath = true" :type="showPath?'primary':''">路径分析</el-button>
               </el-col>
               <el-col :span="12">
-                <el-button size="medium" @click="showPath = false">中心多度探寻</el-button>
+                <el-button size="medium" @click="showPath = false" :type="showPath?'':'primary'">中心多度探寻</el-button>
               </el-col>
             </el-row>
             <el-divider></el-divider>
@@ -141,6 +141,7 @@
                 <el-radio :label="4">4度</el-radio>
                 <el-radio :label="5">5度</el-radio>
               </el-radio-group>
+              <el-divider></el-divider>
             </div>
 
             <!--        设置分析实体-->

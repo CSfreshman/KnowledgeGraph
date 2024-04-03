@@ -2,6 +2,7 @@ package com.ruoyi.system.service.impl;
 
 import cn.hutool.core.util.ObjectUtil;
 import com.ruoyi.system.domain.*;
+import com.ruoyi.system.domain.dto.GraphDto;
 import com.ruoyi.system.req.GraphReq;
 import com.ruoyi.system.service.IKgEdgeInstanceService;
 import com.ruoyi.system.service.IKgNodeInstanceService;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.function.Function;
 
 
 @Service
@@ -493,6 +495,7 @@ public class TestNeo4jServiceImpl implements TestNeo4jService {
         System.out.println(parse.getEdges().size());
     }
 
+    // 数据统计
     @Override
     public List<Map<String,Integer>> statistic(){
 
@@ -608,6 +611,66 @@ public class TestNeo4jServiceImpl implements TestNeo4jService {
     // 相似度计算
     @Override
     public Map<Object, Integer> centralitySimilarity(GraphReq req) {
+        if(ObjectUtil.isEmpty(req.getEdgeClassList())){
+            throw new RuntimeException("关系类型不能为空");
+        }
+        if(ObjectUtil.isEmpty(req.getCalculateNode())){
+            throw new RuntimeException("相似度计算实体为空");
+        }
+
+        StringBuilder builder = new StringBuilder();
+        for (KgEdgeClass edgeClass : req.getEdgeClassList()) {
+            builder.append(",")
+                    .append("'")
+                    .append(edgeClass.getLabel())
+                    .append("'");
+        }
+
+        // 默认计算与选中主体同类型的实体
+        String cypher = "MATCH (p1)-[r]->(to1) \n" +
+                "WHERE id(p1) = " + req.getCalculateNode().getNeo4jId() +
+                "\nAND type(r) in ["+builder+"]" +
+                "\nWITH p1, collect(id(to1)) AS collect1\n" +
+                "\n" +
+                "MATCH (p2:`"+req.getCalculateNode().getLabel()+"`)-[r]->(to2) \n" +
+                "WHERE p1 <> p2 AND type(r) in ["+builder+"]" +
+                "\nWITH p1, collect1, p2, collect(id(to2)) AS collect2\n" +
+                "\n" +
+                "RETURN id(p1),id(p2),collect1,collect2,\n" +
+                "                 gds.similarity.jaccard(collect1,collect2) AS jaccardSimilarity";
+
+
+        System.out.println("centralitySimilarity:cypher:\n" + cypher);
+
+        Result result = driver.session().run(cypher);
+
+        List<GraphDto> dtoList = new ArrayList<>();
+
+        List<Record> records = result.list();
+        for (Record record : records) {
+            GraphDto dto = new GraphDto();
+            for (int i = 0; i < record.values().size(); i++) {
+                Value value = record.values().get(i);
+                switch (i){
+                    case 0: dto.setMainNodeId(value.asLong()); break;
+                    case 1: dto.setToNodeId(value.asLong()); break;
+                    case 2: dto.setMainNodeRelIdList(value.asList(it -> it.asLong())); break;
+                    case 3: dto.setToNodeRelIdList(value.asList(it -> it.asLong())); break;
+                    case 4: dto.setJaccardSimilarity(value.asDouble()); break;
+                    default:
+                        System.out.println(value + " 不在处理范围内");
+                }
+
+            }
+            dtoList.add(dto);
+
+        }
+
+        for (GraphDto dto : dtoList) {
+            System.out.println(dto);
+            System.out.println();
+        }
+
 
         return null;
     }

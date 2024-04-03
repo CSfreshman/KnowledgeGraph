@@ -62,9 +62,15 @@ public class GraphReq {
     // 分析实体
     private KgNodeInstance analyseNode;
 
-    // 中心度计算开始
+    // 中心度计算开始⬇
     private Integer selectedCenterDegreeModel;
-
     // 中心度计算结束
+
+
+    // 相似度计算开始
+    private KgNodeInstance calculateNode;
+
+//    private List edgeClassList;
+    // 相似度计算结束
 
 }

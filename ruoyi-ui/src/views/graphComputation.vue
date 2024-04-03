@@ -9,10 +9,10 @@
           <div>
             <el-row>
               <el-col :span="12">
-                <el-button size="medium" @click="showCenterDegree = true">中心度计算</el-button>
+                <el-button size="medium" @click="showCenterDegree = true" :type="showCenterDegree?'primary':''">中心度计算</el-button>
               </el-col>
               <el-col :span="12">
-                <el-button size="medium" @click="showCenterDegree = false">相似实体计算</el-button>
+                <el-button size="medium" @click="showCenterDegree = false" :type="showCenterDegree?'':'primary'">相似实体计算</el-button>
               </el-col>
             </el-row>
             <el-divider></el-divider>
@@ -63,6 +63,55 @@
 
           </div>
 
+<!--          相似度计算部分-->
+          <div v-if="!showCenterDegree">
+<!--            头部查询栏-->
+            <div>
+              <el-row>设置相似度计算实体</el-row>
+              <el-row>
+                <el-form>
+                  <el-form-item label="计算实体" label-width="100px">
+                    <!--                为了方便编写，这里使用fromNode起点实体代替分析实体-->
+                    <el-input placeholder="输入实体名称" v-model="fromNode.name">
+                      <template #suffix>
+                        <el-button style="border: none" icon="el-icon-search" size="small" @click="queryNode(true)"></el-button>
+                      </template>
+                    </el-input>
+
+                    <el-popover
+                      v-model="popoverVisibleFrom"
+                      placement="bottom-start"
+                      trigger="click">
+                      <el-select v-model="selectedItem" placeholder="请选择结果" @change="item => handleSelectChange(item, true)">
+                        <el-option v-for="item in queryNodeList" :key="item.id" :label="item.name + '--' + item.label" :value="item"></el-option>
+                      </el-select>
+                      <!--                <div slot="reference">{{ fromNode.name }}</div>-->
+                    </el-popover>
+
+                  </el-form-item>
+                </el-form>
+              </el-row>
+              <el-divider></el-divider>
+            </div>
+
+<!--            关系选择器-->
+            <div>
+              <el-row> 设置分析关系 </el-row>
+              <div>
+                <el-checkbox-group v-model="checkedEdge">
+                  <el-checkbox v-for="item in edgeCheckBoxList" :key="item.id" :label="item" :disabled="!item.isEnable">{{ item.label }}</el-checkbox>
+                </el-checkbox-group>
+              </div>
+              <el-divider></el-divider>
+            </div>
+
+            <!--        底部按钮-->
+            <div>
+              <el-button size="medium" @click="calculation">分析</el-button>
+<!--              <el-button size="medium" @click="reset">重置</el-button>-->
+            </div>
+          </div>
+
         </div>
       </el-col>
 
@@ -92,6 +141,11 @@
         </el-table>
       </div>
     </div>
+
+    <!-- 节点右键操作菜单 -->
+    <div id="nodeRightMenuPanel" class="right-menu-layer">
+      <button @click="selectNodeToCentralitySimilarity()"><i class="el-icon-notebook-2"></i>节点属性</button>
+    </div>
   </div>
 </template>
 
@@ -105,14 +159,14 @@ import { demoData } from '@/assets/test/demo2.js'
 import {getAll as getAllEdgeClass} from "@/api/mange/class/edge";
 import {getAllNodeClass} from "@/api/mange/class/node";
 import {getAll as getAllNodeInstance} from "@/api/mange/instance/node"
-import {centerMultiDegree, centralityCalculation, getAllGraph, pathAnalyse} from "@/api/graph";
+import {centerMultiDegree, centralityCalculation, getAllGraph, pathAnalyse, similarityCalculation} from "@/api/graph";
 
 export default {
   name: "graphComputation",
   data() {
     return {
       // 展示中心度计算
-      showCenterDegree: true,
+      showCenterDegree: false,
       // 中心度模型
       centerDegreeModel: [
         {id:1, name: "Degree Centrality"},
@@ -186,17 +240,30 @@ export default {
 
     // 执行计算动作
     calculation() {
-      var formData = {
-        selectedCenterDegreeModel: this.selectedCenterDegreeModel,
-        nodeClassList: this.checkedNode,
+      // 中心度计算
+      if(this.showCenterDegree){
+        var formData = {
+          selectedCenterDegreeModel: this.selectedCenterDegreeModel,
+          nodeClassList: this.checkedNode,
+        }
+
+        console.log("中心度计算表单数据如下")
+        console.log(formData)
+
+        centralityCalculation(formData).then(resp=>{
+          this.drawGraphData(0,resp.graph);
+        })
+      }else{
+        // 相似度计算
+        var formData = {
+          calculateNode: this.fromNode,
+          edgeClassList: this.checkedEdge,
+        }
+        similarityCalculation(formData).then(resp=>{
+
+        })
       }
 
-      console.log("中心度计算表单数据如下")
-      console.log(formData)
-
-      centralityCalculation(formData).then(resp=>{
-        this.drawGraphData(0,resp.graph);
-      })
     },
 
     // 执行分析动作
@@ -275,6 +342,20 @@ export default {
       // 选择完成后需要情况这些状态
       this.selectedItem = '';
       this.queryNodeList = '';
+
+      // 选择了一种类型的节点之后，需要对可选的关系类型进行限制，只有与选择的节点类型直接相连的才可以选择
+      // 选中的类型
+      var nodeClass = this.allNodeClassList.find(it=>it.id == this.fromNode.classId);
+      console.log("选中的节点类型")
+      console.log(nodeClass)
+      this.edgeCheckBoxList.forEach(it=>{
+        it.isEnable = false;
+        // console.log(it)
+        // 不是与选中的类型直接相连的关系，置为不可用状态
+        if(it.fromNodeId == nodeClass.id || it.toNodeId == nodeClass.id){
+          it.isEnable = true;
+        }
+      })
     },
 
     // 图谱部分
@@ -455,6 +536,11 @@ export default {
       tipDom.style.top = event.clientY + 5 + 'px';
       tipDom.style.left = event.clientX + 10 +'px';
     },
+
+    // 选择实体进行相似度计算
+    selectNodeToCentralitySimilarity(){
+
+    }
 
   },
   mounted() {

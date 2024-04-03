@@ -39,6 +39,16 @@ export function centralityCalculation(data) {
   })
 }
 
+// 相似度计算
+export function similarityCalculation(data) {
+  return request({
+    url: '/graph/calculation/similarity',
+    method: 'post',
+    data: data
+  })
+}
+
+
 export function statistic() {
   return request({
     url: '/graph/statistic',
