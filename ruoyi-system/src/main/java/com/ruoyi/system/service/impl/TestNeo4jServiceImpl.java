@@ -654,7 +654,12 @@ public class TestNeo4jServiceImpl implements TestNeo4jService {
                 switch (i){
                     case 0: dto.setMainNodeId(value.asLong()); break;
                     case 1: dto.setToNodeId(value.asLong()); break;
-                    case 2: dto.setMainNodeRelIdList(value.asList(it -> it.asLong())); break;
+                    case 2: dto.setMainNodeRelIdList(value.asList(new Function<Value, Long>() {
+                        @Override
+                        public Long apply(Value it) {
+                            return it.asLong();
+                        }
+                    })); break;
                     case 3: dto.setToNodeRelIdList(value.asList(it -> it.asLong())); break;
                     case 4: dto.setJaccardSimilarity(value.asDouble()); break;
                     default:

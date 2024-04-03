@@ -3,6 +3,7 @@ package com.ruoyi.system.service.impl;
 import java.util.List;
 
 import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.ObjectUtil;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.system.domain.KgHistory;
@@ -58,6 +59,14 @@ public class KgNodeClassPropertiesServiceImpl implements IKgNodeClassPropertiesS
     @Override
     public int insertKgNodeClassProperties(KgNodeClassProperties kgNodeClassProperties)
     {
+
+        KgNodeClassProperties test = new KgNodeClassProperties();
+        test.setName(kgNodeClassProperties.getName());
+        test.setValid(1);
+        if(ObjectUtil.isNotEmpty(selectKgNodeClassPropertiesList(test))){
+            throw new RuntimeException("属性名重复");
+        }
+
         kgNodeClassProperties.setCreateTime(DateUtils.getNowDate());
         kgNodeClassProperties.setId(IdUtil.getSnowflakeNextId());
         kgNodeClassProperties.setCreateUser(SecurityUtils.getUserId());
