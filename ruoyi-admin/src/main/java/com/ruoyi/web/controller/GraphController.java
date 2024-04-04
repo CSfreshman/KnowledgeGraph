@@ -133,7 +133,7 @@ public class GraphController {
     @PostMapping("/calculation/centrality")
     public GraphResp centralityCalculation(@RequestBody GraphReq req){
         System.out.println("centralityCalculation:req" + req);
-        Map<Object,Integer> map = testNeo4jService.centralityCalculation(req);
+        Map<Object,Double> map = testNeo4jService.centralityCalculation(req);
 
         Neo4jGraph neo4jGraph = new Neo4jGraph();
         // 根据节点类型查询
@@ -171,4 +171,10 @@ public class GraphController {
         return testNeo4jService.statistic();
     }
 
+
+    // 获得数据库中存在的全部节点类型
+    @GetMapping("/getAllExistNodeClass")
+    public List<String> getAllExistNodeClass(){
+        return testNeo4jService.getAllExistNodeClass();
+    }
 }

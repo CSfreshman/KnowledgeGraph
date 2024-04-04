@@ -71,3 +71,10 @@ export function deleteEdge(data) {
     data: data
   })
 }
+
+export function getAllExistNodeClass() {
+  return request({
+    url: '/graph/getAllExistNodeClass',
+    method: 'get',
+  })
+}

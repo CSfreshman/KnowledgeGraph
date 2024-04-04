@@ -10,6 +10,7 @@ import org.jsoup.select.Elements;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.*;
 
 public class Test {
@@ -21,6 +22,13 @@ public class Test {
 
     public static Map<String,Set<String>> jiBingZhengZhuang = new HashMap<>();
     public static Map<String,Set<String>> jiBingBingFaZheng = new HashMap<>();
+
+    public static void main1(String[] args) {
+
+        String name = "test" + LocalDateTime.now();
+        System.out.println(name);
+
+    }
 
     public static void main(String[] args) {
         //获取resource下的文件

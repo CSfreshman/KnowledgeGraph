@@ -10,14 +10,19 @@ import com.ruoyi.system.service.TestNeo4jService;
 import com.ruoyi.system.utils.neo4j.Neo4jEdge;
 import com.ruoyi.system.utils.neo4j.Neo4jGraph;
 import com.ruoyi.system.utils.neo4j.Neo4jNode;
+import org.apache.poi.ss.formula.functions.T;
 import org.neo4j.driver.*;
 import org.neo4j.driver.internal.InternalResult;
+import org.neo4j.driver.internal.types.TypeConstructor;
+import org.neo4j.driver.types.Node;
+import org.neo4j.driver.types.Type;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.data.neo4j.core.Neo4jTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.function.Function;
 
@@ -425,36 +430,154 @@ public class TestNeo4jServiceImpl implements TestNeo4jService {
     RETURN n, degreeCentrality
     ORDER BY degreeCentrality DESC
      */
+//    @Override
+//    public Map<Object,Integer> centralityCalculation(GraphReq req) {
+//        String cypher = "MATCH (n";
+//        StringBuilder builder = new StringBuilder();
+//        if(ObjectUtil.isNotEmpty(req.getNodeClassList())){
+//            for (KgNodeClass nodeClass : req.getNodeClassList()) {
+//                builder.append("|")
+//                        .append(nodeClass.getName());
+//            }
+//            // 删除第一个分隔符
+//            builder.deleteCharAt(0);
+//            cypher+=":";
+//            cypher+=builder;
+//        }
+//
+//        cypher += ")\n" +
+//                "OPTIONAL MATCH (n)-[r]->()\n" +
+//                "WITH n, COUNT(r) as degreeCentrality\n" +
+//                "RETURN n, degreeCentrality\n" +
+//                "ORDER BY degreeCentrality DESC";
+//
+//
+//        System.out.println("centralityCalculation:cyher:\n" + cypher);
+//        Session session = driver.session();
+//        Result result = session.run(cypher);
+//        Map<Object,Integer> result1 = Neo4jGraph.centralityCalculation(result);
+//
+//        System.out.println(result1);
+//
+//        return result1;
+//    }
+
+    // 中心度计算
     @Override
-    public Map<Object,Integer> centralityCalculation(GraphReq req) {
-        String cypher = "MATCH (n";
-        StringBuilder builder = new StringBuilder();
-        if(ObjectUtil.isNotEmpty(req.getNodeClassList())){
-            for (KgNodeClass nodeClass : req.getNodeClassList()) {
-                builder.append("|")
-                        .append(nodeClass.getName());
-            }
-            // 删除第一个分隔符
-            builder.deleteCharAt(0);
-            cypher+=":";
-            cypher+=builder;
+    public Map<Object,Double> centralityCalculation(GraphReq req) {
+        String centralityName =
+                createGraphProject("centrality",
+                        createNodeClassStr(req.getNodeClassList()),
+                        createEdgeClassStr(req.getEdgeClassList()));
+        System.out.println(centralityName);
+        String cypher = null;
+        Integer model = req.getSelectedCenterDegreeModel();
+
+        Map<Object,Double> map = new HashMap<>();
+
+        if(model == 1){
+            System.out.println("执行 度中心度 计算");
+            // 度中心度
+            cypher = "CALL gds.degree.stream('" + centralityName + "')\n" +
+                    "YIELD nodeId, score\n" +
+                    "RETURN gds.util.asNode(nodeId), score AS followers\n" +
+                    "ORDER BY followers DESC";
+        }else if(model == 2){
+            System.out.println("执行 接近中心度 计算");
+            // 接近中心度
+            cypher = "CALL gds.closeness.stream('" + centralityName + "')\n" +
+                    "YIELD nodeId, score\n" +
+                    "RETURN gds.util.asNode(nodeId), score AS followers\n" +
+                    "ORDER BY followers DESC";
+        }else{
+            System.out.println("执行 介中心度 计算");
+            // 介中心度
+            cypher = "CALL gds.betweenness.stream('" + centralityName + "')\n" +
+                    "YIELD nodeId, score\n" +
+                    "RETURN gds.util.asNode(nodeId), score AS followers\n" +
+                    "ORDER BY followers DESC";
         }
 
-        cypher += ")\n" +
-                "OPTIONAL MATCH (n)-[r]->()\n" +
-                "WITH n, COUNT(r) as degreeCentrality\n" +
-                "RETURN n, degreeCentrality\n" +
-                "ORDER BY degreeCentrality DESC";
+        System.out.println("centralityCalculation:cypher:\n");
+        System.out.println(cypher);
+
+        Result result = driver.session().run(cypher);
+        List<Record> records = result.list();
+        for (Record record : records) {
+            List<Value> values = record.values();
+            Neo4jNode node = null;
+            Double score = null;
+            for (Value value : values) {
+                Type type = value.type();
+                if (type.name().equals(TypeConstructor.NODE.name())) {
+                    node = new Neo4jNode(value.asNode());
+                }else{
+                    score = value.asDouble();
+                }
+            }
 
 
-        System.out.println("centralityCalculation:cyher:\n" + cypher);
-        Session session = driver.session();
-        Result result = session.run(cypher);
-        Map<Object,Integer> result1 = Neo4jGraph.centralityCalculation(result);
+            map.put(node,score);
+        }
 
-        System.out.println(result1);
+        System.out.println(map);
 
-        return result1;
+        dropGraphProject(centralityName);
+
+        return map;
+
+    }
+
+    public String createNodeClassStr(List<KgNodeClass> list){
+        if(ObjectUtil.isEmpty(list)){
+            return null;
+        }
+        StringBuilder builder = new StringBuilder();
+        for (KgNodeClass it : list) {
+            builder.append(",")
+                    .append("'")
+                    .append(it.getName())
+                    .append("'");
+        }
+        builder.deleteCharAt(0);
+        return "[" + builder + "]";
+
+    }
+
+    public String createEdgeClassStr(List<KgEdgeClass> list){
+        if(ObjectUtil.isEmpty(list)){
+            return null;
+        }
+        StringBuilder builder = new StringBuilder();
+        for (KgEdgeClass it : list) {
+            builder.append(",")
+                    .append("'")
+                    .append(it.getLabel())
+                    .append("'");
+        }
+        builder.deleteCharAt(0);
+        return "[" + builder + "]";
+    }
+
+    // 用于创建neo4j的数据投影，用于进行中心度、相似度计算
+    public String createGraphProject(String projectName,String nodeClassListStr,String edgeClassListStr){
+
+        String name = projectName +"-"+ LocalDateTime.now();
+        String cypher = "CALL gds.graph.project('" + name  + "'" +
+                // 如果类型列表为空，就匹配全部的类型
+                "," + (ObjectUtil.isEmpty(nodeClassListStr) ? "'*'" : nodeClassListStr) +
+                "," + (ObjectUtil.isEmpty(edgeClassListStr) ? "'*'" : edgeClassListStr) +
+                ") YIELD graphName";
+        System.out.println("createGraphProject:cypher:\n");
+        System.out.println(cypher);
+
+        driver.session().run(cypher);
+
+        return name;
+    }
+
+    public void dropGraphProject(String name){
+        driver.session().run("CALL gds.graph.drop('" + name + "')");
     }
 
     // 根据节点名称进行模糊查询
@@ -675,5 +798,19 @@ public class TestNeo4jServiceImpl implements TestNeo4jService {
         }
 
         return dtoList;
+    }
+
+    @Override
+    public List<String> getAllExistNodeClass() {
+        //        CALL db.labels()
+        List<String> res = new ArrayList<>();
+        Result result = driver.session().run("CALL db.labels()");
+        List<Record> records = result.list();
+        for (Record record : records) {
+            for (Value value : record.values()) {
+                res.add(value.asString());
+            }
+        }
+        return res;
     }
 }

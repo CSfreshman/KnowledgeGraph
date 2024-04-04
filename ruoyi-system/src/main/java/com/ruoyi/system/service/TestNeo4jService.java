@@ -42,7 +42,7 @@ public interface TestNeo4jService {
 
     Neo4jGraph centerMultiDegree(GraphReq req);
 
-    Map<Object,Integer> centralityCalculation(GraphReq req);
+    Map<Object,Double> centralityCalculation(GraphReq req);
 
     Neo4jGraph getNodeByName(String nodeName);
 
@@ -57,4 +57,6 @@ public interface TestNeo4jService {
     int deleteEdgeByNeo4jId(GraphReq req);
 
     List<GraphDto> centralitySimilarity(GraphReq req);
+
+    List<String> getAllExistNodeClass();
 }

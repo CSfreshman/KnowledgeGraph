@@ -10,6 +10,6 @@ import java.util.Map;
 @Data
 public class GraphResp {
     private Neo4jGraph graph;
-    private Map<Object,Integer> centrality;
+    private Map<Object,Double> centrality;
     private List<GraphDto> dtoList;
 }

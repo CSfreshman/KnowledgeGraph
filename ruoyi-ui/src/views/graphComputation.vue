@@ -159,7 +159,14 @@ import { demoData } from '@/assets/test/demo2.js'
 import {getAll as getAllEdgeClass} from "@/api/mange/class/edge";
 import {getAllNodeClass} from "@/api/mange/class/node";
 import {getAll as getAllNodeInstance} from "@/api/mange/instance/node"
-import {centerMultiDegree, centralityCalculation, getAllGraph, pathAnalyse, similarityCalculation} from "@/api/graph";
+import {
+  centerMultiDegree,
+  centralityCalculation,
+  getAllExistNodeClass,
+  getAllGraph,
+  pathAnalyse,
+  similarityCalculation
+} from "@/api/graph";
 
 export default {
   name: "graphComputation",
@@ -215,6 +222,7 @@ export default {
         header:'提示信息', // 提示表头
         data:[] //提示内部的数据
       },
+      allExistNodeClass: [],
     }
   },
   methods: {
@@ -230,7 +238,12 @@ export default {
     },
     fillNodeCheckBoxList() {
       this.allNodeClassList.forEach(it=>{
-        it.isEnable = true;
+
+        if(this.allExistNodeClass.includes(it.name)){
+          it.isEnable = true;
+        }else{
+          it.isEnable = false;
+        }
         it.isChecked = false;
         this.nodeCheckBoxList.push(it);
       })
@@ -555,7 +568,13 @@ export default {
       this.allNodeClassList = resp;
       console.log("所有节点类型如下:")
       console.log(this.allNodeClassList)
-      this.fillNodeCheckBoxList();
+      // 得到存在的节点类型
+      getAllExistNodeClass().then(resp=>{
+        this.allExistNodeClass = resp
+        console.log(this.allExistNodeClass);
+        this.fillNodeCheckBoxList();
+      })
+
     })
 
     getAllGraph().then(resp=>{
