@@ -1,6 +1,7 @@
 package com.ruoyi.system.service.impl;
 
 import cn.hutool.core.util.ObjectUtil;
+import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.system.domain.*;
 import com.ruoyi.system.domain.dto.GraphDto;
 import com.ruoyi.system.req.GraphReq;
@@ -501,6 +502,11 @@ public class TestNeo4jServiceImpl implements TestNeo4jService {
         System.out.println("centralityCalculation:cypher:\n");
         System.out.println(cypher);
 
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         Result result = driver.session().run(cypher);
         List<Record> records = result.list();
         for (Record record : records) {
@@ -577,7 +583,11 @@ public class TestNeo4jServiceImpl implements TestNeo4jService {
     }
 
     public void dropGraphProject(String name){
-        driver.session().run("CALL gds.graph.drop('" + name + "')");
+        System.out.println("开始执行删除graphProject");
+        String cypher = "CALL gds.graph.drop('" + name + "')";
+        System.out.println("dropGraphProject:cypher:");
+        System.out.println(cypher + "\n");
+        driver.session().run(cypher);
     }
 
     // 根据节点名称进行模糊查询
@@ -812,5 +822,21 @@ public class TestNeo4jServiceImpl implements TestNeo4jService {
             }
         }
         return res;
+    }
+
+    @Override
+    public AjaxResult cleanGraphProject(){
+        List<String> graphProjectName = new ArrayList<>();
+
+        Result result = driver.session().run("call gds.graph.list()");
+        for (Record record : result.list()) {
+            graphProjectName.add(record.values().get(1).asString());
+
+            dropGraphProject(record.values().get(1).asString());
+        }
+
+        System.out.println(graphProjectName);
+
+        return AjaxResult.success();
     }
 }

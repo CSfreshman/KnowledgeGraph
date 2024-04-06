@@ -273,7 +273,7 @@ export default {
           edgeClassList: this.checkedEdge,
         }
         similarityCalculation(formData).then(resp=>{
-
+          this.drawGraphData(0,resp.graph);
         })
       }
 

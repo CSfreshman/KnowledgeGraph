@@ -177,4 +177,11 @@ public class GraphController {
     public List<String> getAllExistNodeClass(){
         return testNeo4jService.getAllExistNodeClass();
     }
+
+
+    // 清理neo4j中存在的graphProject
+    @PostMapping("/cleanGraphProject")
+    public AjaxResult cleanGraphProject(){
+        return testNeo4jService.cleanGraphProject();
+    }
 }

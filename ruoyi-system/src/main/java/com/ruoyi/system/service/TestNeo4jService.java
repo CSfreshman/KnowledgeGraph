@@ -1,5 +1,6 @@
 package com.ruoyi.system.service;
 
+import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.system.domain.KgEdgeClass;
 import com.ruoyi.system.domain.KgEdgeInstance;
 import com.ruoyi.system.domain.KgNodeClass;
@@ -59,4 +60,6 @@ public interface TestNeo4jService {
     List<GraphDto> centralitySimilarity(GraphReq req);
 
     List<String> getAllExistNodeClass();
+
+    AjaxResult cleanGraphProject();
 }
