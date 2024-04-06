@@ -1,39 +1,39 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
-      <el-form-item label="对应的主体的id" prop="targetId">
-        <el-input
-          v-model="queryParams.targetId"
-          placeholder="请输入对应的主体的id"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="对应主体的名称" prop="targetName">
+<!--      <el-form-item label="对应的主体的id" prop="targetId">-->
+<!--        <el-input-->
+<!--          v-model="queryParams.targetId"-->
+<!--          placeholder="请输入对应的主体的id"-->
+<!--          clearable-->
+<!--          @keyup.enter.native="handleQuery"-->
+<!--        />-->
+<!--      </el-form-item>-->
+      <el-form-item label="记录名称" prop="targetName">
         <el-input
           v-model="queryParams.targetName"
-          placeholder="请输入对应主体的名称"
+          placeholder="请输入记录名称"
           clearable
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="修改前的值" prop="originValue">
-        <el-input
-          v-model="queryParams.originValue"
-          placeholder="请输入修改前的值"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="修改后的值" prop="curValue">
-        <el-input
-          v-model="queryParams.curValue"
-          placeholder="请输入修改后的值"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
-      </el-form-item>
-      <el-form-item label="记录生成时间" prop="time">
+<!--      <el-form-item label="修改前的值" prop="originValue">-->
+<!--        <el-input-->
+<!--          v-model="queryParams.originValue"-->
+<!--          placeholder="请输入修改前的值"-->
+<!--          clearable-->
+<!--          @keyup.enter.native="handleQuery"-->
+<!--        />-->
+<!--      </el-form-item>-->
+<!--      <el-form-item label="修改后的值" prop="curValue">-->
+<!--        <el-input-->
+<!--          v-model="queryParams.curValue"-->
+<!--          placeholder="请输入修改后的值"-->
+<!--          clearable-->
+<!--          @keyup.enter.native="handleQuery"-->
+<!--        />-->
+<!--      </el-form-item>-->
+      <el-form-item label="生成时间" prop="time">
         <el-date-picker clearable
           v-model="queryParams.time"
           type="date"
@@ -41,18 +41,49 @@
           placeholder="请选择记录生成时间">
         </el-date-picker>
       </el-form-item>
-      <el-form-item label="生成该记录的用户id" prop="userId">
-        <el-input
-          v-model="queryParams.userId"
-          placeholder="请输入生成该记录的用户id"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
+
+      <el-form-item label="记录类型" prop="type">
+        <el-select v-model="queryParams.type" placeholder="请选择记录类型">
+          <el-option
+            v-for="item in typeList"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value">
+          </el-option>
+        </el-select>
       </el-form-item>
+
+
       <el-form-item>
         <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
         <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
       </el-form-item>
+
+      <el-row>
+        <el-col :span="20">
+          <el-form-item label="目标类型" prop="targetType">
+            <el-select v-model="queryParams.targetType" placeholder="请选择目标类型">
+              <el-option
+                v-for="item in targetTypeList"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value">
+              </el-option>
+            </el-select>
+          </el-form-item>
+        </el-col>
+
+      </el-row>
+
+<!--      <el-form-item label="操作用户id" prop="userId">-->
+<!--        <el-input-->
+<!--          v-model="queryParams.userId"-->
+<!--          placeholder="请输入操作用户id"-->
+<!--          clearable-->
+<!--          @keyup.enter.native="handleQuery"-->
+<!--        />-->
+<!--      </el-form-item>-->
+
     </el-form>
 
     <el-row :gutter="10" class="mb8">
@@ -140,13 +171,20 @@
         <el-table-column label="操作用户id" align="center" prop="userId" />
         <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
           <template slot-scope="scope">
+<!--            <el-button-->
+<!--              size="mini"-->
+<!--              type="text"-->
+<!--              icon="el-icon-edit"-->
+<!--              @click="handleUpdate(scope.row)"-->
+<!--              v-hasPermi="['system:history:edit']"-->
+<!--            >修改</el-button>-->
             <el-button
               size="mini"
               type="text"
               icon="el-icon-edit"
-              @click="handleUpdate(scope.row)"
+              @click="getDetail(scope.row)"
               v-hasPermi="['system:history:edit']"
-            >修改</el-button>
+            >查看</el-button>
             <el-button
               size="mini"
               type="text"
@@ -260,7 +298,22 @@ export default {
         userId: [
           { required: true, message: "生成该记录的用户id不能为空", trigger: "blur" }
         ]
-      }
+      },
+      typeList: [
+        {value:1, label:"新增"},
+        {value:2, label:"删除"},
+        {value:3, label:"修改"},
+      ],
+      targetTypeList: [
+        {value:1, label:"节点本体"},
+        {value:2, label:"节点本体-属性"},
+        {value:3, label:"节点实例"},
+        {value:4, label:"节点实例-属性"},
+        {value:5, label:"关系本体"},
+        {value:6, label:"关系本体-属性"},
+        {value:7, label:"关系实例"},
+        {value:8, label:"关系实例-属性"},
+      ]
     };
   },
   created() {
@@ -348,6 +401,12 @@ export default {
         }
       });
     },
+
+    // 查看详情
+    getDetail(row) {
+
+    },
+
     /** 删除按钮操作 */
     handleDelete(row) {
       const ids = row.id || this.ids;
