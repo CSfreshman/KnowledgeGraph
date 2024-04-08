@@ -247,7 +247,6 @@ public class RedisCache
      * 删除Hash中的某条数据
      *
      * @param key Redis键
-     * @param hKey Hash键
      * @return 是否成功
      */
     public boolean deleteCacheMapValue(final String key, final String hKey)
