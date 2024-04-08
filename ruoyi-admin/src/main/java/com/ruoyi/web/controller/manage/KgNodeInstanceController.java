@@ -120,7 +120,14 @@ public class KgNodeInstanceController extends BaseController
         List<KgNodeInstance> kgNodeInstances = kgNodeInstanceService.selectKgNodeInstanceList(instance);
         if(ObjectUtil.isNotEmpty(kgNodeInstances)){
             // 如果存在重名实体，抛出名称重复异常
-            throw new RuntimeException("实体名称重复");
+            System.out.println(kgNodeInstances);
+            for (KgNodeInstance kgNodeInstance : kgNodeInstances) {
+                System.out.println(kgNodeInstance);
+                if(req.get("name").equals(kgNodeInstance.getName())){
+                    throw new RuntimeException("实体名称重复");
+                }
+            }
+
         }
 
         instance = new KgNodeInstance();

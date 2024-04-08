@@ -1,7 +1,12 @@
 package com.ruoyi.system.utils.dataBuilder;
 
 import cn.hutool.core.util.IdUtil;
+import cn.hutool.http.HttpRequest;
+import cn.hutool.http.HttpResponse;
+import cn.hutool.http.HttpUtil;
+import cn.hutool.json.JSONUtil;
 import com.ruoyi.common.core.domain.AjaxResult;
+import com.ruoyi.common.utils.http.HttpUtils;
 import com.ruoyi.system.domain.KgNodeInstance;
 import com.ruoyi.system.domain.KgNodeInstanceProperties;
 import com.ruoyi.system.service.IKgNodeInstancePropertiesService;
@@ -18,16 +23,30 @@ import java.util.*;
 @Service
 public class InsertIntoDataBase {
     @Autowired
-    private IKgNodeInstanceService kgNodeInstanceService;
+    private static IKgNodeInstanceService kgNodeInstanceService;
 
     @Autowired
-    private IKgNodeInstancePropertiesService kgNodeInstancePropertiesService;
+    private static IKgNodeInstancePropertiesService kgNodeInstancePropertiesService;
 
     @Autowired
-    private TestNeo4jService neo4jService;
+    private static TestNeo4jService neo4jService;
 
     public static void main(String[] args) {
         InsertIntoDataBase test = new InsertIntoDataBase();
+        Map<String,String> headers = new HashMap<>();
+        headers.put("Authorization","Bearer eyJhbGciOiJIUzUxMiJ9.eyJsb2dpbl91c2VyX2tleSI6IjVmOTNiZmZhLTY4NzktNDAxOS1iNWJjLTIwODliZWNlMGIyMyJ9.nYS7OS_D78Ls4_LsfdFhOZIx_YsIRc3MJS_La8wKNOLe31T_yj1Sh6CLhUOqnaEUP8ujbkVlwhihFso8um_fsw");
+        headers.put("Content-Type","application/json;charset=UTF-8");
+        headers.put("Cookie","Hm_lvt_fe3b7a223fc08c795f0f4b6350703e6f=1698214174; username=admin; rememberMe=true; password=SEMS0lWZPvVASgb5zun/SI6Uozhj/hczIG3GAA4EKYl0zaGZHehHj9pySps/3yOx2gKhQnNJwv7kWg++fKTApw==; Admin-Token=eyJhbGciOiJIUzUxMiJ9.eyJsb2dpbl91c2VyX2tleSI6IjVmOTNiZmZhLTY4NzktNDAxOS1iNWJjLTIwODliZWNlMGIyMyJ9.nYS7OS_D78Ls4_LsfdFhOZIx_YsIRc3MJS_La8wKNOLe31T_yj1Sh6CLhUOqnaEUP8ujbkVlwhihFso8um_fsw; sidebarStatus=0");
+
+
+        HttpResponse execute = HttpUtil.createPost("http://localhost/dev-api/mange/instance/edge")
+                .addHeaders(headers)
+                .body("{\"sourceId\":\"4\",\"source\":\"老年期抑郁症\",\"targetId\":\"10\",\"target\":\"测试症状\",\"label\":\"疾病症状\",\"classId\":\"1772132016339734528\",\"fromNodeNeo4jId\":\"4\",\"toNodeNeo4jId\":\"10\",\"fromNodeId\":\"1770334731922497536\",\"toNodeId\":\"1772131774349365248\"}").execute();
+        System.out.println(execute);
+
+    }
+
+    public void addBingFaZheng(){
         List<String> nameList = new ArrayList<>();
         nameList.add("哮喘");
         nameList.add("精神分裂症");
@@ -53,13 +72,11 @@ public class InsertIntoDataBase {
             map.put("name",s);
             map.put("classId","1770336962667274240");
             map.put("props",Collections.singletonList(props));
-            test.add(map);
+            add(map);
         }
-
-
     }
 
-    public void add(Map<String,Object> req)
+    public static void add(Map<String,Object> req)
     {
         System.out.println(req);
         KgNodeInstance instance = new KgNodeInstance();

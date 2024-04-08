@@ -758,6 +758,7 @@ public class TestNeo4jServiceImpl implements TestNeo4jService {
                     .append(edgeClass.getLabel())
                     .append("'");
         }
+        builder.deleteCharAt(0);
 
         // 默认计算与选中主体同类型的实体
         String cypher = "MATCH (p1)-[r]->(to1) \n" +

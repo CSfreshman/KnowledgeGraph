@@ -80,7 +80,7 @@ public class KgNodeClassServiceImpl implements IKgNodeClassService
         test.setName(kgNodeClass.getName());
         test.setValid(1l);
         List<KgNodeClass> kgNodeClasses = selectKgNodeClassList(test);
-        if(ObjectUtil.isNotEmpty(kgNodeClass)){
+        if(ObjectUtil.isNotEmpty(kgNodeClasses)){
             throw new RuntimeException("名称重复");
         }
 

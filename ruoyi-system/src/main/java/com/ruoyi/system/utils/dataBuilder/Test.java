@@ -22,6 +22,7 @@ public class Test {
 
     public static Map<String,Set<String>> jiBingZhengZhuang = new HashMap<>();
     public static Map<String,Set<String>> jiBingBingFaZheng = new HashMap<>();
+    public static Map<String,Set<String>> jiBingBingYin = new HashMap<>();
 
     public static void main1(String[] args) {
 
@@ -113,12 +114,16 @@ public class Test {
         }
 
         Map<String, String> href = getHref(doc);
+        System.out.println("===============================");
         System.out.println(href);
 
         jiBing.put(jiBingName,href);
 
-        getJiBingZhangZhuang(jiBingName,href.get("症状"));
-        getJiBingBingFaZheng(jiBingName,href.get("并发症"));
+//        getJiBingZhangZhuang(jiBingName,href.get("症状"));
+//        getJiBingBingFaZheng(jiBingName,href.get("并发症"));
+//        getJiBingBingYin(jiBingName,href.get("预防"));
+        getJiBingBingYin(jiBingName,href.get("治疗"));
+
     }
 
     public static Map<String,String> getHref(Document doc){
@@ -134,8 +139,8 @@ public class Test {
             String link = aElement.attr("href");
             String text = aElement.text();
 
-            System.out.println("Link: " + link);
-            System.out.println("Text: " + text);
+//            System.out.println("Link: " + link);
+//            System.out.println("Text: " + text);
             res.put(text,link);
         }
 
@@ -197,4 +202,20 @@ public class Test {
 
 
     }
+
+    // 病因
+    public static void getJiBingBingYin(String jiBingName, String url){
+        Document doc = null;
+        try {
+            doc = Jsoup.connect(url).get();
+//            System.out.println(doc);
+            Elements select = doc.select(".article_paragraph");
+            System.out.println(select);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    //
 }
