@@ -840,4 +840,23 @@ public class TestNeo4jServiceImpl implements TestNeo4jService {
 
         return AjaxResult.success();
     }
+
+    @Override
+    public Neo4jGraph getByNodeNameList(List<String> nodeNameList){
+        if(ObjectUtil.isEmpty(nodeNameList)){
+            return null;
+        }
+        StringBuilder builder = new StringBuilder();
+        for (String s : nodeNameList) {
+            builder.append(",")
+                    .append("'")
+                    .append(s)
+                    .append("'");
+        }
+        builder.deleteCharAt(0);
+        builder.insert(0,'[');
+        builder.append("]");
+        System.out.println("nodeNameList = " + builder);
+        String cypher = "MATCH (n) where n.name in ['情绪低落', '躯体症状'] return n";
+    }
 }

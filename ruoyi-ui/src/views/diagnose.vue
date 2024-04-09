@@ -14,11 +14,11 @@
       <el-form :model="formData">
 
         <el-form-item label="输入症状描述" label-width="100px">
-          <el-input v-model="formData.desc" style="width: 500px" placeholder="请输入您的症状描述"></el-input>
+          <el-input v-model="formData.symptomsDesc" style="width: 500px" placeholder="请输入您的症状描述"></el-input>
         </el-form-item>
 
         <el-form-item>
-          <el-button>提交</el-button>
+          <el-button @click="submitSymptomsDesc">提交</el-button>
         </el-form-item>
 
       </el-form>
@@ -31,12 +31,14 @@
 </template>
 
 <script>
+import {submitSymptomsDesc} from "@/api/extra";
+
 export default {
   name: "diagnose",
   data() {
     return {
       formData: {
-        desc: ''
+        symptomsDesc: ''
       },
 
       showForm: true
@@ -45,7 +47,11 @@ export default {
   created() {
   },
   methods: {
+    submitSymptomsDesc(){
+      submitSymptomsDesc({symptomsDesc:this.formData.symptomsDesc}).then(resp=>{
 
+      })
+    }
   }
 }
 </script>

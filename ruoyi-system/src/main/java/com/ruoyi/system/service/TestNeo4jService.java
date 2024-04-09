@@ -62,4 +62,6 @@ public interface TestNeo4jService {
     List<String> getAllExistNodeClass();
 
     AjaxResult cleanGraphProject();
+
+    Neo4jGraph getByNodeNameList(List<String> nodeNameList);
 }
