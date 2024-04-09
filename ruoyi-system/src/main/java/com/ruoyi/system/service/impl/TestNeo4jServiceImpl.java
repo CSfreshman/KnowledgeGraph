@@ -857,6 +857,12 @@ public class TestNeo4jServiceImpl implements TestNeo4jService {
         builder.insert(0,'[');
         builder.append("]");
         System.out.println("nodeNameList = " + builder);
-        String cypher = "MATCH (n) where n.name in ['情绪低落', '躯体症状'] return n";
+        String cypher = "MATCH (n) where n.name in " + builder + " return n";
+        System.out.println("getByNodeNameList:cypher:" + cypher);
+        Result result = driver.session().run(cypher);
+
+        Neo4jGraph parse = Neo4jGraph.parse(result);
+        System.out.println(parse);
+        return parse;
     }
 }
