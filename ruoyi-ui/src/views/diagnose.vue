@@ -29,6 +29,26 @@
             </el-option>
           </el-select>
 
+          <el-select v-model="selectedSex" placeholder="选择性别" @change="selectSex" size="mini" style="margin-left: 100px">
+            <el-option
+              v-for="item in sex"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
+            >
+            </el-option>
+          </el-select>
+
+          <el-select v-model="selectedAge" placeholder="选择年龄" @change="selectAge" size="mini" style="margin-left: 100px">
+            <el-option
+              v-for="item in age"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
+            >
+            </el-option>
+          </el-select>
+
           <el-button @click="executeDiagnose" style="margin-left: 100px;">开始分析</el-button>
         </el-form-item>
       </el-form>
@@ -39,7 +59,7 @@
           :key="item.id"
           closable
           @close="handleTagClose(item)"
-          style="margin-left: 10px;"
+          style="margin-left: 10px; margin-top: 5px"
         >
           {{item.label}}
         </el-tag>
@@ -68,6 +88,15 @@ export default {
       selectedNodeId: '',
       showForm: true,
       selectedNodes: [],
+      sex: [
+        {id:1,name:'男'},
+        {id:2,name:'女'}
+      ],
+      age: [
+
+      ],
+      selectedSex: '',
+      selectedAge: ''
     }
   },
   created() {
@@ -82,11 +111,17 @@ export default {
     graphSelect(queryAllNodeParam).then(resp=>{
       this.allNodes = resp.nodes
     })
+
+    var up = 60;
+    for (let i = 1; i <= up; i++) {
+      this.age.push({id: i, name: i + "岁"})
+    }
+    this.age.push({id:up + 1,name:"大于"+up+"岁"})
   },
   methods: {
     submitSymptomsDesc(){
       submitSymptomsDesc({symptomsDesc:this.formData.symptomsDesc}).then(resp=>{
-        this.matchNodes = resp;
+        this.matchNodes = resp.graph.nodes;
         console.log(this.matchNodes)
 
         this.matchNodes.forEach(it=>{

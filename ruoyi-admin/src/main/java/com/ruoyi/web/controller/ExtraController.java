@@ -1,9 +1,11 @@
 package com.ruoyi.web.controller;
 
 import cn.hutool.core.util.ObjectUtil;
+import com.alibaba.fastjson2.filter.ExtraProcessor;
 import com.huaban.analysis.jieba.JiebaSegmenter;
 import com.huaban.analysis.jieba.WordDictionary;
 import com.ruoyi.common.core.redis.RedisCache;
+import com.ruoyi.system.domain.vo.ExtraResp;
 import com.ruoyi.system.req.ExtraReq;
 import com.ruoyi.system.service.TestNeo4jService;
 import com.ruoyi.system.utils.neo4j.Neo4jGraph;
@@ -38,6 +40,9 @@ public class ExtraController {
             "。",
             "、",
     };
+
+    private static Driver driver = GraphDatabase.driver("bolt://8.130.96.64:7687", AuthTokens.basic("neo4j", "809434255wzw"));
+
     @Autowired
     private RedisCache redisCache;
 
@@ -80,9 +85,12 @@ public class ExtraController {
         // 匹配的症状
         System.out.println(match);
         Neo4jGraph graph = neo4jService.getByNodeNameList(match.stream().collect(Collectors.toList()));
-
-        // 只返回匹配的节点
-        return graph.getNodes();
+        if(graph == null){
+            return new Neo4jGraph();
+        }
+        ExtraResp resp = new ExtraResp();
+        resp.setGraph(graph);
+        return resp;
     }
 
     // 执行分析动作
@@ -101,8 +109,6 @@ public class ExtraController {
         System.out.println(neo4jNodeIdSet);
 
         // 获得所有疾病的症状的集合
-        Driver driver = GraphDatabase.driver("bolt://8.130.96.64:7687", AuthTokens.basic("neo4j", "809434255wzw"));
-
 
         String cypher = "MATCH (n:`疾病`)-[r:`疾病症状`]->(t) RETURN n,collect(id(t))";
         Result result = driver.session().run(cypher);
@@ -141,9 +147,37 @@ public class ExtraController {
             System.out.println(entry.getKey().getLabel() + " -- " + entry.getValue());
         }
 
+        list = list.subList(0,5);
+        System.out.println(list.size());
 
-        return list;
+
+        // 获得疾病的治疗方法
+        for (Map.Entry<Neo4jNode, Double> entry : list) {
+            System.out.println(getNodesByFromNoeIdAndToNodeLabel((Long) entry.getKey().getId(), "治疗方法"));
+        }
+
+
+        ExtraResp resp = new ExtraResp();
+        resp.setList(list);
+
+        return resp;
     }
+
+    public static Neo4jGraph getNodesByFromNoeIdAndToNodeLabel(Long fromNodeId,String toNodeLabel){
+        /*
+        MATCH (f)-[r]-(t:`治疗方法`) WHERE id(f) = 1 RETURN t
+         */
+        String cypher = "MATCH (f)-[r]-(t:`" + toNodeLabel + "`) WHERE id(f) = " + fromNodeId + " RETURN f,r,t";
+        System.out.println("getNodesByFromNoeIdAndToNodeLabel:cypher:");
+        System.out.println(cypher);
+
+        Result result = driver.session().run(cypher);
+
+        Neo4jGraph parse = Neo4jGraph.parse(result);
+        System.out.println(fromNodeId + " -- " + toNodeLabel + " -- " + parse.getNodes().size());
+        return parse;
+    }
+
 
     // 计算Jaccard相似度
     public static double calculateJaccardSimilarity(Set<Long> set1, Set<Long> set2) {

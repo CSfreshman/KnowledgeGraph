@@ -647,13 +647,26 @@ export default {
       // 将节点的信息保存到服务端去
       addNode(saveNode).then(resp=>{
         this.drawGraphData()
+        this.resetEditNode();
       })
 
     },
 
+    resetEditNode() {
+      this.editNode = {
+        id: '',
+        classId: '',  //节点类型id
+        label: '',
+        image:'',
+        color: '',
+        props: []
+      }
+    },
     cancelNodeInfo() {
       this.editNodeDialog = false;
       if(!this.edit){
+        // 清空已经被编辑的节点
+        this.resetEditNode();
         this.visGraph.deleteNode(this.currentNode);
       }
 
