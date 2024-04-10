@@ -64,4 +64,8 @@ public interface TestNeo4jService {
     AjaxResult cleanGraphProject();
 
     Neo4jGraph getByNodeNameList(List<String> nodeNameList);
+
+    Neo4jGraph getNodesByFromNoeIdAndToNodeLabel(Long fromNodeId,String toNodeLabel);
+
+    Neo4jGraph getNodesByIds(List<Long> ids);
 }

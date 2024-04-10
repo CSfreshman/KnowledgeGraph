@@ -1,6 +1,7 @@
 package com.ruoyi.web.controller;
 
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.json.JSONObject;
 import com.alibaba.fastjson2.filter.ExtraProcessor;
 import com.huaban.analysis.jieba.JiebaSegmenter;
 import com.huaban.analysis.jieba.WordDictionary;
@@ -131,51 +132,43 @@ public class ExtraController {
         System.out.println(diseaseSymptomsMap);
 
         // 计算jaccard相似度
-        Map<Neo4jNode,Double> jaccardMap = new HashMap<>();
+        Map<Neo4jNode,JSONObject> jaccardMap = new HashMap<>();
         for (Map.Entry<Neo4jNode, List<Object>> entry : diseaseSymptomsMap.entrySet()) {
             Set<Long> set1 = new HashSet<>(entry.getValue().stream().map(it->(Long) it).collect(Collectors.toList()));
             Set<Long> set2 = neo4jNodeIdSet.stream().map(it->(Long) it).collect(Collectors.toSet());
             double jaccardSimilarity = calculateJaccardSimilarity(set1, set2);
 //            double jaccardSimilarity = 0;
-            jaccardMap.put(entry.getKey(),jaccardSimilarity);
+            JSONObject jsonObject = new JSONObject();
+            // 相似度
+            jsonObject.putIfAbsent("similarity",jaccardSimilarity);
+            // 匹配的节点
+            set1.retainAll(set2);
+            jsonObject.putIfAbsent("matchNodes",neo4jService.getNodesByIds(new ArrayList<>(set1)).getNodes());
+
+            jaccardMap.put(entry.getKey(),jsonObject);
         }
 
-        List<Map.Entry<Neo4jNode, Double>> list = new ArrayList<Map.Entry<Neo4jNode, Double>>(jaccardMap.entrySet());
-        Collections.sort(list, (o1, o2) -> Double.compare(o2.getValue(),o1.getValue()));
+        // 转成List 完成排序
+        List<Map.Entry<Neo4jNode, JSONObject>> list = new ArrayList<Map.Entry<Neo4jNode, JSONObject>>(jaccardMap.entrySet());
+        Collections.sort(list, (o1, o2) -> Double.compare((double)o2.getValue().get("similarity"),(double)o1.getValue().get("similarity")));
 
-        for (Map.Entry<Neo4jNode, Double> entry : list) {
+        for (Map.Entry<Neo4jNode, JSONObject> entry : list) {
             System.out.println(entry.getKey().getLabel() + " -- " + entry.getValue());
         }
 
         list = list.subList(0,5);
         System.out.println(list.size());
 
-
-        // 获得疾病的治疗方法
-        for (Map.Entry<Neo4jNode, Double> entry : list) {
-            System.out.println(getNodesByFromNoeIdAndToNodeLabel((Long) entry.getKey().getId(), "治疗方法"));
-        }
+//        // 获得疾病的治疗方法
+//        for (Map.Entry<Neo4jNode, Double> entry : list) {
+//            System.out.println(getNodesByFromNoeIdAndToNodeLabel((Long) entry.getKey().getId(), "治疗方法"));
+//        }
 
 
         ExtraResp resp = new ExtraResp();
         resp.setList(list);
 
         return resp;
-    }
-
-    public static Neo4jGraph getNodesByFromNoeIdAndToNodeLabel(Long fromNodeId,String toNodeLabel){
-        /*
-        MATCH (f)-[r]-(t:`治疗方法`) WHERE id(f) = 1 RETURN t
-         */
-        String cypher = "MATCH (f)-[r]-(t:`" + toNodeLabel + "`) WHERE id(f) = " + fromNodeId + " RETURN f,r,t";
-        System.out.println("getNodesByFromNoeIdAndToNodeLabel:cypher:");
-        System.out.println(cypher);
-
-        Result result = driver.session().run(cypher);
-
-        Neo4jGraph parse = Neo4jGraph.parse(result);
-        System.out.println(fromNodeId + " -- " + toNodeLabel + " -- " + parse.getNodes().size());
-        return parse;
     }
 
 
@@ -209,7 +202,9 @@ public class ExtraController {
         set2.add(4l);
         set2.add(5l);
 
-        System.out.println(calculateJaccardSimilarity(set1,set2));
+        System.out.println(set1);
+
+        //System.out.println(calculateJaccardSimilarity(set1,set2));
 
     }
 }

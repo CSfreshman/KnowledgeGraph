@@ -865,4 +865,27 @@ public class TestNeo4jServiceImpl implements TestNeo4jService {
         System.out.println(parse);
         return parse;
     }
+
+    @Override
+    public Neo4jGraph getNodesByFromNoeIdAndToNodeLabel(Long fromNodeId,String toNodeLabel){
+        /*
+        MATCH (f)-[r]-(t:`治疗方法`) WHERE id(f) = 1 RETURN t
+         */
+        String cypher = "MATCH (f)-[r]-(t:`" + toNodeLabel + "`) WHERE id(f) = " + fromNodeId + " RETURN f,r,t";
+        System.out.println("getNodesByFromNoeIdAndToNodeLabel:cypher:");
+        System.out.println(cypher);
+
+        Result result = driver.session().run(cypher);
+
+        Neo4jGraph parse = Neo4jGraph.parse(result);
+        System.out.println(fromNodeId + " -- " + toNodeLabel + " -- " + parse.getNodes().size());
+        return parse;
+    }
+
+    @Override
+    public Neo4jGraph getNodesByIds(List<Long> ids) {
+
+        // 根据id获得节点
+        return null;
+    }
 }

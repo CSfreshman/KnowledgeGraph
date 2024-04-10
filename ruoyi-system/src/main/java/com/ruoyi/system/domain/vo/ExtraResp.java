@@ -1,5 +1,6 @@
 package com.ruoyi.system.domain.vo;
 
+import cn.hutool.json.JSONObject;
 import com.ruoyi.system.utils.neo4j.Neo4jGraph;
 import com.ruoyi.system.utils.neo4j.Neo4jNode;
 import lombok.Data;
@@ -11,5 +12,5 @@ import java.util.Map;
 public class ExtraResp {
     private Neo4jGraph graph;
 
-    List<Map.Entry<Neo4jNode, Double>> list;
+    List<Map.Entry<Neo4jNode, JSONObject>> list;
 }
