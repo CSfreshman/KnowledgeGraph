@@ -884,8 +884,23 @@ public class TestNeo4jServiceImpl implements TestNeo4jService {
 
     @Override
     public Neo4jGraph getNodesByIds(List<Long> ids) {
-
         // 根据id获得节点
-        return null;
+        if(ObjectUtil.isEmpty(ids)){
+            return null;
+        }
+
+        StringBuilder builder = new StringBuilder();
+        for (Long id : ids) {
+            builder.append(",")
+                    .append(id);
+        }
+        builder.deleteCharAt(0);
+
+        String cypher = "MATCH (n) WHERE id(n) in [" + builder + "] return n";
+        System.out.println("getNodesByIds:cypher:");
+        System.out.println(cypher);
+        Result result = driver.session().run(cypher);
+        Neo4jGraph parse = Neo4jGraph.parse(result);
+        return parse;
     }
 }

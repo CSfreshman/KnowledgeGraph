@@ -15,3 +15,11 @@ export function executeDiagnose(data) {
     data: data
   })
 }
+
+export function getDiseaseInfo(data) {
+  return request({
+    url: '/extra/getDiseaseInfo',
+    method: 'post',
+    data: data
+  })
+}

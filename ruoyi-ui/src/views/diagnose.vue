@@ -101,7 +101,12 @@
               width="120">
             </el-table-column>
             <el-table-column
-              property="name"
+              property="similarity"
+              label="相似度指数"
+              width="120">
+            </el-table-column>
+            <el-table-column
+              property="matchNodes"
               label="匹配症状"
               width="120">
             </el-table-column>
@@ -114,19 +119,34 @@
           <el-row>
             <div class="card-header">
               <span style="margin-right: 10px">疾病信息</span>
+
             </div>
+            {{this.currentRow}}
           </el-row>
 
           <el-row>
             <div class="card-header">
               <span style="margin-right: 10px">疾病治疗方式</span>
             </div>
+            {{this.diseaseInfo.treatmentMethod}}
           </el-row>
 
           <el-row>
             <div class="card-header">
               <span style="margin-right: 10px">疾病预防方式</span>
             </div>
+            {{this.diseaseInfo.preventMethod}}
+
+            <template >
+              <li v-for="(item, index) in items" :key="index">
+                {{ item }}
+              </li>
+<!--              <el-menu>-->
+<!--                <el-menu-item v-for="(item, index) in items" :key="index">-->
+<!--                  {{ item }}-->
+<!--                </el-menu-item>-->
+<!--              </el-menu>-->
+            </template>
           </el-row>
 
         </el-col>
@@ -137,13 +157,14 @@
 </template>
 
 <script>
-import {executeDiagnose, submitSymptomsDesc} from "@/api/extra";
+import {executeDiagnose, submitSymptomsDesc, getDiseaseInfo} from "@/api/extra";
 import {graphSelect} from "@/api/graph";
 
 export default {
   name: "diagnose",
   data() {
     return {
+      items: ['Item 1', 'Item 2', 'Item 3'], // 你的无序列表项数据
       formData: {
         symptomsDesc: ''
       },
@@ -164,8 +185,8 @@ export default {
 
       similarNodes: [],
       show: false,
-      currentRow: null
-
+      currentRow: null,
+      diseaseInfo: {}
 
     }
   },
@@ -195,6 +216,8 @@ export default {
     },
     handleCurrentChange(val) {
       this.currentRow = val;
+
+      this.getDiseaseInfo(val.id);
     },
 
     submitSymptomsDesc(){
@@ -207,7 +230,6 @@ export default {
         })
       })
     },
-
     // 取消选择节点类型
     handleTagClose(item) {
       const index = this.selectedNodes.findIndex(element => element.id === item.id);
@@ -230,6 +252,9 @@ export default {
     },
 
     executeDiagnose() {
+      // 清空已有表格内容
+      this.similarNodes = [];
+
       // 执行分析
       executeDiagnose({selectedNodeList:this.selectedNodes}).then(resp=>{
         console.log(resp.list)
@@ -237,32 +262,64 @@ export default {
         var that = this
 
         // 遍历数组并处理每个条目
-        resp.list.forEach(function(entry) {
-          // 提取键和值
-          var nodeInfo = Object.keys(entry)[0]; // 获取键
-          var value = entry[nodeInfo]; // 获取值
+        resp.list.forEach(obj => {
+          // 获取对象的键
+          const key = Object.keys(obj)[0];
+          console.log(key)
+          // 提取节点信息和相似度
+          const nodeInfo = obj[key];
 
-          // 解析键以获取 Neo4jNode 的信息
-          var regexResult = /Neo4jNode\(id=(\d+), label=(.*?),/.exec(nodeInfo);
-          var nodeId = regexResult[1];
-          var label = regexResult[2];
+          // 使用正则表达式进行匹配和提取
+          const idMatch = key.match(/id=(\d+)/); // 匹配id
+          const labelMatch = key.match(/label=([^,]+)/); // 匹配label
+          // 提取id和label
+          const id = idMatch ? idMatch[1] : null; // 如果匹配成功则提取id，否则为null
+          const label = labelMatch ? labelMatch[1] : null; // 如果匹配成功则提取label，否则为null
 
-          // 输出解析结果
-          console.log("Node ID:", nodeId);
-          console.log("Label:", label);
-          console.log("Value:", value);
-          console.log("--------------------");
+
+
+          // 展示节点信息和相似度
+          // console.log(`节点名称: ${nodeName}`);
+          const similarity = nodeInfo.similarity;
+          console.log(`相似度: ${similarity}`);
+          var matchNodesStr = '';
+
+          if (nodeInfo.hasOwnProperty('matchNodes')) {
+            // 如果存在matchNodes属性，则进行遍历展示
+            const matchNodes = nodeInfo.matchNodes;
+            matchNodes.forEach(matchNode => {
+              console.log(`匹配节点: ${matchNode.label}`);
+              matchNodesStr+=matchNode.label;
+            });
+          } else {
+            console.log('该对象没有matchNodes属性');
+          }
+
+
 
           that.similarNodes.push({
-            id: nodeId,
+            id: id,
             label: label,
-            similarity: value
+            similarity: similarity,
+            matchNodes: matchNodesStr
           })
         });
 
         this.show = true;
+
+        // 直接展示第一行的疾病
+        this.getDiseaseInfo(that.similarNodes[0].id);
+        this.currentRow = that.similarNodes[0]
       })
-    }
+    },
+
+
+    getDiseaseInfo(nodeId) {
+
+      getDiseaseInfo({diseaseNodeId:nodeId}).then(resp=>{
+        this.diseaseInfo = resp;
+      })
+    },
   }
 }
 </script>

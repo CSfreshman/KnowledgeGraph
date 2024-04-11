@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @RestController
@@ -143,7 +144,11 @@ public class ExtraController {
             jsonObject.putIfAbsent("similarity",jaccardSimilarity);
             // 匹配的节点
             set1.retainAll(set2);
-            jsonObject.putIfAbsent("matchNodes",neo4jService.getNodesByIds(new ArrayList<>(set1)).getNodes());
+            Neo4jGraph nodesByIds = neo4jService.getNodesByIds(new ArrayList<>(set1));
+            if(nodesByIds != null){
+                jsonObject.putIfAbsent("matchNodes",nodesByIds.getNodes());
+            }
+
 
             jaccardMap.put(entry.getKey(),jsonObject);
         }
@@ -156,7 +161,15 @@ public class ExtraController {
             System.out.println(entry.getKey().getLabel() + " -- " + entry.getValue());
         }
 
-        list = list.subList(0,5);
+
+        list = list.stream().filter(entry -> Double.compare((double) entry.getValue().get("similarity"), 0) != 0).collect(Collectors.toList());
+
+        // 展示前10条
+        if(list.size() > 10){
+            list = list.subList(0,10);
+        }
+
+
         System.out.println(list.size());
 
 //        // 获得疾病的治疗方法
@@ -171,6 +184,27 @@ public class ExtraController {
         return resp;
     }
 
+    private static Map<String,String> labelMap = new HashMap<>();
+
+    static {
+        labelMap.put("治疗方法","treatmentMethod");
+        labelMap.put("预防方法","preventMethod");
+    }
+
+    @PostMapping("/getDiseaseInfo")
+    public Object getDiseaseInfo(@RequestBody ExtraReq req){
+        System.out.println(req);
+        Long diseaseNodeId = req.getDiseaseNodeId();
+        JSONObject jsonObject = new JSONObject();
+
+        for (String s : labelMap.keySet()) {
+            Neo4jGraph graph = neo4jService.getNodesByFromNoeIdAndToNodeLabel(diseaseNodeId, s);
+            if(graph != null && graph.getNodes() != null)
+            jsonObject.putIfAbsent(labelMap.get(s),graph.getNodes());
+        }
+
+        return jsonObject;
+    }
 
     // 计算Jaccard相似度
     public static double calculateJaccardSimilarity(Set<Long> set1, Set<Long> set2) {
