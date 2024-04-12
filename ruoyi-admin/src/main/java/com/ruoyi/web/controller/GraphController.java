@@ -1,12 +1,15 @@
 package com.ruoyi.web.controller;
 
 
+import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.json.JSONUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ruoyi.common.core.domain.AjaxResult;
-import com.ruoyi.system.domain.KgEdgeInstance;
-import com.ruoyi.system.domain.KgNodeClass;
+import com.ruoyi.common.utils.DateUtils;
+import com.ruoyi.system.domain.*;
 import com.ruoyi.system.domain.dto.GraphDto;
+import com.ruoyi.system.mapper.KgOperationMapper;
 import com.ruoyi.system.req.GraphResp;
 import com.ruoyi.system.service.IKgNodeInstancePropertiesService;
 import com.ruoyi.system.service.TestNeo4jService;
@@ -17,10 +20,9 @@ import com.ruoyi.system.utils.neo4j.Neo4jNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import javax.annotation.Resource;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/graph")
@@ -29,6 +31,8 @@ public class GraphController {
     private TestNeo4jService testNeo4jService;
     @Autowired
     private IKgNodeInstancePropertiesService nodeInstancePropertiesService;
+    @Resource
+    private KgOperationMapper operationMapper;
 
     @GetMapping("/getAllGraph")
     public Neo4jGraph getAllGraph(){
@@ -87,16 +91,32 @@ public class GraphController {
         System.out.println("graphSelect:req:" + req);
         Neo4jGraph neo4jGraph = new Neo4jGraph();
 
+        int operationType = 0;
+        // 设置该操作对应的实体名称列表
+        Set<String> operationParam = new HashSet<>();
+
         if(req.getSelectIndex() == 1){
+            operationType = 11;
             // 根据实体的名称查询
             if(ObjectUtil.isEmpty(req.getNodeName())){
                 throw new RuntimeException("实体名称不能为空");
             }
+            operationParam.add(req.getNodeName());
             neo4jGraph = testNeo4jService.getNodeByName(req.getNodeName());
         }else if(req.getSelectIndex() == 2){
-            // 根据关系的名称查询，
+            operationType = 12;
+            operationParam.add(req.getFromNodeName());
+            operationParam.add(req.getToNodeName());
+            // 根据关系的名称查询
             neo4jGraph = testNeo4jService.getEdgeByFromOrToNodeName(req.getFromNodeName(),req.getToNodeName());
         }else {
+            operationType = 13;
+            if(ObjectUtil.isNotEmpty(req.getNodeClassList())){
+                operationParam.addAll(req.getNodeClassList().stream().map(KgNodeClass::getName).collect(Collectors.toList()));
+            }
+            if(ObjectUtil.isNotEmpty(req.getEdgeClassList())){
+                operationParam.addAll(req.getEdgeClassList().stream().map(KgEdgeClass::getLabel).collect(Collectors.toList()));
+            }
             neo4jGraph = testNeo4jService.getGraphByNodeOrEdgeClass(req.getNodeClassList(),req.getEdgeClassList());
             if(ObjectUtil.isEmpty(req.getEdgeClassList())){
                 // 如果关系类型为空，就查询出所有的节点类型，以及这些节点之间的关系
@@ -108,6 +128,21 @@ public class GraphController {
 
         }
 
+        // 埋点日志 记录用户操作
+        KgOperation operation = new KgOperation();
+        operation.setId(IdUtil.getSnowflakeNextId());
+        operation.setName("图谱检索");
+        operation.setType(operationType);
+        operation.setParam(JSONUtil.toJsonStr(operationParam));
+        operation.setTime(DateUtils.getNowDate());
+        // 多线程操作
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                operationMapper.insertKgOperation(operation);
+            }
+        }).start();
+
 
         return neo4jGraph;
     }
@@ -117,6 +152,26 @@ public class GraphController {
     public Neo4jGraph pathAnalyse(@RequestBody GraphReq req){
         System.out.println("pathAnalyse:req:" + req);
         Neo4jGraph neo4jGraph = testNeo4jService.pathAnalyse(req);
+
+        Set<String> operationParam = new HashSet<>();
+        operationParam.add(req.getFromNode().getName());
+        operationParam.add(req.getToNode().getName());
+        // 埋点日志 记录用户操作
+        KgOperation operation = new KgOperation();
+        operation.setId(IdUtil.getSnowflakeNextId());
+        operation.setName("网络分析");
+        operation.setType(21);
+        operation.setParam(JSONUtil.toJsonStr(operationParam));
+        operation.setTime(DateUtils.getNowDate());
+        // 多线程操作
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                operationMapper.insertKgOperation(operation);
+            }
+        }).start();
+
+
         return neo4jGraph;
     }
 
@@ -125,6 +180,25 @@ public class GraphController {
     public Neo4jGraph centerMultiDegree(@RequestBody GraphReq req){
         System.out.println("centerMultiDegree:req:" + req);
         Neo4jGraph neo4jGraph = testNeo4jService.centerMultiDegree(req);
+
+        Set<String> operationParam = new HashSet<>();
+        operationParam.add(req.getAnalyseNode().getName());
+        operationParam.addAll(req.getEdgeClassList().stream().map(it->it.getLabel()).collect(Collectors.toList()));
+        // 埋点日志 记录用户操作
+        KgOperation operation = new KgOperation();
+        operation.setId(IdUtil.getSnowflakeNextId());
+        operation.setName("中心多度探寻");
+        operation.setType(22);
+        operation.setParam(JSONUtil.toJsonStr(operationParam));
+        operation.setTime(DateUtils.getNowDate());
+        // 多线程操作
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                operationMapper.insertKgOperation(operation);
+            }
+        }).start();
+
         return neo4jGraph;
 
     }
@@ -148,6 +222,24 @@ public class GraphController {
             }
         }
 
+
+        Set<String> operationParam = new HashSet<>();
+        operationParam.addAll(req.getNodeClassList().stream().map(KgNodeClass::getName).collect(Collectors.toList()));
+        // 埋点日志 记录用户操作
+        KgOperation operation = new KgOperation();
+        operation.setId(IdUtil.getSnowflakeNextId());
+        operation.setName("中心度计算");
+        operation.setType(31);
+        operation.setParam(JSONUtil.toJsonStr(operationParam));
+        operation.setTime(DateUtils.getNowDate());
+        // 多线程操作
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                operationMapper.insertKgOperation(operation);
+            }
+        }).start();
+
         GraphResp resp = new GraphResp();
 
         resp.setGraph(neo4jGraph);
@@ -160,6 +252,25 @@ public class GraphController {
     public GraphResp centralitySimilarity(@RequestBody GraphReq req){
         System.out.println("centralitySimilarity:req" + req);
         List<GraphDto> dtoList = testNeo4jService.centralitySimilarity(req);
+
+        Set<String> operationParam = new HashSet<>();
+        operationParam.add(req.getCalculateNode().getName());
+        operationParam.addAll(req.getEdgeClassList().stream().map(it->it.getLabel()).collect(Collectors.toList()));
+        // 埋点日志 记录用户操作
+        KgOperation operation = new KgOperation();
+        operation.setId(IdUtil.getSnowflakeNextId());
+        operation.setName("相似度计算");
+        operation.setType(32);
+        operation.setParam(JSONUtil.toJsonStr(operationParam));
+        operation.setTime(DateUtils.getNowDate());
+        // 多线程操作
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                operationMapper.insertKgOperation(operation);
+            }
+        }).start();
+
         GraphResp resp = new GraphResp();
         resp.setDtoList(dtoList);
         return resp;

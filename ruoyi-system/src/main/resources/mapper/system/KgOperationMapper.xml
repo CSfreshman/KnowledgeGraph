@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.KgOperationMapper">
+    
+    <resultMap type="KgOperation" id="KgOperationResult">
+        <result property="id"    column="id"    />
+        <result property="name"    column="name"    />
+        <result property="type"    column="type"    />
+        <result property="param"    column="param"    />
+        <result property="time"    column="time"    />
+    </resultMap>
+
+    <sql id="selectKgOperationVo">
+        select id, name, type, param, time from kg_operation
+    </sql>
+
+    <select id="selectKgOperationList" parameterType="KgOperation" resultMap="KgOperationResult">
+        <include refid="selectKgOperationVo"/>
+        <where>  
+            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+            <if test="type != null "> and type = #{type}</if>
+            <if test="param != null  and param != ''"> and param = #{param}</if>
+            <if test="time != null "> and time = #{time}</if>
+        </where>
+    </select>
+    
+    <select id="selectKgOperationById" parameterType="Long" resultMap="KgOperationResult">
+        <include refid="selectKgOperationVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertKgOperation" parameterType="KgOperation">
+        insert into kg_operation
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="name != null">name,</if>
+            <if test="type != null">type,</if>
+            <if test="param != null">param,</if>
+            <if test="time != null">time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="name != null">#{name},</if>
+            <if test="type != null">#{type},</if>
+            <if test="param != null">#{param},</if>
+            <if test="time != null">#{time},</if>
+         </trim>
+    </insert>
+
+    <update id="updateKgOperation" parameterType="KgOperation">
+        update kg_operation
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null">name = #{name},</if>
+            <if test="type != null">type = #{type},</if>
+            <if test="param != null">param = #{param},</if>
+            <if test="time != null">time = #{time},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteKgOperationById" parameterType="Long">
+        delete from kg_operation where id = #{id}
+    </delete>
+
+    <delete id="deleteKgOperationByIds" parameterType="String">
+        delete from kg_operation where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

@@ -96,6 +96,10 @@ public class CycleDetection {
         edges.add(new Edge(0, 0));
         edges.add(new Edge(1, 2));
         edges.add(new Edge(2, 1));
+        edges.add(new Edge(1, 3));
+        edges.add(new Edge(3, 4));
+        edges.add(new Edge(4, 5));
+        edges.add(new Edge(5, 3));
 
 
         Map<Integer, List<Edge>> adjacencyList = new HashMap<>();
