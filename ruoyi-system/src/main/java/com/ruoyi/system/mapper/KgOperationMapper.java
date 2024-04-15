@@ -1,7 +1,9 @@
 package com.ruoyi.system.mapper;
 
+import java.util.Date;
 import java.util.List;
 import com.ruoyi.system.domain.KgOperation;
+import com.ruoyi.system.domain.dto.ExtraStatisticDto;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
@@ -60,4 +62,6 @@ public interface KgOperationMapper
      * @return 结果
      */
     public int deleteKgOperationByIds(Long[] ids);
+
+    public List<ExtraStatisticDto> statistic(Date date);
 }

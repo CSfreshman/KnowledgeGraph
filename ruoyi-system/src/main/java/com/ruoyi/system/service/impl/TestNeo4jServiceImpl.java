@@ -761,12 +761,12 @@ public class TestNeo4jServiceImpl implements TestNeo4jService {
         builder.deleteCharAt(0);
 
         // 默认计算与选中主体同类型的实体
-        String cypher = "MATCH (p1)-[r]->(to1) \n" +
+        String cypher = "MATCH (p1)-[r]-(to1) \n" +
                 "WHERE id(p1) = " + req.getCalculateNode().getNeo4jId() +
                 "\nAND type(r) in ["+builder+"]" +
                 "\nWITH p1, collect(id(to1)) AS collect1\n" +
                 "\n" +
-                "MATCH (p2:`"+req.getCalculateNode().getLabel()+"`)-[r]->(to2) \n" +
+                "MATCH (p2:`"+req.getCalculateNode().getLabel()+"`)-[r]-(to2) \n" +
                 "WHERE p1 <> p2 AND type(r) in ["+builder+"]" +
                 "\nWITH p1, collect1, p2, collect(id(to2)) AS collect2\n" +
                 "\n" +

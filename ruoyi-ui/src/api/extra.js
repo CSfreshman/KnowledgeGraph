@@ -1,4 +1,5 @@
 import request from '@/utils/request'
+import {statistic} from "@/api/graph";
 
 export function submitSymptomsDesc(data) {
   return request({
@@ -21,5 +22,12 @@ export function getDiseaseInfo(data) {
     url: '/extra/getDiseaseInfo',
     method: 'post',
     data: data
+  })
+}
+
+export function extraStatistic() {
+  return request({
+    url: '/extra/statistic',
+    method: 'post'
   })
 }

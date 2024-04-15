@@ -22,6 +22,7 @@ import com.kennycason.kumo.palette.LinearGradientColorPalette;
 import com.ruoyi.common.core.redis.RedisCache;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.system.domain.KgOperation;
+import com.ruoyi.system.domain.dto.ExtraStatisticDto;
 import com.ruoyi.system.domain.vo.ExtraResp;
 import com.ruoyi.system.mapper.KgOperationMapper;
 import com.ruoyi.system.req.ExtraReq;
@@ -41,8 +42,11 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 import java.awt.*;
 import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -269,6 +273,7 @@ public class ExtraController {
         }
     }
 
+    // 生成词云
     @PostMapping("/wordCloud")
     public Object createWordCloudApi(){
         List<KgOperation> kgOperations = operationMapper.selectKgOperationList(new KgOperation());
@@ -299,7 +304,7 @@ public class ExtraController {
         }
         //此处不设置会出现中文乱码
         java.awt.Font font = new java.awt.Font("STSong-Light", 2, 18);
-        final Dimension dimension = new Dimension(900, 900);
+        final Dimension dimension = new Dimension(450, 450);
         final WordCloud wordCloud = new WordCloud(dimension, CollisionMode.PIXEL_PERFECT);
         wordCloud.setPadding(2);
         wordCloud.setBackground(new CircleBackground(255));
@@ -312,6 +317,83 @@ public class ExtraController {
         wordCloud.setBackground(new CircleBackground(180));
         wordCloud.build(wordFrequencies);
         wordCloud.writeToFile("d://3.png");
+    }
+
+    // 图谱分析计算数据统计
+    @PostMapping("/statistic")
+    public Object statistic(){
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Map<String,List<String>> resMap = new HashMap<>();
+        List<String> dateList = new ArrayList<>();
+        for (int i = 4; i >= 0; i--) {
+            dateList.add(sdf.format(DateUtils.toDate(LocalDateTime.now().minusDays(i))));
+        }
+
+        System.out.println(dateList);
+
+        List<ExtraStatisticDto> statisticList = operationMapper.statistic(DateUtils.toDate(LocalDateTime.now().minusDays(4)));
+
+        System.out.println(statisticList);
+        Map<Integer,List<ExtraStatisticDto>> map = new HashMap<>();
+        Map<Integer,Map<String,Long>> dateMap = new HashMap<>();
+        for (ExtraStatisticDto item : statisticList) {
+            List<ExtraStatisticDto> orDefault = map.getOrDefault(item.getType(), new ArrayList<>());
+            orDefault.add(item);
+            map.put(item.getType(),orDefault);
+
+            Map<String, Long> orDefaultMap = dateMap.getOrDefault(item.getType(), new HashMap<>());
+
+
+
+            orDefaultMap.put(sdf.format(item.getDate()),item.getCount());
+            dateMap.put(item.getType(),orDefaultMap);
+
+        }
+
+        // 对每种类型，每一天的数据都要补齐
+        for (Map.Entry<Integer, Map<String, Long>> entry : dateMap.entrySet()) {
+            Map<String, Long> value = entry.getValue();
+            for (String s : dateList) {
+                value.putIfAbsent(s,0l);
+            }
+        }
+        // 把图谱检索的合并（1开头）
+        Map<String,Long> tempMap = new HashMap<>();
+        for (Map.Entry<Integer, Map<String, Long>> entry : dateMap.entrySet()) {
+            if(entry.getKey().toString().charAt(0) == '1'){
+                Map<String, Long> value = entry.getValue();
+                for (Map.Entry<String, Long> entry1 : value.entrySet()) {
+                    tempMap.put(entry1.getKey(),tempMap.getOrDefault(entry1.getKey(),0l) + entry1.getValue());
+                }
+            }
+        }
+        dateMap.remove(11);
+        dateMap.remove(12);
+        dateMap.remove(13);
+        dateMap.put(1,tempMap);
+
+        Map<Integer,String> nameMap = new HashMap<>();
+        nameMap.put(1,"图谱检索");
+        nameMap.put(21,"路径分析");
+        nameMap.put(22,"中心多度探寻");
+        nameMap.put(31,"中心度计算");
+        nameMap.put(32,"相似度计算");
+        nameMap.put(4,"辅助诊断");
+
+        Map<String,List<Map.Entry<String,Long>>> resData = new HashMap<>();
+        for (Map.Entry<Integer, Map<String, Long>> entry : dateMap.entrySet()) {
+            String name = nameMap.get(entry.getKey());
+            List<Map.Entry<String,Long>> list = new ArrayList<>(entry.getValue().entrySet());
+            list.sort((o1, o2) -> o1.getKey().compareTo(o2.getKey()));
+            resData.put(name,list);
+
+        }
+
+        JSONObject resJsonObject = new JSONObject();
+        resJsonObject.putIfAbsent("name",nameMap);
+        resJsonObject.putIfAbsent("data",resData);
+        return resJsonObject;
+
     }
 
     public static void main(String[] args) {

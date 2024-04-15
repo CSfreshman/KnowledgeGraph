@@ -93,13 +93,8 @@ public class CycleDetection {
 
     public static void main(String[] args) {
         List<Edge> edges = new ArrayList<>();
-        edges.add(new Edge(0, 0));
-        edges.add(new Edge(1, 2));
-        edges.add(new Edge(2, 1));
-        edges.add(new Edge(1, 3));
-        edges.add(new Edge(3, 4));
-        edges.add(new Edge(4, 5));
-        edges.add(new Edge(5, 3));
+        edges.add(new Edge(0, 1));
+
 
 
         Map<Integer, List<Edge>> adjacencyList = new HashMap<>();
@@ -125,7 +120,7 @@ public class CycleDetection {
         findCyclePath(nodeIdList,edges,nodeIndex,adjacencyList);
 
 
-        System.out.println(allPath);
+        //System.out.println(allPath);
         allPathSet = new HashSet<>(allPath);
         System.out.println(allPathSet);
 
@@ -208,6 +203,6 @@ public class CycleDetection {
         List<Integer> subList = path.subList(startIndex,endIndex);
         subList.sort((o1,o2)->o1-o2);
         allPath.add(subList);
-        System.out.println(subList);
+        //System.out.println(subList);
     }
 }

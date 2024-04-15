@@ -3,7 +3,7 @@
 PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.system.mapper.KgOperationMapper">
-    
+
     <resultMap type="KgOperation" id="KgOperationResult">
         <result property="id"    column="id"    />
         <result property="name"    column="name"    />
@@ -18,19 +18,19 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 
     <select id="selectKgOperationList" parameterType="KgOperation" resultMap="KgOperationResult">
         <include refid="selectKgOperationVo"/>
-        <where>  
+        <where>
             <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
             <if test="type != null "> and type = #{type}</if>
             <if test="param != null  and param != ''"> and param = #{param}</if>
             <if test="time != null "> and time = #{time}</if>
         </where>
     </select>
-    
+
     <select id="selectKgOperationById" parameterType="Long" resultMap="KgOperationResult">
         <include refid="selectKgOperationVo"/>
         where id = #{id}
     </select>
-        
+
     <insert id="insertKgOperation" parameterType="KgOperation">
         insert into kg_operation
         <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -65,9 +65,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </delete>
 
     <delete id="deleteKgOperationByIds" parameterType="String">
-        delete from kg_operation where id in 
+        delete from kg_operation where id in
         <foreach item="id" collection="array" open="(" separator="," close=")">
             #{id}
         </foreach>
     </delete>
+
+    <select id="statistic" resultType="ExtraStatisticDto">
+        select `type` , DATE(time) AS `date`, COUNT(*) AS `count` from kg_operation where `time` >= #{date} GROUP BY `type`, DATE(`time`) ORDER BY `type`,`date`
+    </select>
 </mapper>

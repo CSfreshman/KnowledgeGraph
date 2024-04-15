@@ -120,7 +120,88 @@
         <div id="right-container">
           <el-button @click="showLeft = !showLeft"  size="medium">{{this.showLeft?"隐藏表单":"显示表单"}}</el-button>
           <!-- 绘图面板区域 -->
-          <div id="graph-panel" style="height: 100%"></div>
+          <div id="graph-panel" v-if="showGraph" style="height: 100%"></div>
+          <!-- 展示表格-->
+          <div v-if="showCenterDegree">
+            <el-table
+              :data="centralityListForTable"
+              stripe
+              style="width: 100%"
+            >
+              <el-table-column
+                prop="label"
+                label="名称"
+                width="200">
+              </el-table-column>
+
+              <el-table-column
+                prop="labels"
+                label="类型"
+                width="200">
+              </el-table-column>
+
+              <el-table-column
+                prop="value"
+                label="中心度"
+                width="200">
+              </el-table-column>
+
+            </el-table>
+            <el-pagination
+              @size-change="handleSizeChange"
+              @current-change="handleCurrentChange"
+              :current-page.sync="currentPage"
+              :page-sizes="[10, 20, 30, 40]"
+              :page-size="pageSize"
+              layout="total, sizes, prev, pager, next, jumper"
+              :total="centralityList.length"
+            ></el-pagination>
+
+          </div>
+
+          <div v-if="!showCenterDegree">
+            <el-table
+              :data="similarityListForTable"
+              stripe
+              style="width: 100%"
+            >
+              <el-table-column
+                prop="mainNodeName"
+                label="节点"
+                width="200">
+              </el-table-column>
+
+              <el-table-column
+                prop="toNodeName"
+                label="相似节点"
+                width="200">
+              </el-table-column>
+
+              <el-table-column
+                prop="jaccardSimilarity"
+                label="jaccard相似度"
+                width="200">
+              </el-table-column>
+
+              <el-table-column
+                prop="intersect"
+                label="相似属性"
+                width="200">
+
+              </el-table-column>
+            </el-table>
+            <el-pagination
+              @size-change="handleSizeChange"
+              @current-change="handleCurrentChange"
+              :current-page.sync="currentPage1"
+              :page-sizes="[5]"
+              :page-size="pageSize1"
+              layout="total, sizes, prev, pager, next, jumper"
+              :total="similarityList.length"
+            ></el-pagination>
+
+          </div>
+
         </div>
       </el-col>
     </el-row>
@@ -172,6 +253,7 @@ export default {
   name: "graphComputation",
   data() {
     return {
+      showGraph: true,
       // 展示中心度计算
       showCenterDegree: true,
       // 中心度模型
@@ -223,7 +305,32 @@ export default {
         data:[] //提示内部的数据
       },
       allExistNodeClass: [],
+
+      // 中心度列表
+      centralityList: [],
+
+      similarityList: [],
+
+      currentPage: 1,
+      pageSize: 10,
+      currentPage1: 1,
+      pageSize1: 5
     }
+  },
+  computed: {
+    // 根据当前页和每页数量计算出当前页面需要展示的数据
+    centralityListForTable() {
+      const start = (this.currentPage - 1) * this.pageSize;
+      const end = this.currentPage * this.pageSize;
+      return this.centralityList.slice(start, end);
+    },
+
+    similarityListForTable() {
+      const start = (this.currentPage1 - 1) * this.pageSize1;
+      const end = this.currentPage1 * this.pageSize1;
+      return this.similarityList.slice(start, end);
+    },
+
   },
   methods: {
     // 填充备选关系列表，渲染勾选框
@@ -255,6 +362,9 @@ export default {
     calculation() {
       // 中心度计算
       if(this.showCenterDegree){
+
+        this.centralityList = []
+
         var formData = {
           selectedCenterDegreeModel: this.selectedCenterDegreeModel,
           nodeClassList: this.checkedNode,
@@ -264,17 +374,80 @@ export default {
         console.log(formData)
 
         centralityCalculation(formData).then(resp=>{
-          this.drawGraphData(0,resp.graph);
+
+          for (var key in resp.centrality) {
+            if (resp.centrality.hasOwnProperty(key)) {
+              // 提取 label、labels 和对应的值
+              var label = key.match(/label=([^,]+)/)[1];
+              var labels = key.match(/labels=\[([^,]+)\]/)[1];
+              var value = resp.centrality[key];
+
+              // 构建一个包含 label、labels 和值的对象，并将其添加到数组中
+              this.centralityList.push({
+                label: label,
+                labels: labels,
+                value: value
+              });
+            }
+          }
+          this.centralityList.sort((a,b)=>{return b.value - a.value})
+          console.log(this.centralityList)
+          this.showGraph = false;
         })
       }else{
+
+        this.similarityList = []
+
         // 相似度计算
         var formData = {
           calculateNode: this.fromNode,
           edgeClassList: this.checkedEdge,
         }
         similarityCalculation(formData).then(resp=>{
-          this.drawGraphData(0,resp.graph);
+          // console.log(this.graphData.nodes)
+          resp.dtoList.forEach(it=>{
+            // console.log(it)
+            var mainNode = this.graphData.nodes.find(node=>node.id == it.mainNodeId);
+            // console.log("mainNode")
+            // console.log(mainNode)
+            var toNode = this.graphData.nodes.find(it1=>it1.id == it.toNodeId)
+            // console.log("toNode")
+            // console.log(toNode)
+            var intersect = it.mainNodeRelIdList.filter(value => it.toNodeRelIdList.includes(value))
+            var intersectStr = ''
+            intersect.forEach(it=>{
+              intersectStr+=this.graphData.nodes.find(it1=>it1.id == it).label
+              intersectStr+= ', '
+            })
+            this.similarityList.push({
+              mainNodeName: mainNode.label,
+              toNodeName: toNode.label,
+              jaccardSimilarity: it.jaccardSimilarity,
+              intersect: intersectStr
+            })
+          })
+
+          this.similarityList.sort((o1,o2)=>{return o2.jaccardSimilarity - o1.jaccardSimilarity})
+
+          this.showGraph = false;
         })
+      }
+
+    },
+
+    handleSizeChange(val) {
+      if(showCenterDegree){
+        this.pageSize = val;
+      }else{
+        this.pageSize1 = val;
+      }
+
+    },
+    handleCurrentChange(val) {
+      if(showCenterDegree){
+        this.currentPage = val;
+      }else{
+        this.currentPage1 = val;
       }
 
     },

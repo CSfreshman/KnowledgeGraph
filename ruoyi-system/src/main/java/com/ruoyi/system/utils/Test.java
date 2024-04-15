@@ -8,6 +8,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.xm.Similarity;
+import org.xm.tendency.word.HownetWordTendency;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -329,46 +331,35 @@ public class Test {
         map.put("食欲降低","食欲低下");
         map.put("没有食欲","食欲低下");
         map.put("食欲","食欲低下");
+        map.put("胃口","食欲低下");
+        map.put("胃口差","食欲低下");
+        map.put("胃口不好","食欲低下");
+        map.put("胃口不佳","食欲低下");
+        map.put("胃口不怎么样","食欲低下");
+
     }
 
     public static void main(String[] args) {
-        sentences =
-                "身体不适，感觉不舒服，比较焦虑，心情不好，比较低落，没啥动力，也没心情";
-        List<String> strings = segmenter.sentenceProcess(sentences);
-        for (String str : strings) {
-            // 跳过标点符号
-            if(punctuationMarksSet.contains(str)){
-                continue;
-            }
-
-            if(map.keySet().contains(str)){
-                System.out.println(str + " ============= " + map.get(str));
-            }else {
-                System.out.println(str);
-            }
-
-
-        }
-
-
-//        System.out.println(map.keySet().size());
-//
-//        String filePath = "ruoyi-system/conf/user.dict";
-//
-//        // 先清空文件内容
-//        clearFile(filePath);
-//
-//        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
-//            for (String str : map.keySet()) {
-//                // 拼接词频
-//                str+=" 3";
-//                writer.write(str);
-//                writer.newLine(); // 每写入一个字符串后换行
-//            }
-//        } catch (IOException e) {
-//            e.printStackTrace();
+//        for (Map.Entry<String, String> entry : map.entrySet()) {
+//            double result = Similarity.morphoSimilarity(entry.getKey(), entry.getValue());
+//            System.out.println(entry + " -- " +result);
 //        }
-
+        HownetWordTendency hownet = new HownetWordTendency();
+//        String word = "美好";
+//        double sim = hownet.getTendency(word);
+//        System.out.println(word + ":" + sim);
+//        System.out.println("混蛋:" + hownet.getTendency("混蛋"));
+        String[] strs = new String[]{
+                "不好",
+                "不佳",
+                "不怎么样",
+                "开心",
+                "兴奋",
+                "胃口差"
+        };
+        for (String str : strs) {
+            System.out.println(str + hownet.getTendency(str));
+        }
     }
 
     @Autowired
