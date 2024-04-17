@@ -122,8 +122,8 @@ public class Test {
 //        getJiBingZhangZhuang(jiBingName,href.get("症状"));
 //        getJiBingBingFaZheng(jiBingName,href.get("并发症"));
 //        getJiBingBingYin(jiBingName,href.get("预防"));
-        getJiBingBingYin(jiBingName,href.get("治疗"));
-
+//        getJiBingBingYin(jiBingName,href.get("病因"));
+        getJiBingYuFang(jiBingName,href.get("饮食"));
     }
 
     public static Map<String,String> getHref(Document doc){
@@ -217,5 +217,17 @@ public class Test {
         }
     }
 
-    //
+    // 预防方法
+    public static void getJiBingYuFang(String jiBingName, String url){
+        Document doc = null;
+        try {
+            doc = Jsoup.connect(url).get();
+//            System.out.println(doc);
+            Elements select = doc.select(".article_paragraph");
+            System.out.println(select);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

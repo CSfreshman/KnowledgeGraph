@@ -318,7 +318,7 @@ export default {
 
   #right-head {
     height:10vh;
-    background-color: #00afff;
+    background-color: #FFFFFF;
   }
 
   #network-body {

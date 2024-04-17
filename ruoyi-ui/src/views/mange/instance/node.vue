@@ -354,6 +354,6 @@ export default {
 
   #right-head {
     height:8vh;
-    background-color: #00afff;
+    background-color: #FFFFFF;
   }
 </style>
