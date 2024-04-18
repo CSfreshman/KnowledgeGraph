@@ -19,7 +19,14 @@
           <el-row v-if="selectIndex == 1">
             <el-col>
               <el-form-item label="实体名称">
-                <el-input size="mini" style="width: 100px;" v-model="formData.nodeName"></el-input>
+                <el-input size="mini" style="width: 100px;" v-model="formData.nodeName" @click.native="handleClickInput"></el-input>
+<!--                <el-popover-->
+<!--                  v-model="popoverVisible"-->
+<!--                  placement="bottom-start"-->
+<!--                  width="200"-->
+<!--                  trigger="manual">-->
+<!--                  kkk-->
+<!--                </el-popover>-->
               </el-form-item>
             </el-col>
 
@@ -204,6 +211,7 @@ export default {
   name: "graphSelect",
   data() {
     return {
+      popoverVisible: false,
       // 选中的查询方式
       selectIndex: 1,
       showCondition: true,
@@ -514,6 +522,11 @@ export default {
         path: '/nodeDetail',
         query: {data}
       })
+    },
+
+    handleClickInput(){
+      console.log("点击输入框");
+      this.popoverVisible = !this.popoverVisible;
     }
 
   },

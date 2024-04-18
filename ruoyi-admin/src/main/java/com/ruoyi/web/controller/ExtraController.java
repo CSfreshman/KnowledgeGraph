@@ -396,6 +396,47 @@ public class ExtraController {
 
     }
 
+
+    // 热搜
+    @PostMapping("/hotSearch")
+    public Object hotSearch(){
+        List<KgOperation> kgOperations = operationMapper.selectKgOperationList(new KgOperation());
+        // type: paramName : count
+        Map<Integer,Map<String,Integer>> map = new HashMap<>();
+        map.put(1,new HashMap<>());
+        map.put(2,new HashMap<>());
+        map.put(3,new HashMap<>());
+        map.put(4,new HashMap<>());
+        for (KgOperation kgOperation : kgOperations) {
+            String typeStr = kgOperation.getType().toString();
+            int c = Integer.valueOf(String.valueOf(typeStr.charAt(0)));
+
+            Map<String, Integer> map1 = map.get(c);
+
+            JSONArray jsonArray = JSONUtil.parseArray(kgOperation.getParam());
+            List<String> list = jsonArray.toList(String.class);
+            for (String s : list) {
+                map1.put(s,map1.getOrDefault(s,0) + 1);
+            }
+
+        }
+        System.out.println(map);
+
+        // 结果排序数量
+        Map<Integer,List<Map.Entry<String, Integer>>> resMap = new HashMap<>();
+        for (Map.Entry<Integer, Map<String, Integer>> entry : map.entrySet()) {
+            Integer key = entry.getKey();
+            Map<String, Integer> value = entry.getValue();
+            List<Map.Entry<String, Integer>> list = new ArrayList(value.entrySet());
+            list.sort((o1, o2) -> o2.getValue() - o1.getValue());
+            resMap.put(key,list);
+
+        }
+
+        System.out.println(resMap);
+        return null;
+    }
+
     public static void main(String[] args) {
 
         List<String> list = new ArrayList<>();
