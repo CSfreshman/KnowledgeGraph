@@ -287,7 +287,7 @@ export default {
   #container1 {
     background-color: #FFFFFF;
     width: 40vw;
-    height:60vh;
+    height:50vh;
   }
 
   .card-header {

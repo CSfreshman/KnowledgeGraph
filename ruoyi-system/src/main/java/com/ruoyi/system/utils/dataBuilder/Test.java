@@ -123,7 +123,7 @@ public class Test {
 //        getJiBingBingFaZheng(jiBingName,href.get("并发症"));
 //        getJiBingBingYin(jiBingName,href.get("预防"));
 //        getJiBingBingYin(jiBingName,href.get("病因"));
-        getJiBingYuFang(jiBingName,href.get("饮食"));
+        getJiBingYuFang(jiBingName,href.get("治疗"));
     }
 
     public static Map<String,String> getHref(Document doc){

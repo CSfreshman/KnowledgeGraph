@@ -56,7 +56,7 @@
     </el-form>
     <!--  底部  -->
     <div class="el-login-footer">
-      <span>Copyright © 2018-2023 ruoyi.vip All Rights Reserved.</span>
+<!--      <span>Copyright © 2018-2023 ruoyi.vip All Rights Reserved.</span>-->
     </div>
   </div>
 </template>
@@ -141,7 +141,7 @@ export default {
             Cookies.remove('rememberMe');
           }
           this.$store.dispatch("Login", this.loginForm).then(() => {
-            this.$router.push({ path: this.redirect || "/" }).catch(()=>{});
+            this.$router.push({ path: "/graph" }).catch(()=>{});
           }).catch(() => {
             this.loading = false;
             if (this.captchaEnabled) {

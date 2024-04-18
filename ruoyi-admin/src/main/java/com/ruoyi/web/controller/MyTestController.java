@@ -385,6 +385,269 @@ public class MyTestController extends BaseController {
 
     }
 
+    @Transactional
+    @PostMapping("/instance/node/yf")
+    public void importNodeInstanceYf() {
+        String jsonStr = "{\n" +
+                "\"成功后抑郁症\": [\"放松身心\", \"保持感情生活\", \"自我疏解\", \"消除负面情绪\", \"适当运动\"],\n" +
+                "\"产后抑郁症\": [\"放松身心\", \"减少精神紧张\"],\n" +
+                "\"反复发作抑郁症\": [\"培养良好的人格\", \"多交朋友\", \"保持好心情\", \"保持好奇心\", \"早发现早治疗\", \"多沟通\"],\n" +
+                "\"抑郁症\": [\"放松身心\", \"减少精神紧张\", \"多交朋友\", \"适当运动\"],\n" +
+                "\"老年抑郁症\": [\"适当运动\", \"补充维生素\", \"外出散心\", \"读书\"],\n" +
+                "\"老年期抑郁症\": [\"早发现早治疗\", \"加强心理治疗与社会支持\", \"社区干预及家庭干预\"],\n" +
+                "\"单次发作抑郁症\": [\"适当运动\", \"保持好心情\", \"多沟通\"],\n" +
+                "\"躁郁症\": [\"扩大生活圈子\", \"外出散心\", \"不宜整日持续工作\"]\n" +
+                "}";
+        Map<String,List<String>> map = JSONUtil.toBean(jsonStr, Map.class);
+        Set<String> yf = new HashSet<>();
+        for (Map.Entry<String, List<String>> stringListEntry : map.entrySet()) {
+            System.out.println(stringListEntry.getKey());
+            System.out.println(stringListEntry.getValue());
+            yf.addAll(stringListEntry.getValue());
+        }
+
+        // 添加关系
+        List<KgEdgeInstance> edgeInstances = new ArrayList<>();
+
+        // 添加关系
+        for (Map.Entry<String, List<String>> stringListEntry : map.entrySet()) {
+            KgNodeInstance fromNode = new KgNodeInstance();
+
+            KgNodeInstance fromInstance = nodeInstanceService.selectKgNodeInstanceById(idMap.get(stringListEntry.getKey()));
+            System.out.println(fromInstance);
+            for (String s : stringListEntry.getValue()) {
+
+                KgNodeInstance toNode = new KgNodeInstance();
+                toNode.setName(s);
+                toNode.setValid(1l);
+                KgNodeInstance toInstance = nodeInstanceService.selectKgNodeInstanceList(toNode).get(0);
+                System.out.println(toInstance);
+
+                KgEdgeInstance instance = new KgEdgeInstance();
+                instance.setValid(1l);
+                instance.setLabel("疾病预防");
+                instance.setClassId(1778043311140364288l);
+                instance.setFromNodeId(fromInstance.getId());
+                instance.setToNodeId(toInstance.getId());
+                instance.setFromNodeNeo4jId(fromInstance.getNeo4jId());
+                instance.setToNodeNeo4jId(toInstance.getNeo4jId());
+                edgeInstances.add(instance);
+
+            }
+
+
+        }
+
+        System.out.println(edgeInstances);
+        for (KgEdgeInstance edgeInstance : edgeInstances) {
+            edgeInstanceController.add(edgeInstance);
+        }
+
+        // 添加节点
+//        System.out.println("待添加节点");
+//        System.out.println(yf);
+//
+//        System.out.println(yf.size());
+//        Map<String,String> props = new HashMap<>();
+//        props.put("key","color");
+//        props.put("value","rgb(255, 197, 197)");
+//        for (String s : yf) {
+//            Map<String,Object> map1 = new HashMap<>();
+//            map1.put("label","预防方法");
+//            map1.put("name",s);
+//            map1.put("classId","1778043185009254400");
+//            map1.put("props",Collections.singletonList(props));
+//            add(map1);
+//        }
+    }
+
+
+    @Transactional
+    @PostMapping("/instance/node/hl")
+    public void importNodeInstanceHl() {
+        String jsonStr = "{\n" +
+                "\"产后抑郁症\": [\"加强对孕妇的精神关怀\", \"多关心\", \"多爱护\"],\n" +
+                "\"反复发作抑郁症\": [\"建立良好的治疗性人际关系\", \"给予心理支持\", \"加强对病房设施的安全检查\", \"严格执行整体护理管理制度\", \"完善居住环境\"],\n" +
+                "\"抑郁症\": [\"建立良好的治疗性人际关系\", \"给予心理支持\", \"加强对病房设施的安全检查\", \"严格执行整体护理管理制度\", \"完善居住环境\"],\n" +
+                "\"老年期抑郁症\": [\"预防意外\", \"转移注意\", \"饮食禁忌\", \"生活照顾\", \"坚持服药\", \"心灵沟通\"],\n" +
+                "\"单次发作抑郁症\": [\"建立良好的治疗性人际关系\", \"给予心理支持\", \"加强对病房设施的安全检查\", \"严格执行整体护理管理制度\", \"完善居住环境\"],\n" +
+                "\"躁郁症\": [\"完善居住环境\", \"加强生活护理\"]\n" +
+                "}";
+        Map<String,List<String>> map = JSONUtil.toBean(jsonStr, Map.class);
+        Set<String> hl = new HashSet<>();
+        for (Map.Entry<String, List<String>> stringListEntry : map.entrySet()) {
+            System.out.println(stringListEntry.getKey());
+            System.out.println(stringListEntry.getValue());
+            hl.addAll(stringListEntry.getValue());
+        }
+
+        // 添加关系
+        List<KgEdgeInstance> edgeInstances = new ArrayList<>();
+
+        // 添加关系
+        for (Map.Entry<String, List<String>> stringListEntry : map.entrySet()) {
+            KgNodeInstance fromNode = new KgNodeInstance();
+
+            KgNodeInstance fromInstance = nodeInstanceService.selectKgNodeInstanceById(idMap.get(stringListEntry.getKey()));
+            System.out.println(fromInstance);
+            for (String s : stringListEntry.getValue()) {
+
+                KgNodeInstance toNode = new KgNodeInstance();
+                toNode.setName(s);
+                toNode.setValid(1l);
+                KgNodeInstance toInstance = nodeInstanceService.selectKgNodeInstanceList(toNode).get(0);
+                System.out.println(toInstance);
+
+                KgEdgeInstance instance = new KgEdgeInstance();
+                instance.setValid(1l);
+                instance.setLabel("疾病护理");
+                instance.setClassId(1780482196256460800l);
+                instance.setFromNodeId(fromInstance.getId());
+                instance.setToNodeId(toInstance.getId());
+                instance.setFromNodeNeo4jId(fromInstance.getNeo4jId());
+                instance.setToNodeNeo4jId(toInstance.getNeo4jId());
+                edgeInstances.add(instance);
+
+            }
+
+
+        }
+
+        System.out.println(edgeInstances);
+        for (KgEdgeInstance edgeInstance : edgeInstances) {
+            edgeInstanceController.add(edgeInstance);
+        }
+
+        // 添加节点
+//        System.out.println("待添加节点");
+//        System.out.println(hl);
+//
+//        System.out.println(hl.size());
+//        Map<String,String> props = new HashMap<>();
+//        props.put("key","color");
+//        props.put("value","rgb(255, 148, 61)");
+//        for (String s : hl) {
+//            Map<String,Object> map1 = new HashMap<>();
+//            map1.put("label","护理方法");
+//            map1.put("name",s);
+//            map1.put("classId","1780481606197694464");
+//            map1.put("props",Collections.singletonList(props));
+//            add(map1);
+//        }
+    }
+
+
+    @Transactional
+    @PostMapping("/instance/node/zl")
+    public void importNodeInstanceZl() {
+        String jsonStr = "{\n" +
+                "    \"成功后抑郁症\": [\n" +
+                "        \"药物治疗\",\n" +
+                "        \"心理治疗\",\n" +
+                "        \"物理治疗\"\n" +
+                "    ],\n" +
+                "    \"产后抑郁症\": [\n" +
+                "        \"心理治疗\",\n" +
+                "        \"药物治疗\"\n" +
+                "    ],\n" +
+                "    \"反复发作抑郁症\": [\n" +
+                "        \"心理治疗\",\n" +
+                "        \"药物治疗\",\n" +
+                "        \"中医治疗\"\n" +
+                "    ],\n" +
+                "    \"抑郁症\": [\n" +
+                "        \"心理治疗\",\n" +
+                "        \"药物治疗\",\n" +
+                "        \"运动疗法\",\n" +
+                "        \"中医治疗\"\n" +
+                "    ],\n" +
+                "    \"老年抑郁症\": [\n" +
+                "        \"BNT脑递质平衡修复疗法\"\n" +
+                "    ],\n" +
+                "    \"微笑抑郁症\": [\n" +
+                "        \"心理治疗\"\n" +
+                "    ],\n" +
+                "    \"老年期抑郁症\": [\n" +
+                "        \"心理治疗\",\n" +
+                "        \"药物治疗\",\n" +
+                "        \"电休克治疗\"\n" +
+                "    ],\n" +
+                "    \"绝经与抑郁症\": [\n" +
+                "        \"药物治疗\",\n" +
+                "        \"中医治疗\"\n" +
+                "    ],\n" +
+                "    \"单次发作抑郁症\": [\n" +
+                "        \"药物治疗\",\n" +
+                "        \"认知治疗\",\n" +
+                "        \"中医治疗\"\n" +
+                "    ],\n" +
+                "    \"躁郁症\": [\n" +
+                "        \"西医治疗\",\n" +
+                "        \"中医治疗\"\n" +
+                "    ]\n" +
+                "}";
+        Map<String,List<String>> map = JSONUtil.toBean(jsonStr, Map.class);
+        Set<String> zl = new HashSet<>();
+        for (Map.Entry<String, List<String>> stringListEntry : map.entrySet()) {
+            System.out.println(stringListEntry.getKey());
+            System.out.println(stringListEntry.getValue());
+            zl.addAll(stringListEntry.getValue());
+        }
+
+        // 添加关系
+        List<KgEdgeInstance> edgeInstances = new ArrayList<>();
+
+        // 添加关系
+        for (Map.Entry<String, List<String>> stringListEntry : map.entrySet()) {
+            KgNodeInstance fromNode = new KgNodeInstance();
+
+            KgNodeInstance fromInstance = nodeInstanceService.selectKgNodeInstanceById(idMap.get(stringListEntry.getKey()));
+            System.out.println(fromInstance);
+            for (String s : stringListEntry.getValue()) {
+
+                KgNodeInstance toNode = new KgNodeInstance();
+                toNode.setName(s);
+                toNode.setValid(1l);
+                KgNodeInstance toInstance = nodeInstanceService.selectKgNodeInstanceList(toNode).get(0);
+                System.out.println(toInstance);
+
+                KgEdgeInstance instance = new KgEdgeInstance();
+                instance.setValid(1l);
+                instance.setLabel("疾病治疗");
+                instance.setClassId(1777955998817304576l);
+                instance.setFromNodeId(fromInstance.getId());
+                instance.setToNodeId(toInstance.getId());
+                instance.setFromNodeNeo4jId(fromInstance.getNeo4jId());
+                instance.setToNodeNeo4jId(toInstance.getNeo4jId());
+                edgeInstances.add(instance);
+
+            }
+
+
+        }
+
+        System.out.println(edgeInstances);
+        for (KgEdgeInstance edgeInstance : edgeInstances) {
+            edgeInstanceController.add(edgeInstance);
+        }
+
+        // 添加节点
+//        System.out.println("待添加节点");
+//        System.out.println(zl);
+//
+//        System.out.println(zl.size());
+//        Map<String,String> props = new HashMap<>();
+//        props.put("key","color");
+//        props.put("value","rgb(137, 93, 188)");
+//        for (String s : zl) {
+//            Map<String,Object> map1 = new HashMap<>();
+//            map1.put("label","治疗方法");
+//            map1.put("name",s);
+//            map1.put("classId","1770366404231827456");
+//            map1.put("props",Collections.singletonList(props));
+//            add(map1);
+//        }
+    }
 
     public void add(Map<String,Object> req)
     {

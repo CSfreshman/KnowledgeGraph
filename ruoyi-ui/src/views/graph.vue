@@ -7,6 +7,7 @@
         <div class="drag-dot" draggable="true" @dragstart="dragStart"></div>
         <div class="dot-label">拖拽节点</div>
       </div>
+      <el-button style="margin-left: 170px" @click="openDragNode = !openDragNode">{{ openDragNode ? '关闭拖拽' : '开启拖拽' }}</el-button>
       <div class="swtich-wrap">
         <div class="grid-content">属性展开：
           <el-switch
@@ -282,6 +283,8 @@ import {addEdgeInstance, updateInstance, getAllEdge} from "@/api/mange/instance/
 export default {
   data () {
     return {
+      // 是否可以拖拽节点
+      openDragNode: false,
       // visGraph实例对象
       visGraph: null,
       visLayout:null,//布局对象
@@ -1017,7 +1020,10 @@ export default {
     //节点拖拽事件
     this.config.node.onMousedrag=function(event, node) { //节点拖拽事件
       that.tipLayer.show = false; //关闭提示层
-      //that.reLayout();
+      if(that.openDragNode){
+        that.reLayout();
+      }
+
     };
 
     //连线的点击事件
@@ -1131,7 +1137,7 @@ export default {
 /*****页面主要布局样式定义******/
 .page-header{
   position: relative;
-  height: 30px;
+  height: 40px;
 }
 
 .page-header .drag-dot-wrap{
