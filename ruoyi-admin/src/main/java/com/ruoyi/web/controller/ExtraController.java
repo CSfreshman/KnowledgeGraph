@@ -155,6 +155,14 @@ public class ExtraController {
                     symptomsIdList = value.asList();
                 }
             }
+            // 如果是这两种疾病 同时性别为男性
+            if(("产后抑郁症".equals(node.getLabel()) || "绝经与抑郁症".equals(node.getLabel())) && req.getSex() == 1){
+                continue;
+            }
+            // 年龄
+            if(("老年抑郁症".equals(node.getLabel()) || "老年期抑郁症".equals(node.getLabel())) && req.getAge() < 60){
+                continue;
+            }
             diseaseSymptomsMap.put(node,symptomsIdList);
         }
 
@@ -286,6 +294,7 @@ public class ExtraController {
             paramSet.addAll(list);
         }
         System.out.println(paramSet);
+        paramSet.remove("TEST_PATH");
         createWordCloud(paramSet);
         return null;
     }

@@ -13,4 +13,8 @@ public class ExtraReq {
     private List<Neo4jNode> selectedNodeList;
 
     private Long diseaseNodeId;
+
+    private Integer sex;
+
+    private Integer age;
 }

@@ -36,8 +36,8 @@
             <div id="right-head">
 
               <el-button @click="addNode">新建实体</el-button>
-              <el-button>图谱展示</el-button>
-              <el-button>表格展示</el-button>
+<!--              <el-button>图谱展示</el-button>-->
+<!--              <el-button>表格展示</el-button>-->
             </div>
             <div id="right-body">
               <el-row>
@@ -52,21 +52,21 @@
                       <el-table-column
                         prop="label"
                         label="label"
-                        width="200"
+
                         align="center">
                       </el-table-column>
 
                       <el-table-column
                         prop="name"
                         label="名称"
-                        width="200"
+
                         align="center">
                       </el-table-column>
 
                       <el-table-column
                         fixed="right"
                         label="操作"
-                        width="100"
+
                         align="center">
                         <template slot-scope="scope">
                           <el-button @click="gotoDetail(scope.row)" type="text" size="small">查看</el-button>

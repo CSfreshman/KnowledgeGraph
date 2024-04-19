@@ -116,38 +116,40 @@
         </el-col>
         <el-col :span="16">
 <!--          疾病信息展示区域-->
-          <el-row>
-            <div class="card-header">
-              <span style="margin-right: 10px">疾病信息</span>
+<!--          <el-row>-->
+<!--            <div class="card-header">-->
+<!--              <span style="margin-right: 10px">疾病信息</span>-->
 
-            </div>
-            {{this.currentRow}}
-          </el-row>
+<!--            </div>-->
+<!--            {{this.currentRow}}-->
+<!--          </el-row>-->
 
-          <el-row>
-            <div class="card-header">
-              <span style="margin-right: 10px">疾病治疗方式</span>
-            </div>
-            {{this.diseaseInfo.treatmentMethod}}
-          </el-row>
+          <div style="margin-left: 20px">
+            <el-row>
+              <div class="card-header">
+                <span style="margin-right: 10px">疾病治疗方式</span>
+              </div>
+              <!--            {{this.diseaseInfo.treatmentMethod}}-->
+              <template >
+                <li v-for="(item, index) in this.diseaseInfo.treatmentMethod" :key="index">
+                  {{ item.label }}
+                </li>
+              </template>
+            </el-row>
 
-          <el-row>
-            <div class="card-header">
-              <span style="margin-right: 10px">疾病预防方式</span>
-            </div>
-            {{this.diseaseInfo.preventMethod}}
+            <el-row>
+              <div class="card-header">
+                <span style="margin-right: 10px">疾病预防方式</span>
+              </div>
+              <!--            {{this.diseaseInfo.preventMethod}}-->
+              <template >
+                <li v-for="(item, index) in this.diseaseInfo.preventMethod" :key="index">
+                  {{ item.label }}
+                </li>
+              </template>
+            </el-row>
+          </div>
 
-            <template >
-              <li v-for="(item, index) in items" :key="index">
-                {{ item }}
-              </li>
-<!--              <el-menu>-->
-<!--                <el-menu-item v-for="(item, index) in items" :key="index">-->
-<!--                  {{ item }}-->
-<!--                </el-menu-item>-->
-<!--              </el-menu>-->
-            </template>
-          </el-row>
 
         </el-col>
       </el-row>
@@ -256,7 +258,7 @@ export default {
       this.similarNodes = [];
 
       // 执行分析
-      executeDiagnose({selectedNodeList:this.selectedNodes}).then(resp=>{
+      executeDiagnose({selectedNodeList:this.selectedNodes,sex:this.selectedSex,age:this.selectedAge}).then(resp=>{
         console.log(resp.list)
 
         var that = this
