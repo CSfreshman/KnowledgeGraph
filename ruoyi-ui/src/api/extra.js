@@ -31,3 +31,11 @@ export function extraStatistic() {
     method: 'post'
   })
 }
+
+export function extraHotSearch() {
+  return request({
+    url: '/extra/hotSearch',
+    method: 'post'
+  })
+}
+
