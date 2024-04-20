@@ -1,6 +1,7 @@
 package com.ruoyi.system.service.impl;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
@@ -150,7 +151,18 @@ public class KgEdgeClassServiceImpl implements IKgEdgeClassService
         if(!(allPathSet == null || allPathSet.size() == 0)){
             // 出现了环
             System.out.println("出现环路：" + allPathSet);
-            throw new RuntimeException("出现了环路:" + allPathSet);
+            List<List<String>> resList = new ArrayList<>();
+            for (List<Long> longs : allPathSet) {
+                List<String> nameList = new ArrayList<>();
+                for (Long aLong : longs) {
+                    KgNodeClass nodeClass = kgNodeClassMapper.selectKgNodeClassById(aLong);
+                    nameList.add(nodeClass.getName());
+                }
+                resList.add(nameList);
+
+            }
+
+            throw new RuntimeException("出现了环路:" + resList);
         }
         // 结束之后清空静态变量
         allPathSet = new HashSet<>();
