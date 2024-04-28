@@ -305,7 +305,7 @@ export default {
     // 点击表格的查看按钮
     gotoDetail(row) {
       // 页面路由传递的id只需要有neo4jId即可
-      var data = {id:row.neo4jId};
+      var data = {flag:1,node: {id:row.neo4jId}};
 
       this.$router.push({
         path: '/nodeDetail',

@@ -68,4 +68,18 @@ public interface TestNeo4jService {
     Neo4jGraph getNodesByFromNoeIdAndToNodeLabel(Long fromNodeId,String toNodeLabel);
 
     Neo4jGraph getNodesByIds(List<Long> ids);
+
+    // 根据节点id新增属性
+    Neo4jGraph insertPropByNodeId(Long id,String name,String value);
+
+    // 根据节点id删除指定属性
+    Neo4jGraph removePropByNodeId(Long id,String name,String value);
+
+    // 根据节点id新增属性
+    Neo4jGraph insertPropByEdgeId(Long id,String name,String value);
+
+    // 根据节点id删除指定属性
+    Neo4jGraph removePropByEdgeId(Long id,String name,String value);
+
+    Neo4jGraph getSingleEdgeByEdgeId(Long edgeId);
 }

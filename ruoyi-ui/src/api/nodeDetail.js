@@ -8,6 +8,14 @@ export function getNodeDetail(nodeId,degree) {
   })
 }
 
+export function getSingleEdgeByEdgeId(edgeId) {
+  return request({
+    url: '/graph/getSingleEdgeByEdgeId',
+    method: 'post',
+    data: {'edgeId':edgeId}
+  })
+}
+
 export function updateNodeDetail(nodeData) {
   return request({
     url: '/graph/updateNodeDetail',

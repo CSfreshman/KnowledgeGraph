@@ -115,7 +115,7 @@
 </template>
 
 <script>
-import {getNodeDetail, updateNodeDetail, deleteNode} from "@/api/nodeDetail"
+import {getNodeDetail, updateNodeDetail, deleteNode, getSingleEdgeByEdgeId} from "@/api/nodeDetail"
 import vis from "vis";
 import {config} from "@/assets/test/defaultConfig";
 import VisGraph from "@/assets/test/js/graphvis.20230812";
@@ -137,6 +137,8 @@ export default {
       // 表格中展示的数据（选中的节点的属性）
       tableData: '',
       nodeId: '',
+      edgeId: '',
+      flag: '',
       open: false,
       form: {
         nodeId: '', // 节点id
@@ -170,11 +172,60 @@ export default {
   },
   mounted(){
     this.routerData = this.$route.query.data;
-    this.nodeId = this.routerData.id;
-    this.getNodeDetail(this.nodeId,1);
+    console.log(this.$route.query)
+    this.flag = this.routerData.flag;
+    if(this.flag === 1){
+      this.nodeId = this.routerData.node.id;
+      this.getNodeDetail(this.nodeId,1);
+    }else{
+      this.edgeId = this.routerData.edge.id;
+      this.getEdgeDetail(this.edgeId);
+    }
+
+
 
   },
   methods: {
+
+    getEdgeDetail(edgeId){
+      getSingleEdgeByEdgeId(edgeId).then(resp=>{
+        console.log("=============")
+        console.log(resp)
+        console.log("=============")
+
+        // 对节点以及边的属性进行调整
+        const newNodes = resp.nodes.map(node=>{
+          if (node.props && node.props.color) {
+            return { ...node, color: node.props.color };
+          } else {
+            return { ...node, color: '#FFFFFF' }; // 如果prop.color不存在，默认设置一个值
+            //return {...node}
+          }
+        })
+
+        const newEdges = resp.edges.map(edge=>{
+          if (edge.props && edge.props.color) {
+            return { ...edge, color: {color: edge.props.color} };
+          } else {
+            return {...edge}
+          }
+        })
+
+        this.nodes = newNodes;
+        this.edges = newEdges;
+
+
+        this.drawGraphData(0,{nodes:this.nodes,edges:this.edges});
+        //this.createNetwork()
+
+        this.mainData = this.edges.find(edge=>edge.id == this.edgeId);
+        console.log("mainData:" + this.mainData)
+
+        this.showData = this.mainData;
+        this.transformData(this.showData,true)
+      })
+    },
+
     getNodeDetail(nodeId,degree){
       getNodeDetail(nodeId,degree).then(resp=>{
         console.log("=============")
@@ -283,9 +334,16 @@ export default {
     // 处理点击提交按钮
     submit() {
       this.open = false;
-      updateNodeDetail(this.form).then(resp=>{
-        this.getNodeDetail(this.nodeId,1);
-      })
+      if(this.flag === 1){
+        // 节点
+        updateNodeDetail(this.form).then(resp=>{
+          this.getNodeDetail(this.nodeId,1);
+        })
+      }else{
+        // 关系
+
+      }
+
     },
 
     cancel() {
@@ -295,11 +353,20 @@ export default {
 
     // 删除节点
     deleteNode(){
-      deleteNode(this.nodeId).then(resp=>{
-        this.$router.push({
-          path: '/graph'
+      if(this.flag === 1){
+        deleteNode(this.nodeId).then(resp=>{
+          this.$router.push({
+            path: '/graph'
+          })
         })
-      })
+      }else{
+        deleteEdge(this.edgeId).then(resp=>{
+          this.$router.push({
+            path: '/graph'
+          })
+        })
+      }
+
     },
 
     // 图谱部分

@@ -6,13 +6,14 @@ import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
-import com.ruoyi.system.domain.KgEdgeClass;
-import com.ruoyi.system.domain.KgNodeClassProperties;
+import com.ruoyi.system.domain.*;
+import com.ruoyi.system.mapper.*;
+import com.ruoyi.system.service.TestNeo4jService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.ruoyi.system.mapper.KgEdgeClassPropertiesMapper;
-import com.ruoyi.system.domain.KgEdgeClassProperties;
 import com.ruoyi.system.service.IKgEdgeClassPropertiesService;
+
+import javax.annotation.Resource;
 
 /**
  * 【请填写功能名称】Service业务层处理
@@ -25,6 +26,14 @@ public class KgEdgeClassPropertiesServiceImpl implements IKgEdgeClassPropertiesS
 {
     @Autowired
     private KgEdgeClassPropertiesMapper kgEdgeClassPropertiesMapper;
+    @Autowired
+    private KgHistoryServiceImpl historyService;
+    @Resource
+    private KgEdgeInstanceMapper edgeInstanceMapper;
+    @Resource
+    private KgEdgeInstacePropertiesMapper edgeInstacePropertiesMapper;
+    @Resource
+    private TestNeo4jService neo4jService;
 
     /**
      * 查询【请填写功能名称】
@@ -71,6 +80,37 @@ public class KgEdgeClassPropertiesServiceImpl implements IKgEdgeClassPropertiesS
         kgEdgeClassProperties.setCreateTime(DateUtils.getNowDate());
         kgEdgeClassProperties.setId(IdUtil.getSnowflakeNextId());
         kgEdgeClassProperties.setCreateUser(SecurityUtils.getUserId());
+
+        // 历史记录
+        KgHistory history = new KgHistory();
+        // 新增
+        history.setType(1);
+        history.setTargetType(6);
+        history.setTargetId(kgEdgeClassProperties.getId());
+        history.setTargetName(kgEdgeClassProperties.getName());
+        historyService.insertKgHistory(history);
+
+        // 类型新增属性，需要同时给该类型的全部实例新增该属性
+        KgEdgeInstance instance = new KgEdgeInstance();
+        instance.setClassId(kgEdgeClassProperties.getEdgeId());
+        instance.setValid(1l);
+        List<KgEdgeInstance> edgeInstances = edgeInstanceMapper.selectKgEdgeInstanceList(instance);
+        for (KgEdgeInstance edgeInstance : edgeInstances) {
+            KgEdgeInstaceProperties properties = new KgEdgeInstaceProperties();
+            properties.setValid(1l);
+            properties.setId(IdUtil.getSnowflakeNextId());
+            properties.setName(kgEdgeClassProperties.getName());
+            properties.setEdgeId(edgeInstance.getId());
+            properties.setValue("default");
+            properties.setCreateTime(DateUtils.getNowDate());
+            properties.setCreateUser(SecurityUtils.getUserId());
+            edgeInstacePropertiesMapper.insertKgEdgeInstaceProperties(properties);
+
+            neo4jService.insertPropByEdgeId(edgeInstance.getNeo4jId(),properties.getName(),properties.getValue());
+//            neo4jService.removePropByNodeId(edgeInstance.getNeo4jId(),properties.getName(),"");
+        }
+
+
         return kgEdgeClassPropertiesMapper.insertKgEdgeClassProperties(kgEdgeClassProperties);
     }
 
@@ -117,6 +157,39 @@ public class KgEdgeClassPropertiesServiceImpl implements IKgEdgeClassPropertiesS
         kgEdgeClassProperties.setModityTime(DateUtils.getNowDate());
         kgEdgeClassProperties.setModityUser(SecurityUtils.getUserId());
         kgEdgeClassProperties.setModityType(0L);
+
+
+        // 历史记录
+        KgHistory history = new KgHistory();
+        // 删除
+        history.setType(2);
+        history.setTargetType(6);
+        history.setTargetId(kgEdgeClassProperties.getId());
+        history.setTargetName(kgEdgeClassProperties.getName());
+        historyService.insertKgHistory(history);
+
+        // 类型新增属性，需要同时给该类型的全部实例新增该属性
+        KgEdgeInstance instance = new KgEdgeInstance();
+        instance.setClassId(kgEdgeClassProperties.getEdgeId());
+        instance.setValid(1l);
+        List<KgEdgeInstance> edgeInstances = edgeInstanceMapper.selectKgEdgeInstanceList(instance);
+        for (KgEdgeInstance edgeInstance : edgeInstances) {
+            KgEdgeInstaceProperties properties = new KgEdgeInstaceProperties();
+            properties.setEdgeId(edgeInstance.getId());
+            properties.setName(kgEdgeClassProperties.getName());
+            properties.setValid(1l);
+            List<KgEdgeInstaceProperties> kgEdgeInstaceProperties = edgeInstacePropertiesMapper.selectKgEdgeInstacePropertiesList(properties);
+            for (KgEdgeInstaceProperties kgEdgeInstaceProperty : kgEdgeInstaceProperties) {
+                kgEdgeInstaceProperty.setValid(0l);
+                edgeInstacePropertiesMapper.updateKgEdgeInstaceProperties(kgEdgeInstaceProperty);
+
+            }
+
+            neo4jService.removePropByEdgeId(edgeInstance.getNeo4jId(),properties.getName(),"");
+        }
+
+
+
         return updateKgEdgeClassProperties(kgEdgeClassProperties);
     }
 }

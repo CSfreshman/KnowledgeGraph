@@ -113,26 +113,26 @@
               v-hasPermi="['system:user:remove']"
             >删除</el-button>
           </el-col>
-          <el-col :span="1.5">
-            <el-button
-              type="info"
-              plain
-              icon="el-icon-upload2"
-              size="mini"
-              @click="handleImport"
-              v-hasPermi="['system:user:import']"
-            >导入</el-button>
-          </el-col>
-          <el-col :span="1.5">
-            <el-button
-              type="warning"
-              plain
-              icon="el-icon-download"
-              size="mini"
-              @click="handleExport"
-              v-hasPermi="['system:user:export']"
-            >导出</el-button>
-          </el-col>
+<!--          <el-col :span="1.5">-->
+<!--            <el-button-->
+<!--              type="info"-->
+<!--              plain-->
+<!--              icon="el-icon-upload2"-->
+<!--              size="mini"-->
+<!--              @click="handleImport"-->
+<!--              v-hasPermi="['system:user:import']"-->
+<!--            >导入</el-button>-->
+<!--          </el-col>-->
+<!--          <el-col :span="1.5">-->
+<!--            <el-button-->
+<!--              type="warning"-->
+<!--              plain-->
+<!--              icon="el-icon-download"-->
+<!--              size="mini"-->
+<!--              @click="handleExport"-->
+<!--              v-hasPermi="['system:user:export']"-->
+<!--            >导出</el-button>-->
+<!--          </el-col>-->
           <right-toolbar :showSearch.sync="showSearch" @queryTable="getList" :columns="columns"></right-toolbar>
         </el-row>
 

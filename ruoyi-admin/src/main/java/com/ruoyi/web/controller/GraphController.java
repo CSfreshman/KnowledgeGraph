@@ -46,6 +46,13 @@ public class GraphController {
         return graph;
     }
 
+    @PostMapping("/getSingleEdgeByEdgeId")
+    public Neo4jGraph getSingleEdgeByEdgeId(@RequestBody GraphReq req){
+
+        Neo4jGraph graph = testNeo4jService.getSingleEdgeByEdgeId(req.getEdgeId());
+        return graph;
+    }
+
     @PostMapping("/updateNodeDetail")
     public AjaxResult updateNodeDetail(@RequestBody Map<String,Object> map){
         System.out.println(map);

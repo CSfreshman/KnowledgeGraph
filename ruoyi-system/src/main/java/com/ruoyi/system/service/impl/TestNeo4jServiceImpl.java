@@ -154,9 +154,6 @@ public class TestNeo4jServiceImpl implements TestNeo4jService {
         return 0;
     }
 
-
-
-
     @Override
     public Neo4jNode insertNodeToNeo4j(Neo4jNode node) {
         Session session = driver.session();
@@ -900,6 +897,53 @@ public class TestNeo4jServiceImpl implements TestNeo4jService {
         System.out.println("getNodesByIds:cypher:");
         System.out.println(cypher);
         Result result = driver.session().run(cypher);
+        Neo4jGraph parse = Neo4jGraph.parse(result);
+        return parse;
+    }
+
+    @Override
+    public Neo4jGraph insertPropByNodeId(Long id,String name,String value){
+        String cypher = "MATCH (n) WHERE id(n) = " + id + " SET n." + name + " = '" + value + "'";
+        System.out.println("insertPropByNodeId:cypher:");
+        System.out.println(cypher);
+        Result result = driver.session().run(cypher);
+        return null;
+    }
+
+    @Override
+    public Neo4jGraph removePropByNodeId(Long id,String name,String value){
+        String cypher = "MATCH (n) WHERE id(n) = " + id + " REMOVE n." + name;
+        System.out.println("removePropByNodeId:cypher:");
+        System.out.println(cypher);
+        Result result = driver.session().run(cypher);
+        return null;
+    }
+
+    @Override
+    public Neo4jGraph insertPropByEdgeId(Long id,String name,String value){
+        String cypher = "MATCH ()-[n]->() WHERE id(n) = " + id + " SET n." + name + " = '" + value + "'";
+        System.out.println("insertPropByEdgeId:cypher:");
+        System.out.println(cypher);
+        Result result = driver.session().run(cypher);
+        return null;
+    }
+
+    @Override
+    public Neo4jGraph removePropByEdgeId(Long id,String name,String value){
+        String cypher = "MATCH ()-[n]->() WHERE id(n) = " + id + " REMOVE n." + name;
+        System.out.println("removePropByEdgeId:cypher:");
+        System.out.println(cypher);
+        Result result = driver.session().run(cypher);
+        return null;
+    }
+
+    @Override
+    public Neo4jGraph getSingleEdgeByEdgeId(Long edgeId){
+        String cypher = "MATCH p=()-[r]-() WHERE id(r) = " + edgeId + " RETURN p";
+        System.out.println("getSingleEdgeByEdgeId:cypher:");
+        System.out.println(cypher);
+        Result result = driver.session().run(cypher);
+
         Neo4jGraph parse = Neo4jGraph.parse(result);
         return parse;
     }

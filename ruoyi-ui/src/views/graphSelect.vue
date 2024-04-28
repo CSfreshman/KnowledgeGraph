@@ -8,9 +8,9 @@
     <div id="page-body">
       <el-card v-if="showCondition">
         <div>
-          <el-button @click="selectIndex = 1">实体查询</el-button>
-          <el-button @click="selectIndex = 2">关系查询</el-button>
-          <el-button @click="selectIndex = 3">类型联合查询</el-button>
+          <el-button @click="selectIndex = 1" :type="selectIndex === 1?'primary':''">实体查询</el-button>
+          <el-button @click="selectIndex = 2" :type="selectIndex === 2?'primary':''">关系查询</el-button>
+          <el-button @click="selectIndex = 3" :type="selectIndex === 3?'primary':''">类型联合查询</el-button>
           <el-button @click="doQuery()" icon="el-icon-search">查询</el-button>
           <el-button @click="" icon="el-icon-delete">清空表单</el-button>
         </div>
@@ -136,18 +136,7 @@
 
     <!-- 连线右键操作对话栏 -->
     <div id="linkRightMenuPanel" class="right-menu-layer">
-      <button @click="showLinkDetail()"><i class="el-icon-notebook-2"></i>关系属性</button>
-      <button @click="handleEditEdgeButton()"><i class="el-icon-setting"></i>关系设置</button>
-      <el-popover placement="top" :width="180" ref="popoverLink">
-        <p>您确定要删除该关系吗?</p>
-        <div style="text-align: right; margin: 0">
-          <el-button size="mini" type="text" @click="popoverLinkClose()">取消</el-button>
-          <el-button type="primary" size="mini" @click="deleteLinkClick()">确定</el-button>
-        </div>
-        <template #reference>
-          <button><i class="el-icon-delete"></i>删除关系</button>
-        </template>
-      </el-popover>
+      <button @click="goToDetail1()"><i class="el-icon-setting"></i>查看详情</button>
     </div>
 <!--    下面的对话框不需要使用了-->
     <div>
@@ -517,7 +506,16 @@ export default {
     },
 
     goToDetail() {
-      var data = this.currentNode;
+      var data = {flag:1,node:this.currentNode,edge:this.currentLink};
+      this.$router.push({
+        path: '/nodeDetail',
+        query: {data}
+      })
+    },
+
+    // 关系
+    goToDetail1() {
+      var data = {flag:0,node:this.currentNode,edge:this.currentLink};
       this.$router.push({
         path: '/nodeDetail',
         query: {data}

@@ -7,11 +7,18 @@ import cn.hutool.core.util.ObjectUtil;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.system.domain.KgHistory;
+import com.ruoyi.system.domain.KgNodeInstance;
+import com.ruoyi.system.domain.KgNodeInstanceProperties;
+import com.ruoyi.system.mapper.KgNodeInstanceMapper;
+import com.ruoyi.system.mapper.KgNodeInstancePropertiesMapper;
+import com.ruoyi.system.service.TestNeo4jService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.ruoyi.system.mapper.KgNodeClassPropertiesMapper;
 import com.ruoyi.system.domain.KgNodeClassProperties;
 import com.ruoyi.system.service.IKgNodeClassPropertiesService;
+
+import javax.annotation.Resource;
 
 /**
  * 【请填写功能名称】Service业务层处理
@@ -26,6 +33,13 @@ public class KgNodeClassPropertiesServiceImpl implements IKgNodeClassPropertiesS
     private KgNodeClassPropertiesMapper kgNodeClassPropertiesMapper;
     @Autowired
     private KgHistoryServiceImpl historyService;
+    @Resource
+    private KgNodeInstanceMapper nodeInstanceMapper;
+    @Resource
+    private KgNodeInstancePropertiesMapper nodeInstancePropertiesMapper;
+    @Resource
+    private TestNeo4jService neo4jService;
+
     /**
      * 查询【请填写功能名称】
      *
@@ -80,6 +94,28 @@ public class KgNodeClassPropertiesServiceImpl implements IKgNodeClassPropertiesS
         history.setTargetName(kgNodeClassProperties.getName());
         historyService.insertKgHistory(history);
 
+        // 类型新增属性，需要同时给该类型的全部实例新增该属性
+        KgNodeInstance instance = new KgNodeInstance();
+        instance.setClassId(kgNodeClassProperties.getNodeId());
+        instance.setValid(1l);
+        List<KgNodeInstance> kgNodeInstances = nodeInstanceMapper.selectKgNodeInstanceList(instance);
+        for (KgNodeInstance kgNodeInstance : kgNodeInstances) {
+            // 构造属性
+            KgNodeInstanceProperties properties = new KgNodeInstanceProperties();
+            properties.setValid(1l);
+            properties.setId(IdUtil.getSnowflakeNextId());
+            properties.setName(kgNodeClassProperties.getName());
+            properties.setNodeId(kgNodeInstance.getId());
+            properties.setValue("default");
+            properties.setCreateTime(DateUtils.getNowDate());
+            properties.setCreateUser(SecurityUtils.getUserId());
+            // 插入mysql数据库
+            nodeInstancePropertiesMapper.insertKgNodeInstanceProperties(properties);
+
+            // 插入neo4j
+            neo4jService.insertPropByNodeId(kgNodeInstance.getNeo4jId(),properties.getName(),properties.getValue());
+        }
+
         return kgNodeClassPropertiesMapper.insertKgNodeClassProperties(kgNodeClassProperties);
     }
 
@@ -131,6 +167,27 @@ public class KgNodeClassPropertiesServiceImpl implements IKgNodeClassPropertiesS
         history.setTargetName(kgNodeClassProperties.getName());
         historyService.insertKgHistory(history);
 
+        // 同时删除该类型实例的全部该属性
+        // 类型新增属性，需要同时给该类型的全部实例新增该属性
+        KgNodeInstance instance = new KgNodeInstance();
+        instance.setClassId(kgNodeClassProperties.getNodeId());
+        instance.setValid(1l);
+        List<KgNodeInstance> kgNodeInstances = nodeInstanceMapper.selectKgNodeInstanceList(instance);
+        for (KgNodeInstance kgNodeInstance : kgNodeInstances) {
+            KgNodeInstanceProperties properties = new KgNodeInstanceProperties();
+            properties.setNodeId(kgNodeInstance.getId());
+            properties.setName(kgNodeClassProperties.getName());
+            properties.setValid(1l);
+            List<KgNodeInstanceProperties> propertiesList = nodeInstancePropertiesMapper.selectKgNodeInstancePropertiesList(properties);
+            // 更新数据库
+            for (KgNodeInstanceProperties kgNodeInstanceProperties : propertiesList) {
+                kgNodeInstanceProperties.setValid(0l);
+                nodeInstancePropertiesMapper.updateKgNodeInstanceProperties(kgNodeInstanceProperties);
+            }
+
+             // 更新neo4j
+            neo4jService.removePropByNodeId(kgNodeInstance.getNeo4jId(),properties.getName(),"");
+        }
         // 更新数据
         return updateKgNodeClassProperties(kgNodeClassProperties);
 
