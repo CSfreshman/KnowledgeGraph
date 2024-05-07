@@ -36,7 +36,7 @@
           <div id="right-head">
             <el-row v-show="selectedEdgeClass != ''">
               <el-button @click="addEdgeInstance">新建关系</el-button>
-              <el-button @click="">删除关系</el-button>
+
 <!--              <el-select v-model="fromNodeClass" placeholder="选择起点实体类型"></el-select>-->
 <!--              <el-select v-model="toNodeClass" placeholder="选择起点实体类型"></el-select>-->
             </el-row>
@@ -88,6 +88,11 @@
         <el-button @click="cancel">取 消</el-button>
       </div>
     </el-dialog>
+
+    <!-- 连线右键操作对话栏 -->
+    <div id="linkRightMenuPanel" class="right-menu-layer">
+      <button @click="goToDetail1()"><i class="el-icon-setting"></i>查看详情</button>
+    </div>
   </div>
 </template>
 
@@ -177,6 +182,14 @@ export default {
     this.getEdgeClassList();
   },
   methods: {
+
+    goToDetail1() {
+      var data = {flag:0,edge:this.currentLink};
+      this.$router.push({
+        path: '/nodeDetail',
+        query: {data}
+      })
+    },
     getEdgeClassList() {
       this.loading1 = true;
       this.queryParamsClass.valid = 1;
@@ -293,7 +306,7 @@ export default {
       listClassProperties(edgeClassPropQueryParams).then(resp=>{
         this.edgeClassPropsList = resp.rows;
         this.edgeClassPropsList.forEach(it=>{
-          this.form.props.push({name:it.name,value: ''})
+          this.form.props.push({name:it.name,value: it.defaultValue})
         })
       })
 
@@ -503,6 +516,110 @@ export default {
       tipDom.style.top = event.clientY + 5 + 'px';
       tipDom.style.left = event.clientX + 10 +'px';
     },
+  },
+  created () {
+    var that = this;
+
+    //节点的点击事件
+    this.config.node.onClick=function(event, node) { //节点点击事件回调
+      node.color = 'rgb('+node.fillColor+')';
+      that.currentNode = node;
+      that.tipLayer.header = node.label||'';
+      that.tipLayer.data = node.properties.attributes||[]; //节点属性列表
+      that.attrbutes = node.properties.attributes||[]; //节点属性列表
+      that.showTipLayer(event);
+    };
+
+    //节点的双击事件
+    this.config.node.ondblClick=function(event, node) { //节点双击事件回调
+      /* node.color = 'rgb('+node.fillColor+')';
+      that.currentNode = node;
+      that.attrbutes = node.properties.attributes||[];
+      that.showNodeDeteail(); */
+
+      node.openAnimation = true; //启用节点动画特效
+      that.drawDefinedNode(node); // 注册自定义节点绘制方法
+      that.visGraph.switchAnimate(true);//开启动画示例
+    };
+
+    //节点拖拽事件
+    this.config.node.onMousedrag=function(event, node) { //节点拖拽事件
+      that.tipLayer.show = false; //关闭提示层
+      //that.reLayout();
+    };
+
+    //连线的点击事件
+    this.config.link.onClick=function(event, link) { //节点点击事件回调
+      that.currentLink = link;
+      that.tipLayer.header = link.label||'';
+      that.tipLayer.data = link.properties.attributes||[]; //关系属性列表
+      that.attrbutes = link.properties.attributes||[]; //关系属性列表
+
+      that.showTipLayer(event);
+    };
+
+    //空白处的点击事件
+    this.config.noElementClick=function(event){
+      that.currentNode = {};
+      that.currentLink = {};
+      that.tipLayer.show = false; //关闭提示层
+    };
+
+    //右键配置
+    this.config.rightMenu = {
+      nodeMenu:{ //节点右键菜单
+        nodeRightMenuLayer : null,
+        init:function(_graphvis){
+          if(!that.nodeRightMenuLayer){
+            that.nodeRightMenuLayer = document.getElementById('nodeRightMenuPanel');
+          }
+        },
+        show : function(event,_graphvis){
+          this.init();
+          if(that.nodeRightMenuLayer){
+            that.nodeRightMenuLayer.style.left = (event.clientX + 10) + 'px'
+            that.nodeRightMenuLayer.style.top = (event.clientY - 5) + 'px'
+            that.nodeRightMenuLayer.style.display = 'block'
+          }
+          var node = _graphvis.currentNode;
+          node.color = 'rgb('+node.fillColor+')';
+          that.currentNode = node;
+          that.attrbutes = node.properties.attributes||[];
+        },
+        hide : function(){
+          if(that.nodeRightMenuLayer){
+            that.nodeRightMenuLayer.style.display = 'none'
+          }
+        }
+      },
+      linkMenu:{  //连线右键菜单
+        linkDialog : null,
+        init:function(_graphvis){
+          if(!that.linkDialog){
+            that.linkDialog = document.getElementById('linkRightMenuPanel');
+          }
+        },
+        show : function(event,_graphvis){
+          this.init();
+          if(that.linkDialog){
+            that.linkDialog.style.left = (event.clientX + 10) + 'px'
+            that.linkDialog.style.top = (event.clientY - 5) + 'px'
+            that.linkDialog.style.display = 'block'
+          }
+          var link = _graphvis.currentLink;
+          that.currentLink = link;
+          that.attrbutes = link.properties.attributes||[];
+        },
+        hide : function(){
+          if(that.linkDialog){
+            that.linkDialog.style.display = 'none'
+          }
+        }
+      }
+    }
+  },
+  destroyed(){
+    cancelAnimationFrame(this.layoutLoopName);
   }
 }
 </script>
@@ -533,5 +650,61 @@ export default {
     background-color: #FFFFFF;
     height:90vh;
   }
+  /*****节点弹出鼠标提示层样式*****/
+  .tip-wrap{
+    position: absolute;
+    width: 350px;
+    height: auto;
+    min-height: 150px;
+    background: #fff;
+    box-shadow: 0px 0px 10px #999;
+    font-size: 14px;
+  }
+  .tip-wrap > .tip-header{
+    height:30px;
+    line-height: 30px;
+    padding: 5px 10px;
+    border-bottom: 1px solid #ddd;
+  }
+  .tip-wrap > .tip-body{
+    padding: 0 10px 10px;
+  }
+  /*****右键菜单样式******/
+  .right-menu-layer {
+    position: absolute;
+    width: 100px;
+    z-index: 5;
+    display: none;
+    border-radius: 3px;
+    overflow: hidden;
+    background: #fafafa;
+    border: 1px solid #e1e2e2;
+    box-shadow: 0 0 5px #ddd;
+    padding: 5px 3px;
+  }
+  .right-menu-layer button {
+    display: block;
+    height:24px;
+    line-height: 24px;
+    background: transparent;
+    border: none;
+    color: #444;
+    text-align:center;
+    cursor: pointer;
+  }
+  .right-menu-layer button > i{
+    margin-right: 5px;
+  }
+  .right-menu-layer button:hover {
+    color: slateblue;
+  }
+  .right-menu-layer button:focus {
+    outline:0;
+  }
 
+  .box-card{
+    box-shadow: 0 0 3px #d4c8c8;
+    padding: 10px;
+    margin-bottom: 10px;
+  }
 </style>

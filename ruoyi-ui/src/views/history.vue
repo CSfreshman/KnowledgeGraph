@@ -165,10 +165,10 @@
         <el-table-column label="修改后的值" align="center" prop="curValue" />
         <el-table-column label="记录生成时间" align="center" prop="time" width="180">
           <template slot-scope="scope">
-            <span>{{ parseTime(scope.row.time, '{y}-{m}-{d}') }}</span>
+            <span>{{ parseTime(scope.row.time, '{y}-{m}-{d} {h}:{i}:{s}') }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="操作用户id" align="center" prop="userId" />
+<!--        <el-table-column label="操作用户id" align="center" prop="userId" />-->
         <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
           <template slot-scope="scope">
 <!--            <el-button-->

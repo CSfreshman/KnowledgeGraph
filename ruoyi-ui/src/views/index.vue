@@ -17,18 +17,18 @@
         </el-card>
       </el-col>
       <el-col :span="12">
-        <el-card>
-          <div slot="header" class="card-header">
-            <span>词云</span>
-          </div>
-          <div>
-            <blockquote>
-              <p>系统保留了用户的操作记录，对操作主体生成词云，帮助用户更直观的看到大家关心的内容。</p>
-            </blockquote>
-          </div>
-          <el-button @click="dialogVisible = true" size="small">点击查看词云</el-button>
+<!--        <el-card>-->
+<!--          <div slot="header" class="card-header">-->
+<!--            <span>词云</span>-->
+<!--          </div>-->
+<!--          <div>-->
+<!--            <blockquote>-->
+<!--              <p>系统保留了用户的操作记录，对操作主体生成词云，帮助用户更直观的看到大家关心的内容。</p>-->
+<!--            </blockquote>-->
+<!--          </div>-->
+<!--          <el-button @click="dialogVisible = true" size="small">点击查看词云</el-button>-->
 
-        </el-card>
+<!--        </el-card>-->
 
       </el-col>
 
@@ -143,7 +143,7 @@
             }" type="primary">立即前往</el-link>
           </div>
           <div>
-            <p>辅助诊断通过输入患者的症状描述以及年龄、性别等信息，来分析最匹配的抑郁症类型，并给出相应的治疗建议。</p>
+            <p>辅助诊断通过输入患者的症状描述、年龄、性别等信息，来分析最匹配的抑郁症类型，并给出相应的治疗建议。</p>
           </div>
           <div>
             <el-table

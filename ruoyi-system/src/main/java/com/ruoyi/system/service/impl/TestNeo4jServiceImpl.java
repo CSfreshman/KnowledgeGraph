@@ -469,14 +469,22 @@ public class TestNeo4jServiceImpl implements TestNeo4jService {
                         createEdgeClassStr(req.getEdgeClassList()));
         System.out.println(centralityName);
         String cypher = null;
+        // 针对度中心度的入度
+        String cypher2 = null;
         Integer model = req.getSelectedCenterDegreeModel();
 
         Map<Object,Double> map = new HashMap<>();
+        // 针对度中心度的入度
+        Map<Object,Double> map2 = new HashMap<>();
 
         if(model == 1){
             System.out.println("执行 度中心度 计算");
             // 度中心度
             cypher = "CALL gds.degree.stream('" + centralityName + "')\n" +
+                    "YIELD nodeId, score\n" +
+                    "RETURN gds.util.asNode(nodeId), score AS followers\n" +
+                    "ORDER BY followers DESC";
+            cypher2 = "CALL gds.degree.stream('" + centralityName + "',{ orientation: 'REVERSE' })\n" +
                     "YIELD nodeId, score\n" +
                     "RETURN gds.util.asNode(nodeId), score AS followers\n" +
                     "ORDER BY followers DESC";
@@ -505,6 +513,27 @@ public class TestNeo4jServiceImpl implements TestNeo4jService {
             e.printStackTrace();
         }
         Result result = driver.session().run(cypher);
+        Result result2 = null;
+        if(model == 1){
+            System.out.println("针对入度二次计算");
+            System.out.println(cypher2);
+            result2 = driver.session().run(cypher2);
+            for (Record record : result2.list()) {
+                List<Value> values = record.values();
+                Neo4jNode node = null;
+                Double score = null;
+                for (Value value : values) {
+                    Type type = value.type();
+                    if (type.name().equals(TypeConstructor.NODE.name())) {
+                        node = new Neo4jNode(value.asNode());
+                    }else{
+                        score = value.asDouble();
+                    }
+                }
+                map2.put(node,score);
+            }
+
+        }
         List<Record> records = result.list();
         for (Record record : records) {
             List<Value> values = record.values();
@@ -523,6 +552,11 @@ public class TestNeo4jServiceImpl implements TestNeo4jService {
             map.put(node,score);
         }
 
+        if(model == 1){
+            for (Map.Entry<Object, Double> entry : map.entrySet()) {
+                map.put(entry.getKey(),entry.getValue() + map2.getOrDefault(entry.getKey(),0d));
+            }
+        }
         System.out.println(map);
 
         dropGraphProject(centralityName);

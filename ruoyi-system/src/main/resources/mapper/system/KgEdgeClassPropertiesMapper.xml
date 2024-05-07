@@ -3,7 +3,7 @@
 PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.system.mapper.KgEdgeClassPropertiesMapper">
-    
+
     <resultMap type="KgEdgeClassProperties" id="KgEdgeClassPropertiesResult">
         <result property="id"    column="id"    />
         <result property="edgeId"    column="edge_id"    />
@@ -15,15 +15,16 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="modityTime"    column="modity_time"    />
         <result property="modityUser"    column="modity_user"    />
         <result property="modityType"    column="modity_type"    />
+        <result property="defaultValue"    column="default_value"    />
     </resultMap>
 
     <sql id="selectKgEdgeClassPropertiesVo">
-        select id, edge_id, name, type, create_time, create_user, valid, modity_time, modity_user, modity_type from kg_edge_class_properties
+        select id, edge_id, name, type, create_time, create_user, valid, modity_time, modity_user, modity_type, default_value from kg_edge_class_properties
     </sql>
 
     <select id="selectKgEdgeClassPropertiesList" parameterType="KgEdgeClassProperties" resultMap="KgEdgeClassPropertiesResult">
         <include refid="selectKgEdgeClassPropertiesVo"/>
-        <where>  
+        <where>
             <if test="edgeId != null "> and edge_id = #{edgeId}</if>
             <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
             <if test="type != null  and type != ''"> and type = #{type}</if>
@@ -32,14 +33,15 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="modityTime != null "> and modity_time = #{modityTime}</if>
             <if test="modityUser != null "> and modity_user = #{modityUser}</if>
             <if test="modityType != null "> and modity_type = #{modityType}</if>
+            <if test="defaultValue != null "> and default_value = #{defaultValue}</if>
         </where>
     </select>
-    
+
     <select id="selectKgEdgeClassPropertiesById" parameterType="Long" resultMap="KgEdgeClassPropertiesResult">
         <include refid="selectKgEdgeClassPropertiesVo"/>
         where id = #{id}
     </select>
-        
+
     <insert id="insertKgEdgeClassProperties" parameterType="KgEdgeClassProperties">
         insert into kg_edge_class_properties
         <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -53,6 +55,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="modityTime != null">modity_time,</if>
             <if test="modityUser != null">modity_user,</if>
             <if test="modityType != null">modity_type,</if>
+            <if test="defaultValue != null ">default_value,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="id != null">#{id},</if>
@@ -65,6 +68,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="modityTime != null">#{modityTime},</if>
             <if test="modityUser != null">#{modityUser},</if>
             <if test="modityType != null">#{modityType},</if>
+            <if test="defaultValue != null ">#{defaultValue},</if>
          </trim>
     </insert>
 
@@ -80,6 +84,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="modityTime != null">modity_time = #{modityTime},</if>
             <if test="modityUser != null">modity_user = #{modityUser},</if>
             <if test="modityType != null">modity_type = #{modityType},</if>
+            <if test="defaultValue != null ">default_value = #{defaultValue},</if>
         </trim>
         where id = #{id}
     </update>
@@ -89,7 +94,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </delete>
 
     <delete id="deleteKgEdgeClassPropertiesByIds" parameterType="String">
-        delete from kg_edge_class_properties where id in 
+        delete from kg_edge_class_properties where id in
         <foreach item="id" collection="array" open="(" separator="," close=")">
             #{id}
         </foreach>

@@ -73,15 +73,18 @@
                 <el-col span="9">
                   {{ headText }}
                 </el-col>
-                <el-col span="2">
-                  <el-button @click="changeDegree(1)" :type="degree === 1?'primary':''">1度</el-button>
-                </el-col>
-                <el-col span="2">
-                  <el-button @click="changeDegree(2)" :type="degree === 2?'primary':''">2度</el-button>
-                </el-col>
-                <el-col span="2">
-                  <el-button @click="changeDegree(3)" :type="degree === 3?'primary':''">3度</el-button>
-                </el-col>
+                <div v-if="flag === 1">
+                  <el-col span="2">
+                    <el-button @click="changeDegree(1)" :type="degree === 1?'primary':''">1度</el-button>
+                  </el-col>
+                  <el-col span="2">
+                    <el-button @click="changeDegree(2)" :type="degree === 2?'primary':''">2度</el-button>
+                  </el-col>
+                  <el-col span="2">
+                    <el-button @click="changeDegree(3)" :type="degree === 3?'primary':''">3度</el-button>
+                  </el-col>
+                </div>
+
                 <el-col span="2">
                   <el-button @click="deleteNode">删除</el-button>
                 </el-col>

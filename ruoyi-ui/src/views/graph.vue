@@ -8,6 +8,7 @@
         <div class="dot-label">拖拽节点</div>
       </div>
       <el-button style="margin-left: 170px" @click="openDragNode = !openDragNode">{{ openDragNode ? '关闭拖拽' : '开启拖拽' }}</el-button>
+      <el-button style="margin-left: 50px" @click="refreshView">刷新图谱</el-button>
       <div class="swtich-wrap">
         <div class="grid-content">属性展开：
           <el-switch
@@ -159,7 +160,13 @@
           <div v-if="editEdge">
             <el-form-item label="选择关系类型"><el-input disabled v-model="this.currentLink.label"></el-input></el-form-item>
           </div>
-
+          <div v-for="(prop, index) in editEdge1.props" :key="index">
+            <el-row><el-col>
+              <el-form-item :label="prop.name" label-width="100">
+                <el-input v-model="prop.value"></el-input>
+              </el-form-item>
+            </el-col></el-row>
+          </div>
 
         </el-form>
         <div style="text-align: center;">
@@ -334,6 +341,9 @@ export default {
         label: '',
         image:'',
         color: '',
+        props: []
+      },
+      editEdge1: {
         props: []
       },
       //关系连线设置的右侧面板控制开关
@@ -781,6 +791,7 @@ export default {
         that.resetLinkInfo();
       });
       this.cancelNodeRightMenu()
+      this.editEdge1.props = []
     },
     saveRelationInfo(){
 
@@ -792,7 +803,7 @@ export default {
       this.relationInfo.toNodeNeo4jId = this.relationInfo.targetId
       this.relationInfo.fromNodeId = this.allNodeList.find(it=>it.neo4jId == this.relationInfo.fromNodeNeo4jId).id;
       this.relationInfo.toNodeId = this.allNodeList.find(it=>it.neo4jId == this.relationInfo.toNodeNeo4jId).id;
-
+      this.relationInfo.props = this.editEdge1.props
       if(this.editEdge){
         // 执行更新逻辑
         updateInstance(this.relationInfo).then(resp=>{
@@ -958,24 +969,37 @@ export default {
     },
 
     changeEdgeClassProps() {
+      // 先清空原有属性
+      this.editEdge1.props = []
       console.log("选择的关系类型");
       console.log(this.relationInfo.classId);
       var edgeClass = this.edgeClassList.find(edgeClass=>edgeClass.id == this.relationInfo.classId)
       console.log();
       this.relationInfo.label = edgeClass.label
+
+      edgeClass.props.forEach(it=>{
+        this.editEdge1.props.push({name:it.name,value: it.defaultValue})
+      })
+
+
     },
 
     // 选择节点类型后修改editNode中的props
     changeNodeClassProps() {
+      var color = '';
       // 更改前先清空原来的props
       this.editNode.props = [];
       console.log("选择的节点类型");
       console.log(this.nodeClassList.find(nodeClass=>nodeClass.id == this.editNode.classId));
       this.nodeClassList.find(nodeClass=>nodeClass.id == this.editNode.classId).props.forEach(it=>{
         if(it.name != 'color'){
-          this.editNode.props.push({key:it.name,value: ''})
+          this.editNode.props.push({key:it.name,value: it.defaultValue})
+        }else{
+          color = it.defaultValue;
         }
       })
+      this.editNode.color = color;
+
       console.log("可选属性：")
       console.log(this.editNode.props)
 
@@ -999,6 +1023,11 @@ export default {
         path: '/nodeDetail',
         query: {data}
       })
+    },
+
+    // 刷新整个页面
+    refreshView() {
+      location.reload();
     }
 
   },

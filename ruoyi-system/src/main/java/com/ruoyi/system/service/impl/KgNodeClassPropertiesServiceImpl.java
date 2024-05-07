@@ -106,7 +106,8 @@ public class KgNodeClassPropertiesServiceImpl implements IKgNodeClassPropertiesS
             properties.setId(IdUtil.getSnowflakeNextId());
             properties.setName(kgNodeClassProperties.getName());
             properties.setNodeId(kgNodeInstance.getId());
-            properties.setValue("default");
+            // 获得默认值
+            properties.setValue(kgNodeClassProperties.getDefaultValue());
             properties.setCreateTime(DateUtils.getNowDate());
             properties.setCreateUser(SecurityUtils.getUserId());
             // 插入mysql数据库

@@ -67,15 +67,22 @@
             </el-form>
 
 
+            <el-row style="margin-bottom: 10px">
+
+                <el-button @click="handleDeleteNodeClass">删除该数据</el-button>
+
+            </el-row>
             <el-row>
               <el-col :span="20">属性:</el-col>
               <el-col :span="4">
                 <el-button @click="handleAddProperties">新增属性</el-button>
               </el-col>
+
             </el-row>
             <el-table v-loading="loading" :data="nodePropertiesList" @selection-change="handleSelectionChange">
               <el-table-column label="属性名" prop="name"></el-table-column>
               <el-table-column label="类型" prop="type"></el-table-column>
+              <el-table-column label="默认值" prop="defaultValue"></el-table-column>
               <el-table-column
                 label="操作"
                 align="center"
@@ -136,6 +143,9 @@
             </el-option>
           </el-select>
 <!--          <el-input v-model="" placeholder="请输入属性类型" />-->
+        </el-form-item>
+        <el-form-item label="默认值" prop="defaultValue">
+          <el-input v-model="formProperties.defaultValue" placeholder="请输入属性默认值" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -317,7 +327,7 @@ export default {
     handleAdd() {
       this.reset();
       this.open = true;
-      this.title = "添加【请填写功能名称】";
+      this.title = "添加";
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
@@ -326,7 +336,7 @@ export default {
       getClass(id).then(response => {
         this.form = response.data;
         this.open = true;
-        this.title = "修改【请填写功能名称】";
+        this.title = "修改";
       });
     },
     /** 提交按钮 */
@@ -352,7 +362,7 @@ export default {
     /** 删除按钮操作 */
     handleDelete(row) {
       const ids = row.id || this.ids;
-      this.$modal.confirm('是否确认删除【请填写功能名称】编号为"' + ids + '"的数据项？').then(function() {
+      this.$modal.confirm('是否确认删除编号为"' + ids + '"的数据项？').then(function() {
         return delClass(ids);
       }).then(() => {
         this.getList();

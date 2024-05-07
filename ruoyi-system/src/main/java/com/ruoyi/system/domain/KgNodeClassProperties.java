@@ -58,4 +58,7 @@ public class KgNodeClassProperties extends BaseEntity
     /** 修改类型，1新增，0删除 */
     @Excel(name = "修改类型，1新增，0删除")
     private Long modifyType;
+
+    // 默认值
+    private String defaultValue;
 }

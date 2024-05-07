@@ -58,4 +58,5 @@ public class KgEdgeClassProperties extends BaseEntity
     @Excel(name = "修改类型，1新增，0删除")
     private Long modityType;
 
+    private String defaultValue;
 }

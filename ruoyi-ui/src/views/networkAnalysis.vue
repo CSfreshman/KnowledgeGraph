@@ -96,7 +96,7 @@
 
             <div>
               <el-button size="medium" @click="analyse">分析</el-button>
-              <el-button size="medium" @click="reset">重置</el-button>
+<!--              <el-button size="medium" @click="reset">重置</el-button>-->
             </div>
           </div>
 
@@ -169,7 +169,7 @@
             <!--        底部按钮-->
             <div>
               <el-button size="medium" @click="analyse">分析</el-button>
-              <el-button size="medium" @click="reset">重置</el-button>
+<!--              <el-button size="medium" @click="reset">重置</el-button>-->
             </div>
           </div>
         </div>

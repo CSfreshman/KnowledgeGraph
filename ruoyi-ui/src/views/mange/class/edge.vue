@@ -86,7 +86,11 @@
 
             </el-form>
 
+            <el-row style="margin-bottom: 10px">
 
+              <el-button @click="handleDeleteNodeClass">删除该数据</el-button>
+
+            </el-row>
             <el-row>
               <el-col :span="20">属性:</el-col>
               <el-col :span="4">
@@ -96,6 +100,7 @@
             <el-table v-loading="loading" :data="edgePropertiesList" @selection-change="handleSelectionChange">
               <el-table-column label="属性名" prop="name"></el-table-column>
               <el-table-column label="类型" prop="type"></el-table-column>
+              <el-table-column label="默认值" prop="defaultValue"></el-table-column>
               <el-table-column
                 label="操作"
                 align="center"
@@ -177,6 +182,9 @@
             </el-option>
           </el-select>
           <!--          <el-input v-model="" placeholder="请输入属性类型" />-->
+        </el-form-item>
+        <el-form-item label="属性默认值" prop="name">
+          <el-input v-model="formProperties.defaultValue" placeholder="请输入属性默认值" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">

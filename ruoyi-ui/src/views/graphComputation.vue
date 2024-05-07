@@ -185,7 +185,7 @@
 
               <el-table-column
                 prop="intersect"
-                label="相似属性"
+                label="相似实体"
                 width="200">
 
               </el-table-column>
@@ -259,8 +259,8 @@ export default {
       // 中心度模型
       centerDegreeModel: [
         {id:1, name: "Degree Centrality"},
-        {id:2, name: "Close Centrality"},
-        {id:3, name: "Between Centrality"},
+        {id:2, name: "Closeness Centrality"},
+        {id:3, name: "Betweenness Centrality"},
       ],
       selectedCenterDegreeModel: 1,
       showLeft: true,

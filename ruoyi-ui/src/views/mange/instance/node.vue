@@ -69,8 +69,8 @@
 
                         align="center">
                         <template slot-scope="scope">
-                          <el-button @click="gotoDetail(scope.row)" type="text" size="small">查看</el-button>
-                          <el-button type="text" size="small">编辑</el-button>
+                          <el-button @click="gotoDetail(scope.row)" type="text" size="small">查看详情</el-button>
+<!--                          <el-button type="text" size="small"></el-button>-->
                         </template>
                       </el-table-column>
 
@@ -87,9 +87,9 @@
                   </div>
                 </el-col>
                 <el-col span="8">
-                  <el-row>
-                    <el-button>查看详情</el-button>
-                  </el-row>
+<!--                  <el-row>-->
+<!--                    <el-button>查看详情</el-button>-->
+<!--                  </el-row>-->
                   <el-row>
                     <div>
                       <el-row>
@@ -284,7 +284,7 @@ export default {
         //this.form.props.push({key:"name",value: ''})
 
         this.nodeClassPropsList.forEach(it=>{
-          this.form.props.push({key:it.name,value: ''})
+          this.form.props.push({key:it.name,value: it.defaultValue})
         })
 
         console.log(this.form)

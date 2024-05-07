@@ -144,6 +144,7 @@ public class KgEdgeInstanceServiceImpl implements IKgEdgeInstanceService
     public Integer deleteEdgeByNeo4jId(Long edgeId) {
         KgEdgeInstance instance = new KgEdgeInstance();
         instance.setNeo4jId(edgeId);
+        instance.setValid(1l);
         List<KgEdgeInstance> list1 = selectKgEdgeInstanceList(instance);
         if(ObjectUtil.isEmpty(list1)){
             return 0;

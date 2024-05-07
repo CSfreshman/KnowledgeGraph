@@ -12,7 +12,7 @@
           <el-button @click="selectIndex = 2" :type="selectIndex === 2?'primary':''">关系查询</el-button>
           <el-button @click="selectIndex = 3" :type="selectIndex === 3?'primary':''">类型联合查询</el-button>
           <el-button @click="doQuery()" icon="el-icon-search">查询</el-button>
-          <el-button @click="" icon="el-icon-delete">清空表单</el-button>
+<!--          <el-button @click="" icon="el-icon-delete">清空表单</el-button>-->
         </div>
 
         <el-form :model="formData" label-width="100px" :inline="true">
