@@ -139,7 +139,7 @@ public class KgEdgeInstanceController extends BaseController
         if(ObjectUtil.isNotNull(props)){
             for (KgEdgeInstaceProperties prop : props) {
                 prop.setId(IdUtil.getSnowflakeNextId());
-                prop.setEdgeId(edge.getId());
+                prop.setEdgeId(kgEdgeInstance.getId());
                 prop.setCreateUser(SecurityUtils.getUserId());
                 prop.setCreateTime(DateUtils.getNowDate());
                 prop.setValid(1L);

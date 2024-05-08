@@ -101,7 +101,7 @@ public class KgEdgeClassPropertiesServiceImpl implements IKgEdgeClassPropertiesS
             properties.setId(IdUtil.getSnowflakeNextId());
             properties.setName(kgEdgeClassProperties.getName());
             properties.setEdgeId(edgeInstance.getId());
-            properties.setValue("default");
+            properties.setValue(kgEdgeClassProperties.getDefaultValue());
             properties.setCreateTime(DateUtils.getNowDate());
             properties.setCreateUser(SecurityUtils.getUserId());
             edgeInstacePropertiesMapper.insertKgEdgeInstaceProperties(properties);

@@ -88,7 +88,7 @@
 
             <el-row style="margin-bottom: 10px">
 
-              <el-button @click="handleDeleteNodeClass">删除该数据</el-button>
+              <el-button @click="handleDeleteClass">删除该数据</el-button>
 
             </el-row>
             <el-row>
@@ -417,9 +417,9 @@ export default {
       });
     },
     /** 删除按钮操作 */
-    handleDelete(row) {
-      const ids = row.id || this.ids;
-      this.$modal.confirm('是否确认删除【请填写功能名称】编号为"' + ids + '"的数据项？').then(function() {
+    handleDeleteClass(row) {
+      const ids = this.mainData.id;
+      this.$modal.confirm('是否确认删除编号为"' + ids + '"的数据项？').then(function() {
         return delClass(ids);
       }).then(() => {
         this.getList();

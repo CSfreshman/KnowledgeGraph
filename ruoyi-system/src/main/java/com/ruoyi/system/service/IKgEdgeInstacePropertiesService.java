@@ -2,6 +2,7 @@ package com.ruoyi.system.service;
 
 import java.util.List;
 import com.ruoyi.system.domain.KgEdgeInstaceProperties;
+import com.ruoyi.system.req.GraphReq;
 
 /**
  * 【请填写功能名称】Service接口
@@ -60,4 +61,7 @@ public interface IKgEdgeInstacePropertiesService
     public int deleteKgEdgeInstacePropertiesById(Long id);
 
     int deleteByEdgeId(Long id);
+
+    int updateByEdgeNeo4jId(GraphReq req);
+
 }

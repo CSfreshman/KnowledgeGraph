@@ -151,7 +151,7 @@ public class KgNodeInstancePropertiesServiceImpl implements IKgNodeInstancePrope
     public int deleteByNodeId(Long nodeId){
         KgNodeInstanceProperties properties = new KgNodeInstanceProperties();
         properties.setNodeId(nodeId);
-
+        properties.setValid(1l);
         List<KgNodeInstanceProperties> propertiesList = selectKgNodeInstancePropertiesList(properties);
         if(ObjectUtil.isEmpty(propertiesList)){
             return 0;

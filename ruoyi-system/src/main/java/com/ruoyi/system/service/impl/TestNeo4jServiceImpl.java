@@ -155,6 +155,28 @@ public class TestNeo4jServiceImpl implements TestNeo4jService {
     }
 
     @Override
+    public Integer updateEdgeDetail(GraphReq req) {
+        String cypher = "MATCH ()-[n]-() WHERE id(n) = " + req.getEdgeId() + " SET ";
+        StringBuilder paramsStr = new StringBuilder();
+        for (Map.Entry<String, Object> entry : req.getProps().entrySet()) {
+            paramsStr.append("n.");
+            paramsStr.append(entry.getKey());
+            paramsStr.append(" = ").append("'");
+            paramsStr.append(entry.getValue()).append("'");
+            paramsStr.append(",");
+        }
+        if(paramsStr.length() > 0){
+            paramsStr.deleteCharAt(paramsStr.length() - 1);
+        }
+        cypher+=paramsStr;
+        System.out.println(cypher);
+        Session session = driver.session();
+        Result result = session.run(cypher);
+
+        return 0;
+    }
+
+    @Override
     public Neo4jNode insertNodeToNeo4j(Neo4jNode node) {
         Session session = driver.session();
         String query = "CREATE (n:" + node.getLabels().get(0) + " {";

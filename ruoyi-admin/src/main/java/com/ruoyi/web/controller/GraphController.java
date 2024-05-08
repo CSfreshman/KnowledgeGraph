@@ -11,6 +11,7 @@ import com.ruoyi.system.domain.*;
 import com.ruoyi.system.domain.dto.GraphDto;
 import com.ruoyi.system.mapper.KgOperationMapper;
 import com.ruoyi.system.req.GraphResp;
+import com.ruoyi.system.service.IKgEdgeInstacePropertiesService;
 import com.ruoyi.system.service.IKgNodeInstancePropertiesService;
 import com.ruoyi.system.service.TestNeo4jService;
 import com.ruoyi.system.utils.neo4j.Neo4jEdge;
@@ -31,6 +32,8 @@ public class GraphController {
     private TestNeo4jService testNeo4jService;
     @Autowired
     private IKgNodeInstancePropertiesService nodeInstancePropertiesService;
+    @Autowired
+    private IKgEdgeInstacePropertiesService edgeInstancePropertiesService;
     @Resource
     private KgOperationMapper operationMapper;
 
@@ -53,6 +56,7 @@ public class GraphController {
         return graph;
     }
 
+    // 更新节点实例
     @PostMapping("/updateNodeDetail")
     public AjaxResult updateNodeDetail(@RequestBody Map<String,Object> map){
         System.out.println(map);
@@ -69,6 +73,26 @@ public class GraphController {
         System.out.println(req);
         int res = testNeo4jService.updateNodeDetail(req);
         int res1 = nodeInstancePropertiesService.updateByNodeNeo4jId(req);
+        return AjaxResult.success();
+    }
+
+    // 更新关系实例
+    @PostMapping("/updateEdgeDetail")
+    public AjaxResult updateEdgeDetail(@RequestBody Map<String,Object> map){
+        System.out.println(map);
+        GraphReq req = new GraphReq();
+        req.setEdgeId(Long.valueOf(String.valueOf(map.get("edgeId"))));
+        //req.setProps((Map<String, Object>) );
+        Map<String, Object> reqMap = new HashMap<>();
+        List props = (List) map.get("props");
+        for (Object prop : props) {
+            Map map1 = (Map)prop;
+            reqMap.put(map1.get("key").toString(),map1.get("value"));
+        }
+        req.setProps(reqMap);
+        System.out.println(req);
+        int res = testNeo4jService.updateEdgeDetail(req);
+        int res1 = edgeInstancePropertiesService.updateByEdgeNeo4jId(req);
         return AjaxResult.success();
     }
 

@@ -130,6 +130,7 @@ public class KgNodeInstanceServiceImpl implements IKgNodeInstanceService
     public Integer deleteNodeInstanceByNeo4jId(Long nodeId) {
         KgNodeInstance instance = new KgNodeInstance();
         instance.setNeo4jId(nodeId);
+        instance.setValid(1l);
         List<KgNodeInstance> kgNodeInstances = selectKgNodeInstanceList(instance);
         if(ObjectUtil.isEmpty(kgNodeInstances)){
             return 0;

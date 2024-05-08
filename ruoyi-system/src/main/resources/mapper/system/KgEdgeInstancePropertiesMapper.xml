@@ -40,6 +40,13 @@
         where id = #{id}
     </select>
 
+    <select id="getByEdgeNeo4jId" resultMap="KgEdgeInstacePropertiesResult">
+        select eip.id, eip.edge_id, eip.name, eip.value, eip.create_time, eip.create_user, eip.valid, eip.modity_time, eip.modity_user, eip.modity_type from kg_edge_instace_properties eip
+                                                                                                                                                                 left join kg_edge_instance ei on eip.edge_id = ei.id
+        where ei.neo4j_id = #{edgeId} and ei.valid = 1 and eip.valid = 1
+    </select>
+
+
     <insert id="insertKgEdgeInstaceProperties" parameterType="KgEdgeInstaceProperties">
         insert into kg_edge_instace_properties
         <trim prefix="(" suffix=")" suffixOverrides=",">

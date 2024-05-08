@@ -283,7 +283,7 @@ export default {
 
     addEdgeInstance() {
       this.resetForm();
-      this.title = "添加新的关系类型";
+      this.title = "添加新的关系实例";
       this.open = true;
       this.form.classId = this.selectedEdgeClass.id;
       this.form.label = this.selectedEdgeClass.label;

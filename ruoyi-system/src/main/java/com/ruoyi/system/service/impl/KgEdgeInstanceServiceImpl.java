@@ -107,10 +107,12 @@ public class KgEdgeInstanceServiceImpl implements IKgEdgeInstanceService
         KgEdgeInstance instance = new KgEdgeInstance();
         // 起点或者终点都需要删除
         instance.setFromNodeNeo4jId(nodeId);
+        instance.setValid(1l);
         List<KgEdgeInstance> list1 = selectKgEdgeInstanceList(instance);
 
         KgEdgeInstance newInstance = new KgEdgeInstance();
         newInstance.setToNodeNeo4jId(nodeId);
+        newInstance.setValid(1l);
         List<KgEdgeInstance> list2 = selectKgEdgeInstanceList(newInstance);
 
         list1.addAll(list2);

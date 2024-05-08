@@ -7,16 +7,16 @@ import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
-import com.ruoyi.system.domain.KgEdgeClassProperties;
-import com.ruoyi.system.domain.KgNodeClass;
+import com.ruoyi.system.domain.*;
 import com.ruoyi.system.mapper.KgEdgeClassPropertiesMapper;
 import com.ruoyi.system.mapper.KgEdgeInstacePropertiesMapper;
 import com.ruoyi.system.mapper.KgNodeClassMapper;
+import com.ruoyi.system.req.GraphReq;
+import com.ruoyi.system.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.ruoyi.system.mapper.KgEdgeClassMapper;
-import com.ruoyi.system.domain.KgEdgeClass;
-import com.ruoyi.system.service.IKgEdgeClassService;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * 【请填写功能名称】Service业务层处理
@@ -35,6 +35,16 @@ public class KgEdgeClassServiceImpl implements IKgEdgeClassService
 
     @Autowired
     private KgEdgeClassPropertiesMapper edgeClassPropertiesMapper;
+    @Autowired
+    private IKgEdgeClassPropertiesService edgeClassPropertiesService;
+    @Autowired
+    private IKgHistoryService historyService;
+
+    @Autowired
+    private IKgEdgeInstanceService edgeInstanceService;
+    @Autowired
+    private TestNeo4jService neo4jService;
+
     /**
      * 查询【请填写功能名称】
      *
@@ -278,18 +288,64 @@ public class KgEdgeClassServiceImpl implements IKgEdgeClassService
     @Override
     public int deleteKgEdgeClassByIds(Long[] ids)
     {
-        return kgEdgeClassMapper.deleteKgEdgeClassByIds(ids);
+        if(ObjectUtil.isEmpty(ids)){
+            return 0;
+        }
+        int count = 0;
+        for (Long id : ids) {
+            count+=deleteKgEdgeClassById(id);
+        }
+        return count;
     }
 
     /**
-     * 删除【请填写功能名称】信息
-     *
-     * @param id 【请填写功能名称】主键
-     * @return 结果
+     * 根据id删除关系类型
      */
+    @Transactional
     @Override
     public int deleteKgEdgeClassById(Long id)
     {
-        return kgEdgeClassMapper.deleteKgEdgeClassById(id);
+        // 查询到该id的数据
+        KgEdgeClass edgeClass = selectKgEdgeClassById(id);
+        // 逻辑删除
+        edgeClass.setValid(0l);
+        updateKgEdgeClass(edgeClass);
+
+        // 历史记录
+        KgHistory history = new KgHistory();
+        history.setType(2);
+        history.setTargetType(5);
+        history.setTargetId(edgeClass.getId());
+        history.setTargetName(edgeClass.getLabel());
+        historyService.insertKgHistory(history);
+
+
+        // 删除属性
+        KgEdgeClassProperties edgeClassProperties = new KgEdgeClassProperties();
+        edgeClassProperties.setEdgeId(id);
+        edgeClassProperties.setValid(1l);
+        List<KgEdgeClassProperties> kgEdgeClassProperties = edgeClassPropertiesMapper.selectKgEdgeClassPropertiesList(edgeClassProperties);
+        List<Long> collectIds = kgEdgeClassProperties.stream().map(it -> it.getId()).collect(Collectors.toList());
+        edgeClassPropertiesService.deleteKgEdgeClassPropertiesByIds(collectIds.toArray(new Long[0]));
+
+
+        // 删除该类型所有的关系实例
+        KgEdgeInstance instance = new KgEdgeInstance();
+        instance.setClassId(id);
+        instance.setValid(1l);
+
+        List<KgEdgeInstance> edgeInstances = edgeInstanceService.selectKgEdgeInstanceList(instance);
+        if(ObjectUtil.isNotEmpty(edgeInstances)){
+            for (KgEdgeInstance edgeInstance : edgeInstances) {
+                // 删除neo4j实例和mysql实例
+                GraphReq req = new GraphReq();
+                req.setEdgeId(edgeInstance.getNeo4jId());
+                neo4jService.deleteEdgeByNeo4jId(req);
+
+            }
+
+        }
+
+        return 1;
     }
 }

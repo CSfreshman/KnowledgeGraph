@@ -24,6 +24,14 @@ export function updateNodeDetail(nodeData) {
   })
 }
 
+export function updateEdgeDetail(edgeData) {
+  return request({
+    url: '/graph/updateEdgeDetail',
+    method: 'post',
+    data: edgeData
+  })
+}
+
 export function deleteNode(nodeId) {
   return request({
     url: '/graph/deleteNode',

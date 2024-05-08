@@ -1,16 +1,21 @@
 package com.ruoyi.system.service.impl;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
+import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.system.domain.KgHistory;
+import com.ruoyi.system.domain.KgNodeInstanceProperties;
+import com.ruoyi.system.req.GraphReq;
 import com.ruoyi.system.service.IKgHistoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.ruoyi.system.mapper.KgEdgeInstacePropertiesMapper;
 import com.ruoyi.system.domain.KgEdgeInstaceProperties;
 import com.ruoyi.system.service.IKgEdgeInstacePropertiesService;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * 【请填写功能名称】Service业务层处理
@@ -103,7 +108,7 @@ public class KgEdgeInstacePropertiesServiceImpl implements IKgEdgeInstacePropert
     public int deleteByEdgeId(Long edgeId){
         KgEdgeInstaceProperties properties = new KgEdgeInstaceProperties();
         properties.setId(edgeId);
-
+        properties.setValid(1l);
         List<KgEdgeInstaceProperties> kgEdgeInstaceProperties = selectKgEdgeInstacePropertiesList(properties);
         if(ObjectUtil.isEmpty(kgEdgeInstaceProperties)){
             return 0;
@@ -123,5 +128,44 @@ public class KgEdgeInstacePropertiesServiceImpl implements IKgEdgeInstacePropert
 
         return kgEdgeInstaceProperties.size();
 
+    }
+
+    // 根据neo4jId修改节点属性
+    @Override
+    @Transactional
+    public int updateByEdgeNeo4jId(GraphReq req){
+        List<KgEdgeInstaceProperties> byEdgeNeo4jId = kgEdgeInstacePropertiesMapper.getByEdgeNeo4jId(req.getEdgeId());
+        System.out.println(byEdgeNeo4jId);
+
+        // 所有需要修改的记录
+
+        List<KgEdgeInstaceProperties> updateList = byEdgeNeo4jId.stream().filter(it -> req.getProps().keySet().contains(it.getName())).collect(Collectors.toList());
+        System.out.println(updateList);
+
+        int count = 0;
+        for (KgEdgeInstaceProperties properties : updateList) {
+            // 历史记录
+            KgHistory history = new KgHistory();
+            history.setType(3);
+            history.setTargetType(8);
+            history.setTargetId(properties.getId());
+            history.setTargetName(properties.getName());
+            history.setOriginValue(properties.getValue());
+            history.setCurValue(req.getProps().get(properties.getName()).toString());
+            historyService.insertKgHistory(history);
+
+            // 更新原始属性记录
+            properties.setValid(0l);
+            kgEdgeInstacePropertiesMapper.updateKgEdgeInstaceProperties(properties);
+
+            // 新增一条新的记录
+            properties.setValue(req.getProps().get(properties.getName()).toString());
+            properties.setId(IdUtil.getSnowflakeNextId());
+            properties.setValid(1l);
+            insertKgEdgeInstaceProperties(properties);
+            count++;
+
+        }
+        return count;
     }
 }

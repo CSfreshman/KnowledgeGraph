@@ -118,11 +118,12 @@
 </template>
 
 <script>
-import {getNodeDetail, updateNodeDetail, deleteNode, getSingleEdgeByEdgeId} from "@/api/nodeDetail"
+import {getNodeDetail, updateNodeDetail, deleteNode, getSingleEdgeByEdgeId, updateEdgeDetail} from "@/api/nodeDetail"
 import vis from "vis";
 import {config} from "@/assets/test/defaultConfig";
 import VisGraph from "@/assets/test/js/graphvis.20230812";
 import LayoutFactory from "@/assets/test/js/graphvis.layout.min";
+import {deleteEdge} from "@/api/graph";
 
 export default {
   name: "node",
@@ -145,6 +146,7 @@ export default {
       open: false,
       form: {
         nodeId: '', // 节点id
+        edgeId: '',
         props: []
       },
 
@@ -329,6 +331,7 @@ export default {
     updateProp(row) {
       console.log(row)
       this.form.nodeId = this.nodeId;
+      this.form.edgeId = this.edgeId;
       this.form.props = [];
       this.form.props.push({key: row.key, value: row.value})
       this.open = true;
@@ -344,7 +347,9 @@ export default {
         })
       }else{
         // 关系
-
+        updateEdgeDetail(this.form).then(resp=>{
+          this.getEdgeDetail(this.edgeId);
+        })
       }
 
     },
@@ -363,7 +368,7 @@ export default {
           })
         })
       }else{
-        deleteEdge(this.edgeId).then(resp=>{
+        deleteEdge({edgeId:this.edgeId}).then(resp=>{
           this.$router.push({
             path: '/graph'
           })
