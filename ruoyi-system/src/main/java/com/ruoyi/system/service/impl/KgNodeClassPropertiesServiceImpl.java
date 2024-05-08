@@ -100,6 +100,17 @@ public class KgNodeClassPropertiesServiceImpl implements IKgNodeClassPropertiesS
         instance.setValid(1l);
         List<KgNodeInstance> kgNodeInstances = nodeInstanceMapper.selectKgNodeInstanceList(instance);
         for (KgNodeInstance kgNodeInstance : kgNodeInstances) {
+            // 先判断该节点有没有这个属性
+//            KgNodeInstanceProperties properties1 = new KgNodeInstanceProperties();
+//            properties1.setValid(1l);
+//            properties1.setName(kgNodeClassProperties.getName());
+//            properties1.setNodeId(kgNodeInstance.getId());
+//            List<KgNodeInstanceProperties> propertiesList = nodeInstancePropertiesMapper.selectKgNodeInstancePropertiesList(properties1);
+//            if(ObjectUtil.isNotEmpty(propertiesList)){
+//                // 已经存在该属性就不添加
+//                continue;
+//            }
+
             // 构造属性
             KgNodeInstanceProperties properties = new KgNodeInstanceProperties();
             properties.setValid(1l);

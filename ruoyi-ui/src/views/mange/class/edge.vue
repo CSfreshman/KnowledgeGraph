@@ -111,6 +111,14 @@
                   <el-button
                     size="mini"
                     type="text"
+                    icon="el-icon-edit"
+                    @click="handleUpdate(scope.row)"
+                    v-hasPermi="['system:user:remove']"
+                  >修改
+                  </el-button>
+                  <el-button
+                    size="mini"
+                    type="text"
                     icon="el-icon-delete"
                     @click="handleDeleteProperties(scope.row)"
                     v-hasPermi="['system:user:remove']"
@@ -184,7 +192,7 @@
           <!--          <el-input v-model="" placeholder="请输入属性类型" />-->
         </el-form-item>
         <el-form-item label="属性默认值" prop="name">
-          <el-input v-model="formProperties.defaultValue" placeholder="请输入属性默认值" />
+          <el-input v-model="formProperties.defaultValue" @input="changeMessage" placeholder="请输入属性默认值" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -206,6 +214,7 @@ export default {
   name: "edge",
   data() {
     return {
+      editProp: false,
       // 遮罩层
       loading: true,
       // 选中数组
@@ -387,13 +396,14 @@ export default {
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
-      this.reset();
-      const id = row.id || this.ids
-      getClass(id).then(response => {
-        this.form = response.data;
-        this.open = true;
-        this.title = "修改【请填写功能名称】";
-      });
+      this.resetProperties();
+      this.editProp = true;
+      this.titleProperties = "修改属性";
+      this.openProperties = true;
+      this.formProperties.name = row.name;
+      this.formProperties.type = row.type;
+      this.formProperties.defaultValue = row.defaultValue;
+      this.formProperties.id = row.id;
     },
     /** 提交按钮 */
     submitForm() {
@@ -469,13 +479,14 @@ export default {
     submitFormProperties() {
       this.$refs["form"].validate(valid => {
         if (valid) {
-          if (this.formProperties.id != null) {
-            updateClassProperties(this.form).then(response => {
+          if(this.editProp){
+            this.formProperties.edgeId = this.mainData.id;
+            updateClassProperties(this.formProperties).then(response => {
               this.$modal.msgSuccess("修改成功");
               this.openProperties = false;
-                this.queryEdgeProperties(this.mainData.id);
+              this.queryEdgeProperties(this.mainData.id);
             });
-          } else {
+          }else{
             this.formProperties.edgeId = this.mainData.id;
             this.formProperties.valid = 1
             addClassProperties(this.formProperties).then(response => {
@@ -484,9 +495,17 @@ export default {
               this.queryEdgeProperties(this.mainData.id);
             });
           }
+          if (this.formProperties.id != null) {
+
+          } else {
+
+          }
         }
       });
-    }
+    },
+    changeMessage(){
+      this.$forceUpdate()
+    },
   }
 
 }

@@ -93,6 +93,14 @@
                   <el-button
                     size="mini"
                     type="text"
+                    icon="el-icon-edit"
+                    @click="handleUpdate(scope.row)"
+                    v-hasPermi="['system:user:remove']"
+                  >修改
+                  </el-button>
+                  <el-button
+                    size="mini"
+                    type="text"
                     icon="el-icon-delete"
                     @click="handleDeleteProperties(scope.row)"
                     v-hasPermi="['system:user:remove']"
@@ -129,7 +137,7 @@
 
     <!-- 添加或修改【请填写功能名称】对话框 -->
     <el-dialog :title="titleProperties" :visible.sync="openProperties" width="500px" append-to-body>
-      <el-form ref="form" :model="formProperties" :rules="rulesProperties" label-width="80px">
+      <el-form ref="form" :model="formProperties" label-width="80px">
         <el-form-item label="属性名" prop="name">
           <el-input v-model="formProperties.name" placeholder="请输入属性名(不能以数字开头)" />
         </el-form-item>
@@ -145,7 +153,12 @@
 <!--          <el-input v-model="" placeholder="请输入属性类型" />-->
         </el-form-item>
         <el-form-item label="默认值" prop="defaultValue">
-          <el-input v-model="formProperties.defaultValue" placeholder="请输入属性默认值" />
+          <div v-if="formProperties.name === 'color'">
+            <el-color-picker v-model="formProperties.defaultValue" :color-format="'rgb'" :show-alpha="false"></el-color-picker>
+          </div>
+          <div v-if="formProperties.name != 'color'">
+            <el-input v-model="formProperties.defaultValue" @input="changeMessage" placeholder="请输入属性默认值" />
+          </div>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -165,6 +178,7 @@ export default {
   name: "node",
   data() {
     return {
+      editProp: false,
       // 遮罩层
       loading: true,
       // 选中数组
@@ -229,12 +243,7 @@ export default {
         type: [
           { required: true, message: "属性类型不能为空", trigger: "change" }
         ],
-        nodeId: [
-          { required: true, message: "外键不能为空", trigger: "blur" }
-        ],
-        valid: [
-          { required: true, message: "是否有效，1有效，0无效不能为空", trigger: "blur" }
-        ],
+
       },
       mainNode: '',
       nodePropertiesList: [],
@@ -261,6 +270,9 @@ export default {
     this.getList();
   },
   methods: {
+    changeMessage(){
+      this.$forceUpdate()
+    },
     /** 查询【请填写功能名称】列表 */
     getList() {
       this.loading = true;
@@ -331,13 +343,15 @@ export default {
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
-      this.reset();
-      const id = row.id || this.ids
-      getClass(id).then(response => {
-        this.form = response.data;
-        this.open = true;
-        this.title = "修改";
-      });
+      this.resetProperties();
+      this.editProp = true;
+      this.titleProperties = "修改属性";
+      this.openProperties = true;
+      this.formProperties.name = row.name;
+      this.formProperties.type = row.type;
+      this.formProperties.defaultValue = row.defaultValue;
+      this.formProperties.id = row.id;
+
     },
     /** 提交按钮 */
     submitForm() {
@@ -412,19 +426,26 @@ export default {
     submitFormProperties() {
       this.$refs["form"].validate(valid => {
         if (valid) {
-          if (this.formProperties.id != null) {
-            updateNodeProperties(this.form).then(response => {
+          if(this.editProp){
+            this.formProperties.nodeId = this.mainNode.id;
+            updateNodeProperties(this.formProperties).then(response => {
               this.$modal.msgSuccess("修改成功");
               this.openProperties = false;
+              this.editProp = false;
               this.queryNodeProperties(this.mainNode.id);
             });
-          } else {
+          }else{
             this.formProperties.nodeId = this.mainNode.id;
             addNodeProperties(this.formProperties).then(response => {
               this.$modal.msgSuccess("新增成功");
               this.openProperties = false;
               this.queryNodeProperties(this.mainNode.id);
             });
+          }
+          if (this.formProperties.id != null) {
+
+          } else {
+
           }
         }
       });
