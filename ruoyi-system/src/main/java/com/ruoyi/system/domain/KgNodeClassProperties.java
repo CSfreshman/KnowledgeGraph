@@ -61,4 +61,7 @@ public class KgNodeClassProperties extends BaseEntity
 
     // 默认值
     private String defaultValue;
+
+    // 原始值，用于历史记录
+    private String originValue;
 }

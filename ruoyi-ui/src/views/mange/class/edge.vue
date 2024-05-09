@@ -404,6 +404,7 @@ export default {
       this.formProperties.type = row.type;
       this.formProperties.defaultValue = row.defaultValue;
       this.formProperties.id = row.id;
+      this.formProperties.originValue = row.defaultValue;
     },
     /** 提交按钮 */
     submitForm() {

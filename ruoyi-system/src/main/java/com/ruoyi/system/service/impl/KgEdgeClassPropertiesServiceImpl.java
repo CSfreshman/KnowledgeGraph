@@ -123,6 +123,19 @@ public class KgEdgeClassPropertiesServiceImpl implements IKgEdgeClassPropertiesS
     @Override
     public int updateKgEdgeClassProperties(KgEdgeClassProperties kgEdgeClassProperties)
     {
+        // 添加修改记录
+        KgHistory history = new KgHistory();
+        // 新增
+        history.setType(3);
+        history.setTargetType(6);
+        history.setTargetId(kgEdgeClassProperties.getId());
+        history.setTargetName(kgEdgeClassProperties.getName());
+        history.setOriginValue(kgEdgeClassProperties.getOriginValue());
+        history.setCurValue(kgEdgeClassProperties.getDefaultValue());
+        historyService.insertKgHistory(history);
+
+        kgEdgeClassProperties.setModityTime(DateUtils.getNowDate());
+        kgEdgeClassProperties.setModityUser(SecurityUtils.getUserId());
         return kgEdgeClassPropertiesMapper.updateKgEdgeClassProperties(kgEdgeClassProperties);
     }
 
@@ -188,8 +201,9 @@ public class KgEdgeClassPropertiesServiceImpl implements IKgEdgeClassPropertiesS
             neo4jService.removePropByEdgeId(edgeInstance.getNeo4jId(),properties.getName(),"");
         }
 
+        kgEdgeClassProperties.setModityTime(DateUtils.getNowDate());
+        kgEdgeClassProperties.setModityUser(SecurityUtils.getUserId());
 
-
-        return updateKgEdgeClassProperties(kgEdgeClassProperties);
+        return kgEdgeClassPropertiesMapper.updateKgEdgeClassProperties(kgEdgeClassProperties);
     }
 }

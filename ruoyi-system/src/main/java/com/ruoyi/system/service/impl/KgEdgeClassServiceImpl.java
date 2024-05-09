@@ -184,6 +184,15 @@ public class KgEdgeClassServiceImpl implements IKgEdgeClassService
         kgEdgeClass.setCreateTime(DateUtils.getNowDate());
         kgEdgeClass.setId(IdUtil.getSnowflakeNextId());
         kgEdgeClass.setCreateUser(SecurityUtils.getUserId());
+
+        // 历史记录
+        KgHistory history = new KgHistory();
+        history.setType(1);
+        history.setTargetType(5);
+        history.setTargetId(kgEdgeClass.getId());
+        history.setTargetName(kgEdgeClass.getLabel());
+        historyService.insertKgHistory(history);
+
         return kgEdgeClassMapper.insertKgEdgeClass(kgEdgeClass);
     }
 

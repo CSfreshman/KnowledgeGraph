@@ -140,6 +140,20 @@ public class KgNodeClassPropertiesServiceImpl implements IKgNodeClassPropertiesS
     @Override
     public int updateKgNodeClassProperties(KgNodeClassProperties kgNodeClassProperties)
     {
+        // 添加修改记录
+        KgHistory history = new KgHistory();
+        // 新增
+        history.setType(3);
+        history.setTargetType(2);
+        history.setTargetId(kgNodeClassProperties.getId());
+        history.setTargetName(kgNodeClassProperties.getName());
+        history.setOriginValue(kgNodeClassProperties.getOriginValue());
+        history.setCurValue(kgNodeClassProperties.getDefaultValue());
+        historyService.insertKgHistory(history);
+
+
+        kgNodeClassProperties.setModifyTime(DateUtils.getNowDate());
+        kgNodeClassProperties.setModifyUser(SecurityUtils.getUserId());
         return kgNodeClassPropertiesMapper.updateKgNodeClassProperties(kgNodeClassProperties);
     }
 
@@ -201,7 +215,9 @@ public class KgNodeClassPropertiesServiceImpl implements IKgNodeClassPropertiesS
             neo4jService.removePropByNodeId(kgNodeInstance.getNeo4jId(),properties.getName(),"");
         }
         // 更新数据
-        return updateKgNodeClassProperties(kgNodeClassProperties);
+        kgNodeClassProperties.setModifyTime(DateUtils.getNowDate());
+        kgNodeClassProperties.setModifyUser(SecurityUtils.getUserId());
+        return kgNodeClassPropertiesMapper.updateKgNodeClassProperties(kgNodeClassProperties);
 
     }
 }

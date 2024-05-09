@@ -69,7 +69,7 @@
 
             <el-row style="margin-bottom: 10px">
 
-                <el-button @click="handleDeleteNodeClass">删除该数据</el-button>
+                <el-button @click="handleDeleteClass">删除该数据</el-button>
 
             </el-row>
             <el-row>
@@ -351,7 +351,7 @@ export default {
       this.formProperties.type = row.type;
       this.formProperties.defaultValue = row.defaultValue;
       this.formProperties.id = row.id;
-
+      this.formProperties.originValue = row.defaultValue;
     },
     /** 提交按钮 */
     submitForm() {
@@ -374,8 +374,8 @@ export default {
       });
     },
     /** 删除按钮操作 */
-    handleDelete(row) {
-      const ids = row.id || this.ids;
+    handleDeleteClass(row) {
+      const ids = this.mainNode.id;
       this.$modal.confirm('是否确认删除编号为"' + ids + '"的数据项？').then(function() {
         return delClass(ids);
       }).then(() => {

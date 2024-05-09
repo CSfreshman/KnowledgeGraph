@@ -179,7 +179,7 @@ public class TestNeo4jServiceImpl implements TestNeo4jService {
     @Override
     public Neo4jNode insertNodeToNeo4j(Neo4jNode node) {
         Session session = driver.session();
-        String query = "CREATE (n:" + node.getLabels().get(0) + " {";
+        String query = "CREATE (n:`" + node.getLabels().get(0) + "` {";
         StringBuilder builder = new StringBuilder();
         // 构造Cypher语句
         for (Map.Entry<String, Object> entry : node.getProps().entrySet()) {
@@ -218,7 +218,7 @@ public class TestNeo4jServiceImpl implements TestNeo4jService {
     public Neo4jEdge addEdge(KgEdgeInstance kgEdgeInstance) {
         String cypher = "MATCH (startNode) WHERE ID(startNode) = " + kgEdgeInstance.getFromNodeNeo4jId() + "\n"
                 + "MATCH (endNode) WHERE ID(endNode) = " + kgEdgeInstance.getToNodeNeo4jId() + "\n"
-                + "CREATE (startNode)-[r:" + kgEdgeInstance.getLabel() + " {";
+                + "CREATE (startNode)-[r:`" + kgEdgeInstance.getLabel() + "` {";
         StringBuilder builder = new StringBuilder();
         if(!ObjectUtil.isNull(kgEdgeInstance.getProps())){
             for (KgEdgeInstaceProperties prop : kgEdgeInstance.getProps()) {
@@ -403,14 +403,14 @@ public class TestNeo4jServiceImpl implements TestNeo4jService {
         if(ObjectUtil.isNotEmpty(req.getEdgeClassList())){
 
             for (KgEdgeClass edgeClass : req.getEdgeClassList()) {
-                builderEdge.append("|").append(edgeClass.getLabel());
+                builderEdge.append("|").append("`" + edgeClass.getLabel() + "`");
             }
             builderEdge.deleteCharAt(0);
         }
 
         if(ObjectUtil.isNotEmpty(req.getNodeClassList())){
             for (KgNodeClass nodeClass : req.getNodeClassList()) {
-                builderNode.append("|").append(nodeClass.getName());
+                builderNode.append("|").append("`" + nodeClass.getName() + "`");
             }
             builderNode.deleteCharAt(0);
         }

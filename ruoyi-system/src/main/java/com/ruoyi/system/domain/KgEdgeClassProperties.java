@@ -59,4 +59,6 @@ public class KgEdgeClassProperties extends BaseEntity
     private Long modityType;
 
     private String defaultValue;
+
+    private String originValue;
 }

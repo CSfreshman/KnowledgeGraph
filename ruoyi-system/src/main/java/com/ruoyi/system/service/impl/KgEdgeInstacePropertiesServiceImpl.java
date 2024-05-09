@@ -107,7 +107,7 @@ public class KgEdgeInstacePropertiesServiceImpl implements IKgEdgeInstacePropert
     @Override
     public int deleteByEdgeId(Long edgeId){
         KgEdgeInstaceProperties properties = new KgEdgeInstaceProperties();
-        properties.setId(edgeId);
+        properties.setEdgeId(edgeId);
         properties.setValid(1l);
         List<KgEdgeInstaceProperties> kgEdgeInstaceProperties = selectKgEdgeInstacePropertiesList(properties);
         if(ObjectUtil.isEmpty(kgEdgeInstaceProperties)){

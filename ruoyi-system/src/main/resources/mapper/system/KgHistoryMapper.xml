@@ -29,7 +29,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="targetName != null  and targetName != ''"> and target_name like concat('%', #{targetName}, '%')</if>
             <if test="originValue != null  and originValue != ''"> and origin_value = #{originValue}</if>
             <if test="curValue != null  and curValue != ''"> and cur_value = #{curValue}</if>
-            <if test="time != null "> and time = #{time}</if>
+            <if test="time != null "> and DATE(time) = #{time}</if>
             <if test="userId != null "> and user_id = #{userId}</if>
         </where>
         ORDER BY `time` DESC
