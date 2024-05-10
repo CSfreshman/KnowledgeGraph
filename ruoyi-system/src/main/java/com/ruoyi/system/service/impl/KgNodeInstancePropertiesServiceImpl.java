@@ -134,6 +134,8 @@ public class KgNodeInstancePropertiesServiceImpl implements IKgNodeInstancePrope
 
             // 更新原始属性记录
             properties.setValid(0l);
+            properties.setModityTime(DateUtils.getNowDate());
+            properties.setModityUser(SecurityUtils.getUserId());
             kgNodeInstancePropertiesMapper.updateKgNodeInstanceProperties(properties);
 
             // 新增一条新的记录

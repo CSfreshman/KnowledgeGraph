@@ -12,14 +12,11 @@ import com.ruoyi.system.domain.*;
 import com.ruoyi.system.mapper.KgNodeClassPropertiesMapper;
 import com.ruoyi.system.myEnum.HistoryEnum;
 import com.ruoyi.system.req.GraphReq;
-import com.ruoyi.system.service.IKgNodeClassPropertiesService;
-import com.ruoyi.system.service.IKgNodeInstanceService;
-import com.ruoyi.system.service.TestNeo4jService;
+import com.ruoyi.system.service.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.ruoyi.system.mapper.KgNodeClassMapper;
-import com.ruoyi.system.service.IKgNodeClassService;
 
 /**
  * 【请填写功能名称】Service业务层处理
@@ -45,7 +42,8 @@ public class KgNodeClassServiceImpl implements IKgNodeClassService
     private IKgNodeInstanceService kgNodeInstanceService;
     @Autowired
     private TestNeo4jService neo4jService;
-
+    @Autowired
+    private IKgEdgeClassService kgEdgeClassService;
 
     /**
      * 查询【请填写功能名称】
@@ -173,6 +171,19 @@ public class KgNodeClassServiceImpl implements IKgNodeClassService
         List<KgNodeClassProperties> kgNodeClassProperties = kgNodeClassPropertiesMapper.selectKgNodeClassPropertiesList(nodeClassProperties);
         List<Long> collectIds = kgNodeClassProperties.stream().map(it -> it.getId()).collect(Collectors.toList());
         kgNodeClassPropertiesService.deleteKgNodeClassPropertiesByIds(collectIds.toArray(new Long[0]));
+
+        // 删除以该类型为起点或终点的关系类型
+        KgEdgeClass edgeClass = new KgEdgeClass();
+        KgEdgeClass edgeClass1 = new KgEdgeClass();
+        edgeClass.setValid(1l);
+        edgeClass1.setValid(1l);
+        edgeClass.setFromNodeId(id);
+        edgeClass1.setFromNodeId(id);
+        List<KgEdgeClass> kgEdgeClasses = kgEdgeClassService.selectKgEdgeClassList(edgeClass);
+        List<KgEdgeClass> kgEdgeClasses1 = kgEdgeClassService.selectKgEdgeClassList(edgeClass1);
+        kgEdgeClasses.addAll(kgEdgeClasses1);
+        Long[] longs = kgEdgeClasses.stream().map(it -> it.getId()).collect(Collectors.toList()).toArray(new Long[0]);
+        kgEdgeClassService.deleteKgEdgeClassByIds(longs);
 
         // 删除该类型所有的实例
         KgNodeInstance instance = new KgNodeInstance();

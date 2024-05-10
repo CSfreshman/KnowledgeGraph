@@ -67,7 +67,7 @@ spring:
       enabled: true
   # neo4j 配置
   neo4j:
-    uri: bolt://8.130.96.64:7687
+    uri: bolt://localhost:7687
     authentication:
       username: neo4j
       password: 809434255wzw

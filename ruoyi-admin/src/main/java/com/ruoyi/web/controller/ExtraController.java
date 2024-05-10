@@ -68,7 +68,7 @@ public class ExtraController {
             "、",
     };
 
-    private static Driver driver = GraphDatabase.driver("bolt://8.130.96.64:7687", AuthTokens.basic("neo4j", "809434255wzw"));
+    private static Driver driver = GraphDatabase.driver("bolt://localhost:7687", AuthTokens.basic("neo4j", "809434255wzw"));
 
     @Autowired
     private RedisCache redisCache;

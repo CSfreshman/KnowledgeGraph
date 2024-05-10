@@ -25,7 +25,10 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -42,12 +45,17 @@ public class TestNeo4jServiceImpl implements TestNeo4jService {
     @Autowired
     private IKgEdgeInstanceService edgeInstanceService;
 
-    private Driver driver = GraphDatabase.driver("bolt://8.130.96.64:7687", AuthTokens.basic("neo4j", "809434255wzw"));
+    Config config = Config.builder()
+            .withMaxConnectionLifetime(30, TimeUnit.MINUTES)
+            .withMaxConnectionPoolSize(50)
+            .withConnectionAcquisitionTimeout(2,TimeUnit.MINUTES)
+            .build();
+    private Driver driver = GraphDatabase.driver("bolt://localhost:7687", AuthTokens.basic("neo4j", "809434255wzw"),config);
 
     public Neo4jGraph doTestNeo4j(){
         String cypher = "MATCH (n) RETURN n";
         String cypher1 = "MATCH p=()-->() RETURN p";
-        Driver driver = GraphDatabase.driver("bolt://8.130.96.64:7687", AuthTokens.basic("neo4j", "809434255wzw"));
+        Driver driver = GraphDatabase.driver("bolt://localhost:7687", AuthTokens.basic("neo4j", "809434255wzw"),config);
         Session session = driver.session();
 
         Result result = session.run(cypher);
@@ -62,7 +70,7 @@ public class TestNeo4jServiceImpl implements TestNeo4jService {
 
     public Neo4jGraph doTestNeo4j1(){
         String cypher = "MATCH p=()-[r:`检查方法`]->() RETURN p";
-        Driver driver = GraphDatabase.driver("bolt://8.130.96.64:7687", AuthTokens.basic("neo4j", "809434255wzw"));
+        Driver driver = GraphDatabase.driver("bolt://localhost:7687", AuthTokens.basic("neo4j", "809434255wzw"));
         Session session = driver.session();
 
         Result result = session.run(cypher);
@@ -512,8 +520,9 @@ public class TestNeo4jServiceImpl implements TestNeo4jService {
                     "ORDER BY followers DESC";
         }else if(model == 2){
             System.out.println("执行 接近中心度 计算");
+            String test = createGraphProject1("test", createNodeClassStr(req.getNodeClassList()), getEdgeClassByNodeClass(createNodeClassStr(req.getNodeClassList())));
             // 接近中心度
-            cypher = "CALL gds.closeness.stream('" + centralityName + "')\n" +
+            cypher = "CALL gds.closeness.stream('" + test + "')\n" +
                     "YIELD nodeId, score\n" +
                     "RETURN gds.util.asNode(nodeId), score AS followers\n" +
                     "ORDER BY followers DESC";
@@ -581,10 +590,56 @@ public class TestNeo4jServiceImpl implements TestNeo4jService {
         }
         System.out.println(map);
 
-        dropGraphProject(centralityName);
+        if(model == 2){
 
+//            // 接近中心度
+//            String cypher3 = "CALL gds.closeness.stream('" + test + "')\n" +
+//                    "YIELD nodeId, score\n" +
+//                    "RETURN gds.util.asNode(nodeId), score AS followers\n" +
+//                    "ORDER BY followers DESC";
+//            Result run = driver.session().run(cypher3);
+
+
+        }
+
+//        if(model == 2){
+//            List<Map.Entry<Object, Double>> collect = map.entrySet().stream().filter(entry -> Double.compare(entry.getValue(), 0f) == 0).collect(Collectors.toList());
+//            System.out.println(collect);
+//
+//            String cypher3 = "MATCH (a)\n" +
+//                    "WHERE id(a) = PARAMID\n" +
+//                    "MATCH path = (a)-[*]->(b)\n" +
+//                    "with a, b\n" +
+//                    "MATCH p=shortestPath((a)-[*]->(b))\n" +
+//                    "RETURN DISTINCT length(p) AS shortestPathLength,a,b";
+//
+//            for (Map.Entry<Object, Double> entry : collect) {
+//                Neo4jNode node = (Neo4jNode) entry.getKey();
+//                String paramid = cypher3.replaceFirst("PARAMID", node.getId().toString());
+//                System.out.println(paramid);
+//                Result run = driver.session().run(paramid);
+//                double length = 0;
+//                double nodeCount = 0;
+//                for (Record record : run.list()) {
+//                    List<Value> values = record.values();
+//                    length += values.get(0).asInt();
+//                    nodeCount++;
+//                }
+//                System.out.println(length);
+//
+//                System.out.println(nodeCount);
+//                map.put(entry.getKey(), (nodeCount / length));
+//            }
+
+//        }
+//       dropGraphProject(centralityName);
         return map;
 
+    }
+
+    // 针对入度为0的节点计算CC
+    public Object closenessUtil(Object node){
+        return null;
     }
 
     public String createNodeClassStr(List<KgNodeClass> list){
@@ -635,12 +690,38 @@ public class TestNeo4jServiceImpl implements TestNeo4jService {
         return name;
     }
 
+    public String createGraphProject1(String projectName,String nodeClassListStr,List<String> edgeClassList){
+        StringBuilder test = new StringBuilder();
+        for (String s : edgeClassList) {
+            test.append(',');
+            test.append(s).append(":{orientation: 'UNDIRECTED' }");
+        }
+        test.deleteCharAt(0);
+
+
+        String name = projectName +"-"+ LocalDateTime.now();
+        String cypher = "CALL gds.graph.project('" + name  + "'" +
+                // 如果类型列表为空，就匹配全部的类型
+                "," + (ObjectUtil.isEmpty(nodeClassListStr) ? "'*'" : nodeClassListStr) +
+                "," +
+                "{" +
+                test +
+                "}" +
+                ") YIELD graphName";
+        System.out.println("createGraphProject:cypher:\n");
+        System.out.println(cypher);
+
+        driver.session().run(cypher);
+
+        return name;
+    }
+
     public void dropGraphProject(String name){
         System.out.println("开始执行删除graphProject");
         String cypher = "CALL gds.graph.drop('" + name + "')";
         System.out.println("dropGraphProject:cypher:");
         System.out.println(cypher + "\n");
-        driver.session().run(cypher);
+//        driver.session().run(cypher);
     }
 
     // 根据节点名称进行模糊查询
@@ -1002,5 +1083,19 @@ public class TestNeo4jServiceImpl implements TestNeo4jService {
 
         Neo4jGraph parse = Neo4jGraph.parse(result);
         return parse;
+    }
+
+    public List<String> getEdgeClassByNodeClass(String nodeClassListStr){
+        String cypher = "MATCH (a)-[r]->(b)\n" +
+                "where labels(a)[0] in " + nodeClassListStr + "and labels(b)[0] in " + nodeClassListStr + "\n" +
+                "RETURN DISTINCT type(r) AS relationshipType";
+        Set<String> res = new HashSet<>();
+        Result run = driver.session().run(cypher);
+        for (Record record : run.list()) {
+            for (Value value : record.values()) {
+                res.add(value.asString());
+            }
+        }
+        return new ArrayList<>(res);
     }
 }
