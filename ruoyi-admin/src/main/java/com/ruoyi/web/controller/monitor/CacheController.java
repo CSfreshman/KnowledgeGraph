@@ -1,21 +1,15 @@
 package com.ruoyi.web.controller.monitor;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
+
+import com.ruoyi.system.req.CacheReq;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ScanOptions;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import com.ruoyi.common.constant.CacheConstants;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.utils.StringUtils;
@@ -23,7 +17,7 @@ import com.ruoyi.system.domain.SysCache;
 
 /**
  * 缓存监控
- * 
+ *
  * @author ruoyi
  */
 @RestController
@@ -115,6 +109,98 @@ public class CacheController
     {
         Collection<String> cacheKeys = redisTemplate.keys("*");
         redisTemplate.delete(cacheKeys);
+        return AjaxResult.success();
+    }
+
+    // 获得全部的key
+    @PostMapping("/getAllCaches")
+    public AjaxResult getAllCaches(){
+        ScanOptions options = ScanOptions.scanOptions().count(1000).build();
+
+        // 存储所有键的列表
+        List<String> allKeys = new ArrayList<>();
+
+        redisTemplate.execute((RedisCallback<Void>) connection -> {
+            Cursor<byte[]> cursor = connection.scan(options);
+
+            while (cursor.hasNext()) {
+                byte[] next = cursor.next();
+                allKeys.add(new String(next));
+            }
+
+            return null;
+        });
+
+        System.out.println(allKeys);
+
+        return AjaxResult.success(allKeys);
+    }
+
+    public static final String ZzDictKey = "segmentWord";
+
+    // 症状词典管理
+    @PostMapping("/getZzDict")
+    public AjaxResult getZzDict(@RequestBody CacheReq req){
+        // 得到全部的键值对
+        Map<Object, Object> segmentWord = redisTemplate.opsForHash().entries(ZzDictKey);
+        Map<String,String> map = new HashMap<>();
+        for (Map.Entry<Object, Object> entry : segmentWord.entrySet()) {
+            String s = entry.getValue().toString();
+            map.put(entry.getKey().toString(),s.substring(1,s.length() - 1));
+        }
+        List<Map.Entry<String, String>> list = new ArrayList<>(map.entrySet());
+        list.sort(new Comparator<Map.Entry<String, String>>() {
+            @Override
+            public int compare(Map.Entry<String, String> o1, Map.Entry<String, String> o2) {
+                return o1.getValue().compareTo(o2.getValue());
+            }
+        });
+
+        // 分页
+        int pageNum = req.getPageNum(); // 页码，从1开始
+        int pageSize = req.getPageSize(); // 每页数据量
+
+        // 计算起始索引和结束索引
+        int startIndex = (pageNum - 1) * pageSize;
+        int endIndex = Math.min(startIndex + pageSize, list.size());
+
+        // 获取指定页的数据
+        List<Map.Entry<String, String>> pageData = list.subList(startIndex, endIndex);
+
+
+        // 结果处理，变成方便前端处理的结构
+        List<Map<String,String>> res = new ArrayList<>();
+        for (Map.Entry<String, String> entry : pageData) {
+            Map<String,String> map1 = new HashMap<>();
+            map1.put("key",entry.getKey());
+            map1.put("value",entry.getValue());
+            res.add(map1);
+        }
+
+        return AjaxResult.success(res);
+    }
+
+    // 新增词典
+    @PostMapping("/addZzDict")
+    public AjaxResult addZzDict(@RequestBody CacheReq req){
+        Boolean aBoolean = redisTemplate.opsForHash().putIfAbsent(ZzDictKey, req.getKey(), req.getValue());
+
+        return AjaxResult.success();
+    }
+
+    // 删除
+    @PostMapping("/delZzDict")
+    public AjaxResult delZzDict(@RequestBody CacheReq req){
+        redisTemplate.opsForHash().delete(ZzDictKey,req.getKey());
+        return AjaxResult.success();
+    }
+
+    // 修改
+    @PostMapping("/updateZzDict")
+    public AjaxResult updateZzDict(@RequestBody CacheReq req){
+        // 先删再加
+        redisTemplate.opsForHash().delete(ZzDictKey,req.getKey());
+        Boolean aBoolean = redisTemplate.opsForHash().putIfAbsent(ZzDictKey, req.getKey(), req.getValue());
         return AjaxResult.success();
     }
 }

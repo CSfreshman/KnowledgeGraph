@@ -1,7 +1,7 @@
 <template>
   <div id="main">
     <el-row>
-      <el-col :span="12">
+      <el-col :span="24">
         <el-card id="up">
           <div slot="header" class="card-header">
             <span>系统介绍</span>
@@ -16,7 +16,7 @@
 
         </el-card>
       </el-col>
-      <el-col :span="12">
+      <el-col :span="0">
 <!--        <el-card>-->
 <!--          <div slot="header" class="card-header">-->
 <!--            <span>词云</span>-->
