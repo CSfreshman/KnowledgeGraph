@@ -5,10 +5,8 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.json.JSONUtil;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.utils.SecurityUtils;
-import com.ruoyi.system.domain.KgEdgeClass;
-import com.ruoyi.system.domain.KgEdgeInstance;
-import com.ruoyi.system.domain.KgNodeInstance;
-import com.ruoyi.system.domain.KgNodeInstanceProperties;
+import com.ruoyi.system.domain.*;
+import com.ruoyi.system.req.ImportReq;
 import com.ruoyi.system.service.*;
 import com.ruoyi.system.service.impl.KgNodeClassServiceImpl;
 import com.ruoyi.system.service.impl.KgNodeInstanceServiceImpl;
@@ -18,12 +16,10 @@ import com.ruoyi.system.utils.neo4j.Neo4jNode;
 import com.ruoyi.web.controller.manage.KgEdgeInstanceController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/import")
@@ -32,17 +28,20 @@ public class MyTestController extends BaseController {
     public static Map<String,Long> idMap = new HashMap<>();
 
     static {
-        idMap.put("成功后抑郁症",1776861582966792192l);
-        idMap.put("产后抑郁症",1770334657544904704l);
-        idMap.put("反复发作抑郁症",1770334683528617984l);
-        idMap.put("老年抑郁症",1770334706119139328l);
-        idMap.put("老年期抑郁症",1770334731922497536l);
-        idMap.put("绝经与抑郁症",1770334750234828800l);
-        idMap.put("抑郁症",1770334804572037120l);
-        idMap.put("微笑抑郁症",1770334827745566720l);
-        idMap.put("单次发作抑郁症",1776861025610899456l);
-        idMap.put("躁郁症",1770334768366804992l);
-        idMap.put("季节性情绪抑郁",1770334450061074432l);
+        idMap.put(	"成功后抑郁症",1789199042988204032l);
+        idMap.put(	"产后抑郁症",1789199043374080000l);
+        idMap.put(	"反复发作抑郁症",1789199043474743296l);
+        idMap.put(	"抑郁症",1789199043562823680l);
+        idMap.put(	"老年抑郁症",1789199043655098368l);
+        idMap.put(	"微笑抑郁症",1789199043734790144l);
+        idMap.put(	"季节性情绪抑郁",1789199043839647744l);
+        idMap.put(	"老年期抑郁症",1789199043927728128l);
+        idMap.put(	"绝经与抑郁症",1789199044020002816l);
+        idMap.put(	"单次发作抑郁症",1789199044108083200l);
+        idMap.put(	"躁郁症",1789199044183580672l);
+        idMap.put(	"抑郁症知识图谱",1789196073056022528l);
+
+
     }
 
     @Autowired
@@ -61,6 +60,122 @@ public class MyTestController extends BaseController {
 
     @Autowired
     KgEdgeInstanceController edgeInstanceController;
+
+
+    // 通用批量导入接口
+    @Transactional
+    @PostMapping("/importData")
+    public Object importData(@RequestBody ImportReq req){
+        System.out.println("ImportReq-req:");
+        System.out.println(req);
+
+        Map<String,List<String>> map = JSONUtil.toBean(req.getJsonData(), Map.class);
+
+        Set<String> fromNodeNameSet = new HashSet<>();
+        Set<String> toNodeNameSet = new HashSet<>();
+        fromNodeNameSet.addAll(map.keySet());
+        for (Map.Entry<String, List<String>> entry : map.entrySet()) {
+            toNodeNameSet.addAll(entry.getValue());
+        }
+
+        // 得到节点集合
+        System.out.println("共有起点 " + fromNodeNameSet.size() + " 个");
+        System.out.println("共有终点点 " + toNodeNameSet.size() + " 个");
+        System.out.println("开始插入节点");
+
+        // 插入起点
+        List<Map<String,String>> props = new ArrayList<>();
+        for (KgNodeClassProperties prop : req.getFromNodeClass().getProps()) {
+            Map<String,String> map1 = new HashMap<>();
+            map1.put("key",prop.getName());
+            map1.put("value",prop.getDefaultValue());
+            props.add(map1);
+        }
+        for (String s : fromNodeNameSet) {
+            Map<String,Object> map1 = new HashMap<>();
+            map1.put("label",req.getFromNodeClass().getName());
+            map1.put("name",s);
+            map1.put("classId",req.getFromNodeClass().getId().toString());
+            map1.put("props",props);
+            add(map1);
+        }
+
+        // 插入终点
+        List<Map<String,String>> props1 = new ArrayList<>();
+        for (KgNodeClassProperties prop : req.getToNodeClass().getProps()) {
+            Map<String,String> map1 = new HashMap<>();
+            map1.put("key",prop.getName());
+            map1.put("value",prop.getDefaultValue());
+            props1.add(map1);
+        }
+        for (String s : toNodeNameSet) {
+            Map<String,Object> map1 = new HashMap<>();
+            map1.put("label",req.getToNodeClass().getName());
+            map1.put("name",s);
+            map1.put("classId",req.getToNodeClass().getId().toString());
+            map1.put("props",props1);
+            add(map1);
+        }
+
+        // 插入关系
+        List<KgEdgeInstance> edgeInstances = new ArrayList<>();
+
+        KgNodeInstance test = new KgNodeInstance();
+        test.setValid(1l);
+        List<KgNodeInstance> kgNodeInstanceList = nodeInstanceService.selectKgNodeInstanceList(test);
+
+        // 得到关系的属性
+        List<KgEdgeInstaceProperties> edgeInstacePropertiesList = new ArrayList<>();
+        for (KgEdgeClassProperties prop : req.getEdgeClass().getProps()) {
+            KgEdgeInstaceProperties instaceProperties = new KgEdgeInstaceProperties();
+            instaceProperties.setName(prop.getName());
+            instaceProperties.setValue(prop.getDefaultValue());
+            instaceProperties.setValid(1l);
+            edgeInstacePropertiesList.add(instaceProperties);
+        }
+
+        for (Map.Entry<String, List<String>> stringListEntry : map.entrySet()) {
+            KgNodeInstance fromNode = new KgNodeInstance();
+
+            List<KgNodeInstance> collect = kgNodeInstanceList.stream().filter(it -> it.getName().equals(stringListEntry.getKey())).collect(Collectors.toList());
+
+//            KgNodeInstance fromInstance = nodeInstanceService.selectKgNodeInstanceById(collect.get(0).getId());
+            KgNodeInstance fromInstance = collect.get(0);
+
+            System.out.println(fromInstance);
+            for (String s : stringListEntry.getValue()) {
+
+                KgNodeInstance toNode = new KgNodeInstance();
+                toNode.setName(s);
+                toNode.setValid(1l);
+                KgNodeInstance toInstance = nodeInstanceService.selectKgNodeInstanceList(toNode).get(0);
+                System.out.println(toInstance);
+
+                KgEdgeInstance instance = new KgEdgeInstance();
+                instance.setValid(1l);
+                instance.setLabel(req.getEdgeClass().getLabel());
+                instance.setClassId(req.getEdgeClass().getId());
+                instance.setFromNodeId(fromInstance.getId());
+                instance.setToNodeId(toInstance.getId());
+                instance.setFromNodeNeo4jId(fromInstance.getNeo4jId());
+                instance.setToNodeNeo4jId(toInstance.getNeo4jId());
+                instance.setProps(edgeInstacePropertiesList);
+                edgeInstances.add(instance);
+
+            }
+
+
+        }
+
+        System.out.println("共 " + edgeInstances.size() + " 个关系");
+        System.out.println("开始插入关系");
+        for (KgEdgeInstance edgeInstance : edgeInstances) {
+            edgeInstanceController.add(edgeInstance);
+        }
+
+
+        return true;
+    }
 
     @GetMapping("/instance/edge")
     public void importInstanceEdge() {
@@ -122,44 +237,122 @@ public class MyTestController extends BaseController {
         }
     }
 
+    // 疾病类型
+    @Transactional
+    @PostMapping("/instance/node/lx")
+    public void importNodeInstanceLx(){
+        String[] nodeNames = new String[]{
+                "产后抑郁症",
+                "反复发作抑郁症",
+                "老年抑郁症",
+                "老年期抑郁症",
+                "绝经与抑郁症",
+                "躁郁症",
+                "抑郁症",
+                "微笑抑郁症",
+                "季节性情绪抑郁",
+                "单次发作抑郁症",
+                "成功后抑郁症"
+        };
+        Set<String> data = new HashSet<>();
+        for (String nodeName : nodeNames) {
+            data.add(nodeName);
+        }
+
+        // 添加实体
+        // 得到名称集合
+//        System.out.println(data.size());
+//        Map<String,String> props = new HashMap<>();
+//        props.put("key","color");
+//        props.put("value","rgb(0, 157, 255)");
+//        for (String s : data) {
+//            Map<String,Object> map1 = new HashMap<>();
+//            map1.put("label","疾病");
+//            map1.put("name",s);
+//            map1.put("classId","1789196633280819200");
+//            map1.put("props",Collections.singletonList(props));
+//            add(map1);
+//        }
+
+        // 添加关系
+        Map<String, List<String>> map = new HashMap<>();
+        map.put("抑郁症知识图谱",new ArrayList<>(data));
+
+        List<KgEdgeInstance> edgeInstances = new ArrayList<>();
+        for (Map.Entry<String, List<String>> stringListEntry : map.entrySet()) {
+            KgNodeInstance fromNode = new KgNodeInstance();
+
+            KgNodeInstance fromInstance = nodeInstanceService.selectKgNodeInstanceById(idMap.get(stringListEntry.getKey()));
+            System.out.println(fromInstance);
+            for (String s : stringListEntry.getValue()) {
+
+                KgNodeInstance toNode = new KgNodeInstance();
+                toNode.setName(s);
+                toNode.setValid(1l);
+                KgNodeInstance toInstance = nodeInstanceService.selectKgNodeInstanceList(toNode).get(0);
+                System.out.println(toInstance);
+
+                KgEdgeInstance instance = new KgEdgeInstance();
+                instance.setValid(1l);
+                instance.setLabel("疾病类型");
+                instance.setClassId(1789196730186018816l);
+                instance.setFromNodeId(fromInstance.getId());
+                instance.setToNodeId(toInstance.getId());
+                instance.setFromNodeNeo4jId(fromInstance.getNeo4jId());
+                instance.setToNodeNeo4jId(toInstance.getNeo4jId());
+                edgeInstances.add(instance);
+
+            }
+
+
+        }
+
+        System.out.println(edgeInstances);
+        for (KgEdgeInstance edgeInstance : edgeInstances) {
+            edgeInstanceController.add(edgeInstance);
+        }
+
+
+    }
+    // 症状
     @Transactional
     @PostMapping("/instance/node/zz")
     public void importNodeInstanceZz() {
         String jsonStr = "{\n" +
-//                "\"抑郁症\": [\n" +
-//                "\"焦虑\",\n" +
-//                "\"绝望\",\n" +
-//                "\"自杀企图\",\n" +
-//                "\"身体功能减退\",\n" +
-//                "\"心情压抑\",\n" +
-//                "\"情绪低落\",\n" +
-//                "\"精力不足\",\n" +
-//                "\"自我评价过低\",\n" +
-//                "\"兴趣丧失\",\n" +
-//                "\"悲观失望\",\n" +
-//                "\"幻觉妄想\"\n" +
-//                "],\n" +
-//                "\"产后抑郁症\": [\n" +
-//                "\"情绪低落\",\n" +
-//                "\"落泪\",\n" +
-//                "\"易激惹\",\n" +
-//                "\"焦虑\",\n" +
-//                "\"害怕\",\n" +
-//                "\"恐慌\",\n" +
-//                "\"缺乏动力\",\n" +
-//                "\"厌烦情绪\",\n" +
-//                "\"食欲低下\",\n" +
-//                "\"体重减轻\",\n" +
-//                "\"疲倦\",\n" +
-//                "\"乏力\",\n" +
-//                "\"便秘\",\n" +
-//                "\"注意力不集中\",\n" +
-//                "\"健忘\",\n" +
-//                "\"缺乏信心\",\n" +
-//                "\"自尊心减低\",\n" +
-//                "\"失望感\",\n" +
-//                "\"自觉无用感\"\n" +
-//                "],\n" +
+                "\"抑郁症\": [\n" +
+                "\"焦虑\",\n" +
+                "\"绝望\",\n" +
+                "\"自杀企图\",\n" +
+                "\"身体功能减退\",\n" +
+                "\"心情压抑\",\n" +
+                "\"情绪低落\",\n" +
+                "\"精力不足\",\n" +
+                "\"自我评价过低\",\n" +
+                "\"兴趣丧失\",\n" +
+                "\"悲观失望\",\n" +
+                "\"幻觉妄想\"\n" +
+                "],\n" +
+                "\"产后抑郁症\": [\n" +
+                "\"情绪低落\",\n" +
+                "\"落泪\",\n" +
+                "\"易激惹\",\n" +
+                "\"焦虑\",\n" +
+                "\"害怕\",\n" +
+                "\"恐慌\",\n" +
+                "\"缺乏动力\",\n" +
+                "\"厌烦情绪\",\n" +
+                "\"食欲低下\",\n" +
+                "\"体重减轻\",\n" +
+                "\"疲倦\",\n" +
+                "\"乏力\",\n" +
+                "\"便秘\",\n" +
+                "\"注意力不集中\",\n" +
+                "\"健忘\",\n" +
+                "\"缺乏信心\",\n" +
+                "\"自尊心减低\",\n" +
+                "\"失望感\",\n" +
+                "\"自觉无用感\"\n" +
+                "],\n" +
                 "\"老年抑郁症\": [\n" +
                 "\"全身性酸痛乏力\",\n" +
                 "\"自卑\",\n" +
@@ -195,10 +388,10 @@ public class MyTestController extends BaseController {
                 "\"退离休综合症\",\n" +
                 "\"被害妄想\"\n" +
                 "],\n" +
-//                "\"成功后抑郁症\": [\n" +
-//                "\"情绪低落\",\n" +
-//                "\"影响睡眠\"\n" +
-//                "],\n" +
+                "\"成功后抑郁症\": [\n" +
+                "\"情绪低落\",\n" +
+                "\"影响睡眠\"\n" +
+                "],\n" +
                 "\"反复发作抑郁症\": [\n" +
                 "\"心境低落\",\n" +
                 "\"认知功能损害\",\n" +
@@ -218,74 +411,81 @@ public class MyTestController extends BaseController {
 
         Map<String,List<String>> map = JSONUtil.toBean(jsonStr, Map.class);
         Set<String> zhengZhuang = new HashSet<>();
-
-        KgNodeInstance fromNode = new KgNodeInstance();
-        KgNodeInstance toNode = new KgNodeInstance();
-
-//        for (Map.Entry<String, List<String>> stringListEntry : map.entrySet()) {
-//            System.out.println(stringListEntry.getKey());
-//            fromNode = new KgNodeInstance();
-//            fromNode.setName(stringListEntry.getKey());
-//            fromNode.setValid(1l);
-//
-//            KgNodeInstance fromNodeInstance = nodeInstanceService.selectKgNodeInstanceList(fromNode).get(0);
-//            System.out.println("fromNodeInstance" + fromNodeInstance);
-//            for (String s : stringListEntry.getValue()) {
-//                toNode = new KgNodeInstance();
-//                toNode.setName(s);
-//                toNode.setValid(1l);
-//                KgNodeInstance toNodeInstance = nodeInstanceService.selectKgNodeInstanceList(toNode).get(0);
-//                System.out.println("toNodeInstance" + toNodeInstance);
-//
-//                KgEdgeInstance instance = new KgEdgeInstance();
-//                instance.setValid(1l);
-//                instance.setLabel("疾病症状");
-//                instance.setClassId(1772132016339734528l);
-//                instance.setFromNodeId(fromNodeInstance.getId());
-//                instance.setToNodeId(toNodeInstance.getId());
-//                instance.setFromNodeNeo4jId(fromNodeInstance.getNeo4jId());
-//                instance.setToNodeNeo4jId(toNodeInstance.getNeo4jId());
-//
-//
-//                System.out.println("开始执行插入动作:" + fromNode.getName() + " == " + toNode.getName());
-//
-//                edgeInstanceController.add(instance);
-//            }
-//        }
-
-        List<String> yyzZz = new ArrayList<>();
-        yyzZz.add("易激惹");
-        yyzZz.add("体重减轻");
-        yyzZz.add("便秘");
-        yyzZz.add("乏力");
-        yyzZz.add("妄想");
-
-        fromNode = new KgNodeInstance();
-        fromNode.setValid(1l);
-
-        KgNodeInstance fromNodeInstance = nodeInstanceService.selectKgNodeInstanceById(1770334657544904704L);
-        System.out.println("fromNodeInstance" + fromNodeInstance);
-        for (String s : yyzZz) {
-            toNode = new KgNodeInstance();
-            toNode.setName(s);
-            toNode.setValid(1l);
-            KgNodeInstance toNodeInstance = nodeInstanceService.selectKgNodeInstanceList(toNode).get(0);
-            System.out.println("toNodeInstance" + toNodeInstance);
-
-            KgEdgeInstance instance = new KgEdgeInstance();
-            instance.setValid(1l);
-            instance.setLabel("疾病症状");
-            instance.setClassId(1772132016339734528l);
-            instance.setFromNodeId(fromNodeInstance.getId());
-            instance.setToNodeId(toNodeInstance.getId());
-            instance.setFromNodeNeo4jId(fromNodeInstance.getNeo4jId());
-            instance.setToNodeNeo4jId(toNodeInstance.getNeo4jId());
-
-
-            System.out.println("开始执行插入动作:" + fromNode.getName() + " == " + toNode.getName());
-
-            edgeInstanceController.add(instance);
+        for (Map.Entry<String, List<String>> stringListEntry : map.entrySet()) {
+            zhengZhuang.addAll(stringListEntry.getValue());
         }
+
+
+        // 添加关系
+        List<KgEdgeInstance> edgeInstances = new ArrayList<>();
+
+        // 添加关系
+        for (Map.Entry<String, List<String>> stringListEntry : map.entrySet()) {
+            KgNodeInstance fromNode = new KgNodeInstance();
+
+            KgNodeInstance fromInstance = nodeInstanceService.selectKgNodeInstanceById(idMap.get(stringListEntry.getKey()));
+            System.out.println(fromInstance);
+            for (String s : stringListEntry.getValue()) {
+
+                KgNodeInstance toNode = new KgNodeInstance();
+                toNode.setName(s);
+                toNode.setValid(1l);
+                KgNodeInstance toInstance = nodeInstanceService.selectKgNodeInstanceList(toNode).get(0);
+                System.out.println(toInstance);
+
+                KgEdgeInstance instance = new KgEdgeInstance();
+                instance.setValid(1l);
+                instance.setLabel("疾病症状");
+                instance.setClassId(1789209064145145856l);
+                instance.setFromNodeId(fromInstance.getId());
+                instance.setToNodeId(toInstance.getId());
+                instance.setFromNodeNeo4jId(fromInstance.getNeo4jId());
+                instance.setToNodeNeo4jId(toInstance.getNeo4jId());
+                edgeInstances.add(instance);
+
+            }
+
+
+        }
+
+        System.out.println(edgeInstances);
+        for (KgEdgeInstance edgeInstance : edgeInstances) {
+            edgeInstanceController.add(edgeInstance);
+        }
+
+//        List<String> yyzZz = new ArrayList<>();
+//        yyzZz.add("易激惹");
+//        yyzZz.add("体重减轻");
+//        yyzZz.add("便秘");
+//        yyzZz.add("乏力");
+//        yyzZz.add("妄想");
+//
+//        fromNode = new KgNodeInstance();
+//        fromNode.setValid(1l);
+//
+//        KgNodeInstance fromNodeInstance = nodeInstanceService.selectKgNodeInstanceById(1770334657544904704L);
+//        System.out.println("fromNodeInstance" + fromNodeInstance);
+//        for (String s : yyzZz) {
+//            toNode = new KgNodeInstance();
+//            toNode.setName(s);
+//            toNode.setValid(1l);
+//            KgNodeInstance toNodeInstance = nodeInstanceService.selectKgNodeInstanceList(toNode).get(0);
+//            System.out.println("toNodeInstance" + toNodeInstance);
+//
+//            KgEdgeInstance instance = new KgEdgeInstance();
+//            instance.setValid(1l);
+//            instance.setLabel("疾病症状");
+//            instance.setClassId(1772132016339734528l);
+//            instance.setFromNodeId(fromNodeInstance.getId());
+//            instance.setToNodeId(toNodeInstance.getId());
+//            instance.setFromNodeNeo4jId(fromNodeInstance.getNeo4jId());
+//            instance.setToNodeNeo4jId(toNodeInstance.getNeo4jId());
+//
+//
+//            System.out.println("开始执行插入动作:" + fromNode.getName() + " == " + toNode.getName());
+//
+//            edgeInstanceController.add(instance);
+//        }
 
 //        // 得到症状名称集合
 //        System.out.println(zhengZhuang);
@@ -298,7 +498,7 @@ public class MyTestController extends BaseController {
 //            Map<String,Object> map1 = new HashMap<>();
 //            map1.put("label","症状");
 //            map1.put("name",s);
-//            map1.put("classId","1770365867855843328");
+//            map1.put("classId","1789207403607564288");
 //            map1.put("props",Collections.singletonList(props));
 //            add(map1);
 //        }
@@ -351,7 +551,7 @@ public class MyTestController extends BaseController {
                 KgEdgeInstance instance = new KgEdgeInstance();
                 instance.setValid(1l);
                 instance.setLabel("疾病病因");
-                instance.setClassId(1776948605853626368l);
+                instance.setClassId(1789202703923433472l);
                 instance.setFromNodeId(fromInstance.getId());
                 instance.setToNodeId(toInstance.getId());
                 instance.setFromNodeNeo4jId(fromInstance.getNeo4jId());
@@ -378,13 +578,14 @@ public class MyTestController extends BaseController {
 //            Map<String,Object> map1 = new HashMap<>();
 //            map1.put("label","病因");
 //            map1.put("name",s);
-//            map1.put("classId","1770366208978587648");
+//            map1.put("classId","1789202301316485120");
 //            map1.put("props",Collections.singletonList(props));
 //            add(map1);
 //        }
 
     }
 
+    // 预防
     @Transactional
     @PostMapping("/instance/node/yf")
     public void importNodeInstanceYf() {
@@ -426,7 +627,7 @@ public class MyTestController extends BaseController {
                 KgEdgeInstance instance = new KgEdgeInstance();
                 instance.setValid(1l);
                 instance.setLabel("疾病预防");
-                instance.setClassId(1778043311140364288l);
+                instance.setClassId(1789203963238129664l);
                 instance.setFromNodeId(fromInstance.getId());
                 instance.setToNodeId(toInstance.getId());
                 instance.setFromNodeNeo4jId(fromInstance.getNeo4jId());
@@ -455,13 +656,14 @@ public class MyTestController extends BaseController {
 //            Map<String,Object> map1 = new HashMap<>();
 //            map1.put("label","预防方法");
 //            map1.put("name",s);
-//            map1.put("classId","1778043185009254400");
+//            map1.put("classId","1789203509519261696");
 //            map1.put("props",Collections.singletonList(props));
 //            add(map1);
 //        }
     }
 
 
+    // 护理
     @Transactional
     @PostMapping("/instance/node/hl")
     public void importNodeInstanceHl() {
@@ -501,7 +703,7 @@ public class MyTestController extends BaseController {
                 KgEdgeInstance instance = new KgEdgeInstance();
                 instance.setValid(1l);
                 instance.setLabel("疾病护理");
-                instance.setClassId(1780482196256460800l);
+                instance.setClassId(1789204938061496320l);
                 instance.setFromNodeId(fromInstance.getId());
                 instance.setToNodeId(toInstance.getId());
                 instance.setFromNodeNeo4jId(fromInstance.getNeo4jId());
@@ -530,13 +732,14 @@ public class MyTestController extends BaseController {
 //            Map<String,Object> map1 = new HashMap<>();
 //            map1.put("label","护理方法");
 //            map1.put("name",s);
-//            map1.put("classId","1780481606197694464");
+//            map1.put("classId","1789204300451778560");
 //            map1.put("props",Collections.singletonList(props));
 //            add(map1);
 //        }
     }
 
 
+    // 治疗
     @Transactional
     @PostMapping("/instance/node/zl")
     public void importNodeInstanceZl() {
@@ -614,7 +817,7 @@ public class MyTestController extends BaseController {
                 KgEdgeInstance instance = new KgEdgeInstance();
                 instance.setValid(1l);
                 instance.setLabel("疾病治疗");
-                instance.setClassId(1777955998817304576l);
+                instance.setClassId(1789206177138552832l);
                 instance.setFromNodeId(fromInstance.getId());
                 instance.setToNodeId(toInstance.getId());
                 instance.setFromNodeNeo4jId(fromInstance.getNeo4jId());
@@ -643,12 +846,13 @@ public class MyTestController extends BaseController {
 //            Map<String,Object> map1 = new HashMap<>();
 //            map1.put("label","治疗方法");
 //            map1.put("name",s);
-//            map1.put("classId","1770366404231827456");
+//            map1.put("classId","1789205650673745920");
 //            map1.put("props",Collections.singletonList(props));
 //            add(map1);
 //        }
     }
 
+    // 添加节点
     public void add(Map<String,Object> req)
     {
         System.out.println(req);
@@ -662,6 +866,15 @@ public class MyTestController extends BaseController {
         List props = (List)req.get("props");
         List<KgNodeInstanceProperties> propertiesList = new ArrayList<>();
         int count2 = 0;
+
+        KgNodeInstance test = new KgNodeInstance();
+        test.setName(instance.getName());
+        test.setValid(1l);
+        List<KgNodeInstance> kgNodeInstanceList = nodeInstanceService.selectKgNodeInstanceList(test);
+        if(ObjectUtil.isNotEmpty(kgNodeInstanceList)){
+            System.out.println("节点重复" + test);
+            return;
+        }
 
         Map<String,Object> nodePropsMap = new HashMap<>();
 
