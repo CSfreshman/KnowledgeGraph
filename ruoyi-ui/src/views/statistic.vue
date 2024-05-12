@@ -7,8 +7,20 @@
             <div slot="header" class="card-header">
               <span>图谱数据统计</span>
             </div>
-            <div id="node-container"></div>
-            <div id="edge-container"></div>
+            <div>
+              实体数据: 共{{Object.keys(nodeCountMap).length}}种实体。
+            </div>
+
+            <div id="node-container">
+
+            </div>
+            <div>
+              关系数据: 共{{Object.keys(edgeCountMap).length}}种关系。
+            </div>
+
+            <div id="edge-container">
+
+            </div>
           </el-card>
         </div>
       </el-col>
@@ -20,6 +32,7 @@
               <span>系统数据统计</span>
             </div>
             <div id="container1"></div>
+            <div id="container2"></div>
           </el-card>
         </div>
       </el-col>
@@ -120,6 +133,24 @@ export default {
             type: 'line',
             stack: 'Total',
             data: data['图谱检索']
+          }
+        ]
+      });
+    },
+    createChart2(data,elementId,name,legendData,recentDates){
+      var chart = echarts.init(document.getElementById(elementId));
+      chart.setOption({
+        xAxis: {
+          type: 'category',
+          data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+        },
+        yAxis: {
+          type: 'value'
+        },
+        series: [
+          {
+            data: [150, 230, 224, 218, 135, 147, 260],
+            type: 'line'
           }
         ]
       });
@@ -246,6 +277,7 @@ export default {
 
 
       this.createChart1(processedData,"container1",'',legendData,recentDates)
+      this.createChart2(processedData,"container2",'',legendData,recentDates)
     })
 
   }
@@ -288,6 +320,12 @@ export default {
     background-color: #FFFFFF;
     width: 40vw;
     height:50vh;
+  }
+
+  #container2 {
+    background-color: #FFFFFF;
+    width: 40vw;
+    height:45vh;
   }
 
   .card-header {
