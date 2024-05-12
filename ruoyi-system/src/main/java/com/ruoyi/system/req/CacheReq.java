@@ -11,4 +11,6 @@ public class CacheReq {
     private String key;
 
     private String value;
+
+    private String zzName;
 }

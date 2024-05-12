@@ -1,8 +1,13 @@
 package com.ruoyi.web.controller.monitor;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import com.ruoyi.system.req.CacheReq;
+import lombok.Data;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.Cursor;
 import org.springframework.data.redis.core.RedisCallback;
@@ -138,6 +143,13 @@ public class CacheController
 
     public static final String ZzDictKey = "segmentWord";
 
+    @Data
+    class CacheVo{
+        List<Map<String,String>> pageData;
+
+        Integer total;
+    }
+
     // 症状词典管理
     @PostMapping("/getZzDict")
     public AjaxResult getZzDict(@RequestBody CacheReq req){
@@ -146,9 +158,19 @@ public class CacheController
         Map<String,String> map = new HashMap<>();
         for (Map.Entry<Object, Object> entry : segmentWord.entrySet()) {
             String s = entry.getValue().toString();
-            map.put(entry.getKey().toString(),s.substring(1,s.length() - 1));
+            StringBuilder builder = new StringBuilder();
+            for (char c : s.toCharArray()) {
+                if(c != '"'){
+                    builder.append(c);
+                }
+            }
+            map.put(entry.getKey().toString(),builder.toString());
         }
         List<Map.Entry<String, String>> list = new ArrayList<>(map.entrySet());
+        if(req.getZzName() != null && req.getZzName() != ""){
+            list = list.stream().filter(it -> it.getValue().equals(req.getZzName())).collect(Collectors.toList());
+
+        }
         list.sort(new Comparator<Map.Entry<String, String>>() {
             @Override
             public int compare(Map.Entry<String, String> o1, Map.Entry<String, String> o2) {
@@ -176,14 +198,19 @@ public class CacheController
             map1.put("value",entry.getValue());
             res.add(map1);
         }
-
-        return AjaxResult.success(res);
+        CacheVo vo = new CacheVo();
+        vo.setPageData(res);
+        vo.setTotal(list.size());
+        return AjaxResult.success(vo);
     }
 
     // 新增词典
     @PostMapping("/addZzDict")
     public AjaxResult addZzDict(@RequestBody CacheReq req){
-        Boolean aBoolean = redisTemplate.opsForHash().putIfAbsent(ZzDictKey, req.getKey(), req.getValue());
+        Boolean aBoolean = redisTemplate.opsForHash().putIfAbsent(ZzDictKey, req.getKey(), "\"" + req.getValue() + "\"");
+
+        Map<Object, Object> segmentWord = redisTemplate.opsForHash().entries(ZzDictKey);
+        test(segmentWord);
 
         return AjaxResult.success();
     }
@@ -192,6 +219,8 @@ public class CacheController
     @PostMapping("/delZzDict")
     public AjaxResult delZzDict(@RequestBody CacheReq req){
         redisTemplate.opsForHash().delete(ZzDictKey,req.getKey());
+        Map<Object, Object> segmentWord = redisTemplate.opsForHash().entries(ZzDictKey);
+        test(segmentWord);
         return AjaxResult.success();
     }
 
@@ -202,5 +231,38 @@ public class CacheController
         redisTemplate.opsForHash().delete(ZzDictKey,req.getKey());
         Boolean aBoolean = redisTemplate.opsForHash().putIfAbsent(ZzDictKey, req.getKey(), req.getValue());
         return AjaxResult.success();
+    }
+
+    public static void test(Map<Object, Object> map){
+        System.out.println("词库共:" + map.keySet().size() + "个词语");
+
+        String filePath = "ruoyi-system/conf/user.dict";
+
+        System.out.println("开始清空源词典");
+        // 先清空文件内容
+        clearFile(filePath);
+
+        System.out.println("开始写入新词典");
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
+            int count = 0;
+            for (Object str : map.keySet()) {
+                System.out.println("正在写入:" + str + " == index " + count++);
+                // 拼接词频
+                str+=" 3";
+                writer.write(str.toString());
+                writer.newLine(); // 每写入一个字符串后换行
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void clearFile(String filePath) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, false))) {
+            // 清空文件内容
+            writer.write("");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
