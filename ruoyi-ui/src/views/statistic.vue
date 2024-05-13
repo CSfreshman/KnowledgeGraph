@@ -8,14 +8,14 @@
               <span>图谱数据统计</span>
             </div>
             <div>
-              实体数据: 共{{Object.keys(nodeCountMap).length}}种实体。
+              实体数据: 共{{Object.keys(nodeCountMap).length}}种实体类型，{{Object.values(nodeCountMap).reduce((accumulator, currentValue) => accumulator + currentValue, 0)}}个实体实例。
             </div>
 
             <div id="node-container">
 
             </div>
             <div>
-              关系数据: 共{{Object.keys(edgeCountMap).length}}种关系。
+              关系数据: 共{{Object.keys(edgeCountMap).length}}种关系类型，{{Object.values(edgeCountMap).reduce((accumulator, currentValue) => accumulator + currentValue, 0)}}个关系实例。
             </div>
 
             <div id="edge-container">
@@ -29,9 +29,11 @@
         <div id="system-container">
           <el-card>
             <div slot="header" class="card-header">
-              <span>系统数据统计</span>
+              <span>系统数据统计1</span>
             </div>
+            <div>近五日系统操作次数:</div>
             <div id="container1"></div>
+            <div>近五日系统登录次数:</div>
             <div id="container2"></div>
           </el-card>
         </div>
@@ -54,6 +56,7 @@
 import * as echarts from 'echarts';
 import {statistic} from "@/api/graph";
 import {extraStatistic} from "@/api/extra";
+import {count} from "@/api/monitor/logininfor";
 
 export default {
   name: "statistic",
@@ -61,7 +64,8 @@ export default {
     return {
       nodeCountMap: {},
       edgeCountMap: {},
-      extraData1: {}
+      extraData1: {},
+      loginCount: ''
     }
   },
   methods: {
@@ -137,19 +141,20 @@ export default {
         ]
       });
     },
-    createChart2(data,elementId,name,legendData,recentDates){
+    createChart2(elementId,name,xData,yData){
+
       var chart = echarts.init(document.getElementById(elementId));
       chart.setOption({
         xAxis: {
           type: 'category',
-          data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+          data: xData
         },
         yAxis: {
           type: 'value'
         },
         series: [
           {
-            data: [150, 230, 224, 218, 135, 147, 260],
+            data: yData,
             type: 'line'
           }
         ]
@@ -277,9 +282,24 @@ export default {
 
 
       this.createChart1(processedData,"container1",'',legendData,recentDates)
-      this.createChart2(processedData,"container2",'',legendData,recentDates)
     })
 
+    count().then(resp=>{
+      this.loginCount = resp.data;
+      var xData = [];
+      var yData = [];
+
+      this.loginCount.forEach(it=>{
+        xData.push(it.date);
+        yData.push(it.count);
+      })
+      console.log("xData");
+      console.log(xData);
+      console.log("yData");
+      console.log(yData);
+
+      this.createChart2("container2",'',xData,yData);
+    })
   }
 }
 </script>
@@ -324,8 +344,8 @@ export default {
 
   #container2 {
     background-color: #FFFFFF;
-    width: 40vw;
-    height:45vh;
+    width: 50vw;
+    height:38vh;
   }
 
   .card-header {

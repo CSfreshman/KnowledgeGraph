@@ -1,5 +1,13 @@
 import request from '@/utils/request'
 
+// 统计近五日登录次数
+export function count(){
+  return request({
+    url: '/monitor/logininfor/count',
+    method: 'post'
+  })
+}
+
 // 查询登录日志列表
 export function list(query) {
   return request({

@@ -1,7 +1,11 @@
 package com.ruoyi.web.controller.monitor;
 
 import java.util.List;
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
+
+import com.ruoyi.system.domain.dto.LoginDto;
+import com.ruoyi.system.mapper.SysLogininforMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -22,7 +26,7 @@ import com.ruoyi.system.service.ISysLogininforService;
 
 /**
  * 系统访问记录
- * 
+ *
  * @author ruoyi
  */
 @RestController
@@ -34,6 +38,10 @@ public class SysLogininforController extends BaseController
 
     @Autowired
     private SysPasswordService passwordService;
+
+    @Resource
+    private SysLogininforMapper logininforMapper;
+
 
     @PreAuthorize("@ss.hasPermi('monitor:logininfor:list')")
     @GetMapping("/list")
@@ -78,5 +86,15 @@ public class SysLogininforController extends BaseController
     {
         passwordService.clearLoginRecordCache(userName);
         return success();
+    }
+
+    @PostMapping("/count")
+    public AjaxResult count(){
+        List<LoginDto> count = logininforMapper.count();
+
+        System.out.println(count);
+
+        return AjaxResult.success(count);
+
     }
 }
