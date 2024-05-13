@@ -73,4 +73,5 @@ public class GraphReq {
 //    private List edgeClassList;
     // 相似度计算结束
 
+    private Boolean hasDirect;
 }

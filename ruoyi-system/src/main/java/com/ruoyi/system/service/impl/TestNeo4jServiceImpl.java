@@ -441,7 +441,13 @@ public class TestNeo4jServiceImpl implements TestNeo4jService {
                         "(n)-[:"+builderEdge+"*.."+req.getSelectedDegree()+"]->(related:"+builderNode+") " +
                         "WHERE id(n) = "+req.getAnalyseNode().getNeo4jId()+" \n" +
                 "RETURN nodes(path) AS nodes, relationships(path) AS relationships";
-
+        if(!req.getHasDirect()){
+            cypher =
+            "MATCH path = " +
+                    "(n)-[:"+builderEdge+"*.."+req.getSelectedDegree()+"]-(related:"+builderNode+") " +
+                    "WHERE id(n) = "+req.getAnalyseNode().getNeo4jId()+" \n" +
+                    "RETURN nodes(path) AS nodes, relationships(path) AS relationships";
+        }
         System.out.println("centerMultiDegree:cypher:\n" + cypher);
         Session session = driver.session();
         Result run = session.run(cypher);

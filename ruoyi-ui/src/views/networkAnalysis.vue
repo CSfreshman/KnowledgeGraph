@@ -165,6 +165,10 @@
               </div>
               <el-divider></el-divider>
             </div>
+            <div>
+              <el-checkbox v-model="hasDirect">指定方向</el-checkbox>
+              <el-divider></el-divider>
+            </div>
 
             <!--        底部按钮-->
             <div>
@@ -220,6 +224,7 @@ export default {
   name: "networkAnalysis",
   data() {
     return {
+      hasDirect: true,
       showLeft: true,
       showPath: true,
       isShortest: true,
@@ -307,7 +312,8 @@ export default {
           edgeClassList: this.checkedEdge,
           nodeClassList: this.checkedNode,
           analyseNode: this.fromNode, // 分析实体在表单中使用的是fromNode
-          selectedDegree: this.selectedDegree
+          selectedDegree: this.selectedDegree,
+          hasDirect: this.hasDirect
         }
 
         console.log("中心多读探寻分析表单数据如下")
