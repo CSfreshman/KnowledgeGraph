@@ -29,7 +29,7 @@
         <div id="system-container">
           <el-card>
             <div slot="header" class="card-header">
-              <span>系统数据统计1</span>
+              <span>系统数据统计</span>
             </div>
             <div>近五日系统操作次数:</div>
             <div id="container1"></div>
@@ -105,37 +105,37 @@ export default {
           {
             name: '辅助诊断',
             type: 'line',
-            stack: 'Total',
+            stack: 'x1',
             data: data['辅助诊断']
           },
           {
             name: '路径分析',
             type: 'line',
-            stack: 'Total',
+            stack: 'x2',
             data: data['路径分析']
           },
           {
             name: '中心多度探寻',
             type: 'line',
-            stack: 'Total',
+            stack: 'x3',
             data: data['中心多度探寻']
           },
           {
             name: '中心度计算',
             type: 'line',
-            stack: 'Total',
+            stack: 'x4',
             data: data['中心度计算']
           },
           {
             name: '相似度计算',
             type: 'line',
-            stack: 'Total',
+            stack: 'x5',
             data: data['相似度计算']
           },
           {
             name: '图谱检索',
             type: 'line',
-            stack: 'Total',
+            stack: 'x6',
             data: data['图谱检索']
           }
         ]
