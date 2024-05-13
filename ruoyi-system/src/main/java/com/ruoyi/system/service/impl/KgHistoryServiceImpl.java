@@ -11,7 +11,7 @@ import com.ruoyi.system.domain.KgHistory;
 import com.ruoyi.system.service.IKgHistoryService;
 
 /**
- * 【请填写功能名称】Service业务层处理
+ * Service业务层处理
  *
  * @author ruoyi
  * @date 2024-04-01
@@ -23,10 +23,10 @@ public class KgHistoryServiceImpl implements IKgHistoryService
     private KgHistoryMapper kgHistoryMapper;
 
     /**
-     * 查询【请填写功能名称】
+     * 查询
      *
-     * @param id 【请填写功能名称】主键
-     * @return 【请填写功能名称】
+     * @param id 主键
+     * @return 
      */
     @Override
     public KgHistory selectKgHistoryById(Long id)
@@ -35,10 +35,10 @@ public class KgHistoryServiceImpl implements IKgHistoryService
     }
 
     /**
-     * 查询【请填写功能名称】列表
+     * 查询列表
      *
-     * @param kgHistory 【请填写功能名称】
-     * @return 【请填写功能名称】
+     * @param kgHistory 
+     * @return 
      */
     @Override
     public List<KgHistory> selectKgHistoryList(KgHistory kgHistory)
@@ -47,9 +47,9 @@ public class KgHistoryServiceImpl implements IKgHistoryService
     }
 
     /**
-     * 新增【请填写功能名称】
+     * 新增
      *
-     * @param kgHistory 【请填写功能名称】
+     * @param kgHistory 
      * @return 结果
      */
     @Override
@@ -62,9 +62,9 @@ public class KgHistoryServiceImpl implements IKgHistoryService
     }
 
     /**
-     * 修改【请填写功能名称】
+     * 修改
      *
-     * @param kgHistory 【请填写功能名称】
+     * @param kgHistory 
      * @return 结果
      */
     @Override
@@ -74,9 +74,9 @@ public class KgHistoryServiceImpl implements IKgHistoryService
     }
 
     /**
-     * 批量删除【请填写功能名称】
+     * 批量删除
      *
-     * @param ids 需要删除的【请填写功能名称】主键
+     * @param ids 需要删除的主键
      * @return 结果
      */
     @Override
@@ -86,9 +86,9 @@ public class KgHistoryServiceImpl implements IKgHistoryService
     }
 
     /**
-     * 删除【请填写功能名称】信息
+     * 删除信息
      *
-     * @param id 【请填写功能名称】主键
+     * @param id 主键
      * @return 结果
      */
     @Override

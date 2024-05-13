@@ -4,7 +4,7 @@ import java.util.List;
 import com.ruoyi.system.domain.KgEdgeInstance;
 
 /**
- * 【请填写功能名称】Service接口
+ * Service接口
  *
  * @author ruoyi
  * @date 2024-03-17
@@ -12,49 +12,49 @@ import com.ruoyi.system.domain.KgEdgeInstance;
 public interface IKgEdgeInstanceService
 {
     /**
-     * 查询【请填写功能名称】
+     * 查询
      *
-     * @param id 【请填写功能名称】主键
-     * @return 【请填写功能名称】
+     * @param id 主键
+     * @return 
      */
     public KgEdgeInstance selectKgEdgeInstanceById(Long id);
 
     /**
-     * 查询【请填写功能名称】列表
+     * 查询列表
      *
-     * @param kgEdgeInstance 【请填写功能名称】
-     * @return 【请填写功能名称】集合
+     * @param kgEdgeInstance 
+     * @return 集合
      */
     public List<KgEdgeInstance> selectKgEdgeInstanceList(KgEdgeInstance kgEdgeInstance);
 
     /**
-     * 新增【请填写功能名称】
+     * 新增
      *
-     * @param kgEdgeInstance 【请填写功能名称】
+     * @param kgEdgeInstance 
      * @return 结果
      */
     public int insertKgEdgeInstance(KgEdgeInstance kgEdgeInstance);
 
     /**
-     * 修改【请填写功能名称】
+     * 修改
      *
-     * @param kgEdgeInstance 【请填写功能名称】
+     * @param kgEdgeInstance 
      * @return 结果
      */
     public int updateKgEdgeInstance(KgEdgeInstance kgEdgeInstance);
 
     /**
-     * 批量删除【请填写功能名称】
+     * 批量删除
      *
-     * @param ids 需要删除的【请填写功能名称】主键集合
+     * @param ids 需要删除的主键集合
      * @return 结果
      */
     public int deleteKgEdgeInstanceByIds(Long[] ids);
 
     /**
-     * 删除【请填写功能名称】信息
+     * 删除信息
      *
-     * @param id 【请填写功能名称】主键
+     * @param id 主键
      * @return 结果
      */
     public int deleteKgEdgeInstanceById(Long id);

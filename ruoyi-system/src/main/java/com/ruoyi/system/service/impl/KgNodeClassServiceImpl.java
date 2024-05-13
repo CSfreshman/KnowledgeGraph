@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 import com.ruoyi.system.mapper.KgNodeClassMapper;
 
 /**
- * 【请填写功能名称】Service业务层处理
+ * Service业务层处理
  *
  * @author ruoyi
  * @date 2024-03-04
@@ -46,10 +46,10 @@ public class KgNodeClassServiceImpl implements IKgNodeClassService
     private IKgEdgeClassService kgEdgeClassService;
 
     /**
-     * 查询【请填写功能名称】
+     * 查询
      *
-     * @param id 【请填写功能名称】主键
-     * @return 【请填写功能名称】
+     * @param id 主键
+     * @return 
      */
     @Override
     public KgNodeClass selectKgNodeClassById(Long id)
@@ -58,10 +58,10 @@ public class KgNodeClassServiceImpl implements IKgNodeClassService
     }
 
     /**
-     * 查询【请填写功能名称】列表
+     * 查询列表
      *
-     * @param kgNodeClass 【请填写功能名称】
-     * @return 【请填写功能名称】
+     * @param kgNodeClass 
+     * @return 
      */
     @Override
     public List<KgNodeClass> selectKgNodeClassList(KgNodeClass kgNodeClass)
@@ -77,9 +77,9 @@ public class KgNodeClassServiceImpl implements IKgNodeClassService
     }
 
     /**
-     * 新增【请填写功能名称】
+     * 新增
      *
-     * @param kgNodeClass 【请填写功能名称】
+     * @param kgNodeClass 
      * @return 结果
      */
     @Override
@@ -113,9 +113,9 @@ public class KgNodeClassServiceImpl implements IKgNodeClassService
     }
 
     /**
-     * 修改【请填写功能名称】
+     * 修改
      *
-     * @param kgNodeClass 【请填写功能名称】
+     * @param kgNodeClass 
      * @return 结果
      */
     @Override
@@ -125,9 +125,9 @@ public class KgNodeClassServiceImpl implements IKgNodeClassService
     }
 
     /**
-     * 批量删除【请填写功能名称】
+     * 批量删除
      *
-     * @param ids 需要删除的【请填写功能名称】主键
+     * @param ids 需要删除的主键
      * @return 结果
      */
     @Override
@@ -144,9 +144,9 @@ public class KgNodeClassServiceImpl implements IKgNodeClassService
     }
 
     /**
-     * 删除【请填写功能名称】信息
+     * 删除信息
      *
-     * @param id 【请填写功能名称】主键
+     * @param id 主键
      * @return 结果
      */
     @Override

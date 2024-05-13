@@ -18,7 +18,7 @@ import com.ruoyi.system.service.IKgEdgeInstacePropertiesService;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * 【请填写功能名称】Service业务层处理
+ * Service业务层处理
  *
  * @author ruoyi
  * @date 2024-03-18
@@ -31,10 +31,10 @@ public class KgEdgeInstacePropertiesServiceImpl implements IKgEdgeInstacePropert
     @Autowired
     private IKgHistoryService historyService;
     /**
-     * 查询【请填写功能名称】
+     * 查询
      *
-     * @param id 【请填写功能名称】主键
-     * @return 【请填写功能名称】
+     * @param id 主键
+     * @return 
      */
     @Override
     public KgEdgeInstaceProperties selectKgEdgeInstacePropertiesById(Long id)
@@ -43,10 +43,10 @@ public class KgEdgeInstacePropertiesServiceImpl implements IKgEdgeInstacePropert
     }
 
     /**
-     * 查询【请填写功能名称】列表
+     * 查询列表
      *
-     * @param kgEdgeInstaceProperties 【请填写功能名称】
-     * @return 【请填写功能名称】
+     * @param kgEdgeInstaceProperties 
+     * @return 
      */
     @Override
     public List<KgEdgeInstaceProperties> selectKgEdgeInstacePropertiesList(KgEdgeInstaceProperties kgEdgeInstaceProperties)
@@ -55,9 +55,9 @@ public class KgEdgeInstacePropertiesServiceImpl implements IKgEdgeInstacePropert
     }
 
     /**
-     * 新增【请填写功能名称】
+     * 新增
      *
-     * @param kgEdgeInstaceProperties 【请填写功能名称】
+     * @param kgEdgeInstaceProperties 
      * @return 结果
      */
     @Override
@@ -68,9 +68,9 @@ public class KgEdgeInstacePropertiesServiceImpl implements IKgEdgeInstacePropert
     }
 
     /**
-     * 修改【请填写功能名称】
+     * 修改
      *
-     * @param kgEdgeInstaceProperties 【请填写功能名称】
+     * @param kgEdgeInstaceProperties 
      * @return 结果
      */
     @Override
@@ -80,9 +80,9 @@ public class KgEdgeInstacePropertiesServiceImpl implements IKgEdgeInstacePropert
     }
 
     /**
-     * 批量删除【请填写功能名称】
+     * 批量删除
      *
-     * @param ids 需要删除的【请填写功能名称】主键
+     * @param ids 需要删除的主键
      * @return 结果
      */
     @Override
@@ -92,9 +92,9 @@ public class KgEdgeInstacePropertiesServiceImpl implements IKgEdgeInstacePropert
     }
 
     /**
-     * 删除【请填写功能名称】信息
+     * 删除信息
      *
-     * @param id 【请填写功能名称】主键
+     * @param id 主键
      * @return 结果
      */
     @Override

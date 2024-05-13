@@ -1,6 +1,6 @@
 import request from '@/utils/request'
 
-// 查询【请填写功能名称】列表
+// 查询列表
 export function listNodeProperties(query) {
   return request({
     url: '/system/mange/class/nodeProperties/list',
@@ -9,7 +9,7 @@ export function listNodeProperties(query) {
   })
 }
 
-// 查询【请填写功能名称】详细
+// 查询详细
 export function getNodeProperties(id) {
   return request({
     url: '/system/mange/class/nodeProperties/' + id,
@@ -17,7 +17,7 @@ export function getNodeProperties(id) {
   })
 }
 
-// 新增【请填写功能名称】
+// 新增
 export function addNodeProperties(data) {
   return request({
     url: '/system/mange/class/nodeProperties',
@@ -26,7 +26,7 @@ export function addNodeProperties(data) {
   })
 }
 
-// 修改【请填写功能名称】
+// 修改
 export function updateNodeProperties(data) {
   return request({
     url: '/system/mange/class/nodeProperties',
@@ -35,7 +35,7 @@ export function updateNodeProperties(data) {
   })
 }
 
-// 删除【请填写功能名称】
+// 删除
 export function delNodeProperties(id) {
   return request({
     url: '/system/mange/class/nodeProperties/' + id,

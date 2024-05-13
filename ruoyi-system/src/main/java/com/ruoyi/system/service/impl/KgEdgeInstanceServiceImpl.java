@@ -14,7 +14,7 @@ import com.ruoyi.system.domain.KgEdgeInstance;
 import com.ruoyi.system.service.IKgEdgeInstanceService;
 
 /**
- * 【请填写功能名称】Service业务层处理
+ * Service业务层处理
  *
  * @author ruoyi
  * @date 2024-03-17
@@ -30,10 +30,10 @@ public class KgEdgeInstanceServiceImpl implements IKgEdgeInstanceService
     private IKgEdgeInstacePropertiesService edgeInstacePropertiesService;
 
     /**
-     * 查询【请填写功能名称】
+     * 查询
      *
-     * @param id 【请填写功能名称】主键
-     * @return 【请填写功能名称】
+     * @param id 主键
+     * @return 
      */
     @Override
     public KgEdgeInstance selectKgEdgeInstanceById(Long id)
@@ -42,10 +42,10 @@ public class KgEdgeInstanceServiceImpl implements IKgEdgeInstanceService
     }
 
     /**
-     * 查询【请填写功能名称】列表
+     * 查询列表
      *
-     * @param kgEdgeInstance 【请填写功能名称】
-     * @return 【请填写功能名称】
+     * @param kgEdgeInstance 
+     * @return 
      */
     @Override
     public List<KgEdgeInstance> selectKgEdgeInstanceList(KgEdgeInstance kgEdgeInstance)
@@ -54,9 +54,9 @@ public class KgEdgeInstanceServiceImpl implements IKgEdgeInstanceService
     }
 
     /**
-     * 新增【请填写功能名称】
+     * 新增
      *
-     * @param kgEdgeInstance 【请填写功能名称】
+     * @param kgEdgeInstance 
      * @return 结果
      */
     @Override
@@ -67,9 +67,9 @@ public class KgEdgeInstanceServiceImpl implements IKgEdgeInstanceService
     }
 
     /**
-     * 修改【请填写功能名称】
+     * 修改
      *
-     * @param kgEdgeInstance 【请填写功能名称】
+     * @param kgEdgeInstance 
      * @return 结果
      */
     @Override
@@ -79,9 +79,9 @@ public class KgEdgeInstanceServiceImpl implements IKgEdgeInstanceService
     }
 
     /**
-     * 批量删除【请填写功能名称】
+     * 批量删除
      *
-     * @param ids 需要删除的【请填写功能名称】主键
+     * @param ids 需要删除的主键
      * @return 结果
      */
     @Override
@@ -91,9 +91,9 @@ public class KgEdgeInstanceServiceImpl implements IKgEdgeInstanceService
     }
 
     /**
-     * 删除【请填写功能名称】信息
+     * 删除信息
      *
-     * @param id 【请填写功能名称】主键
+     * @param id 主键
      * @return 结果
      */
     @Override

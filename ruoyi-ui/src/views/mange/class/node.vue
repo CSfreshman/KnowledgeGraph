@@ -116,7 +116,7 @@
       </el-col>
     </el-row>
 
-    <!-- 添加或修改【请填写功能名称】对话框 -->
+    <!-- 添加或修改对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="实体类型名称" prop="name">
@@ -135,7 +135,7 @@
       </div>
     </el-dialog>
 
-    <!-- 添加或修改【请填写功能名称】对话框 -->
+    <!-- 添加或修改对话框 -->
     <el-dialog :title="titleProperties" :visible.sync="openProperties" width="500px" append-to-body>
       <el-form ref="form" :model="formProperties" label-width="80px">
         <el-form-item label="属性名" prop="name">
@@ -191,7 +191,7 @@ export default {
       showSearch: true,
       // 总条数
       total: 0,
-      // 【请填写功能名称】表格数据
+      // 表格数据
       nodeClassList: [],
       // 弹出层标题
       title: "",
@@ -273,7 +273,7 @@ export default {
     changeMessage(){
       this.$forceUpdate()
     },
-    /** 查询【请填写功能名称】列表 */
+    /** 查询列表 */
     getList() {
       this.loading = true;
       this.queryParams.valid = 1;

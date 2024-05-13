@@ -20,7 +20,7 @@ import com.ruoyi.system.domain.KgNodeInstance;
 import com.ruoyi.system.service.IKgNodeInstanceService;
 
 /**
- * 【请填写功能名称】Service业务层处理
+ * Service业务层处理
  *
  * @author ruoyi
  * @date 2024-03-16
@@ -40,10 +40,10 @@ public class KgNodeInstanceServiceImpl implements IKgNodeInstanceService
     private IKgNodeInstancePropertiesService nodeInstancePropertiesService;
 
     /**
-     * 查询【请填写功能名称】
+     * 查询
      *
-     * @param id 【请填写功能名称】主键
-     * @return 【请填写功能名称】
+     * @param id 主键
+     * @return 
      */
     @Override
     public KgNodeInstance selectKgNodeInstanceById(Long id)
@@ -52,10 +52,10 @@ public class KgNodeInstanceServiceImpl implements IKgNodeInstanceService
     }
 
     /**
-     * 查询【请填写功能名称】列表
+     * 查询列表
      *
-     * @param kgNodeInstance 【请填写功能名称】
-     * @return 【请填写功能名称】
+     * @param kgNodeInstance 
+     * @return 
      */
     @Override
     public List<KgNodeInstance> selectKgNodeInstanceList(KgNodeInstance kgNodeInstance)
@@ -71,9 +71,9 @@ public class KgNodeInstanceServiceImpl implements IKgNodeInstanceService
     }
 
     /**
-     * 新增【请填写功能名称】
+     * 新增
      *
-     * @param kgNodeInstance 【请填写功能名称】
+     * @param kgNodeInstance 
      * @return 结果
      */
     @Override
@@ -90,9 +90,9 @@ public class KgNodeInstanceServiceImpl implements IKgNodeInstanceService
     }
 
     /**
-     * 修改【请填写功能名称】
+     * 修改
      *
-     * @param kgNodeInstance 【请填写功能名称】
+     * @param kgNodeInstance 
      * @return 结果
      */
     @Override
@@ -102,9 +102,9 @@ public class KgNodeInstanceServiceImpl implements IKgNodeInstanceService
     }
 
     /**
-     * 批量删除【请填写功能名称】
+     * 批量删除
      *
-     * @param ids 需要删除的【请填写功能名称】主键
+     * @param ids 需要删除的主键
      * @return 结果
      */
     @Override
@@ -114,9 +114,9 @@ public class KgNodeInstanceServiceImpl implements IKgNodeInstanceService
     }
 
     /**
-     * 删除【请填写功能名称】信息
+     * 删除信息
      *
-     * @param id 【请填写功能名称】主键
+     * @param id 主键
      * @return 结果
      */
     @Override

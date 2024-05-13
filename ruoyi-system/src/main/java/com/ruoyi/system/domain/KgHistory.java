@@ -11,7 +11,7 @@ import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
 
 /**
- * 【请填写功能名称】对象 kg_history
+ * 对象 kg_history
  *
  * @author ruoyi
  * @date 2024-04-01

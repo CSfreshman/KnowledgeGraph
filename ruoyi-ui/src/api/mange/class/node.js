@@ -1,6 +1,6 @@
 import request from '@/utils/request'
 
-// 查询【请填写功能名称】列表
+// 查询列表
 export function listClass(query) {
   return request({
     url: '/system/mange/class/node/list',
@@ -17,7 +17,7 @@ export function getAllNodeClass(query) {
   })
 }
 
-// 查询【请填写功能名称】详细
+// 查询详细
 export function getClass(id) {
   return request({
     url: '/system/mange/class/node/' + id,
@@ -25,7 +25,7 @@ export function getClass(id) {
   })
 }
 
-// 新增【请填写功能名称】
+// 新增
 export function addClass(data) {
   return request({
     url: '/system/mange/class/node',
@@ -34,7 +34,7 @@ export function addClass(data) {
   })
 }
 
-// 修改【请填写功能名称】
+// 修改
 export function updateClass(data) {
   return request({
     url: '/system/mange/class/node',
@@ -43,7 +43,7 @@ export function updateClass(data) {
   })
 }
 
-// 删除【请填写功能名称】
+// 删除
 export function delClass(id) {
   return request({
     url: '/system/mange/class/node/' + id,

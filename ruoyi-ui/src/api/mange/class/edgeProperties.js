@@ -1,6 +1,6 @@
 import request from '@/utils/request'
 
-// 查询【请填写功能名称】列表
+// 查询列表
 export function listClassProperties(query) {
   return request({
     url: '/mange/class/edgeProperties/list',
@@ -9,7 +9,7 @@ export function listClassProperties(query) {
   })
 }
 
-// 查询【请填写功能名称】详细
+// 查询详细
 export function getClassProperties(id) {
   return request({
     url: '/mange/class/edgeProperties/' + id,
@@ -17,7 +17,7 @@ export function getClassProperties(id) {
   })
 }
 
-// 新增【请填写功能名称】
+// 新增
 export function addClassProperties(data) {
   return request({
     url: '/mange/class/edgeProperties',
@@ -26,7 +26,7 @@ export function addClassProperties(data) {
   })
 }
 
-// 修改【请填写功能名称】
+// 修改
 export function updateClassProperties(data) {
   return request({
     url: '/mange/class/edgeProperties',
@@ -35,7 +35,7 @@ export function updateClassProperties(data) {
   })
 }
 
-// 删除【请填写功能名称】
+// 删除
 export function delClassProperties(id) {
   return request({
     url: '/mange/class/edgeProperties/' + id,

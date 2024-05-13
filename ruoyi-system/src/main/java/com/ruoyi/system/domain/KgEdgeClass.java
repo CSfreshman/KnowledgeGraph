@@ -11,7 +11,7 @@ import com.ruoyi.common.core.domain.BaseEntity;
 import java.util.List;
 
 /**
- * 【请填写功能名称】对象 kg_edge_class
+ * 对象 kg_edge_class
  *
  * @author ruoyi
  * @date 2024-03-08

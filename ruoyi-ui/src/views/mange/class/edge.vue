@@ -227,7 +227,7 @@ export default {
       showSearch: true,
       // 总条数
       total: 0,
-      // 【请填写功能名称】表格数据
+      // 表格数据
       edgeClassList: [],
       // 弹出层标题
       title: "",
@@ -307,7 +307,7 @@ export default {
     this.getNodeClassList();
   },
   methods: {
-    /** 查询【请填写功能名称】列表 */
+    /** 查询列表 */
     getList() {
       this.loading = true;
       listClass(this.queryParams).then(response => {

@@ -1,6 +1,6 @@
 import request from '@/utils/request'
 
-// 查询【请填写功能名称】列表
+// 查询列表
 export function listHistory(query) {
   return request({
     url: '/history/list',
@@ -9,7 +9,7 @@ export function listHistory(query) {
   })
 }
 
-// 查询【请填写功能名称】详细
+// 查询详细
 export function getHistory(id) {
   return request({
     url: '/history/' + id,
@@ -17,7 +17,7 @@ export function getHistory(id) {
   })
 }
 
-// 新增【请填写功能名称】
+// 新增
 export function addHistory(data) {
   return request({
     url: '/history',
@@ -26,7 +26,7 @@ export function addHistory(data) {
   })
 }
 
-// 修改【请填写功能名称】
+// 修改
 export function updateHistory(data) {
   return request({
     url: '/history',
@@ -35,7 +35,7 @@ export function updateHistory(data) {
   })
 }
 
-// 删除【请填写功能名称】
+// 删除
 export function delHistory(id) {
   return request({
     url: '/history/' + id,

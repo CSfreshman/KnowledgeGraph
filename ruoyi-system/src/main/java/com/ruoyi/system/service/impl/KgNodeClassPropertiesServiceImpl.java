@@ -21,7 +21,7 @@ import com.ruoyi.system.service.IKgNodeClassPropertiesService;
 import javax.annotation.Resource;
 
 /**
- * 【请填写功能名称】Service业务层处理
+ * Service业务层处理
  *
  * @author ruoyi
  * @date 2024-03-04
@@ -41,10 +41,10 @@ public class KgNodeClassPropertiesServiceImpl implements IKgNodeClassPropertiesS
     private TestNeo4jService neo4jService;
 
     /**
-     * 查询【请填写功能名称】
+     * 查询
      *
-     * @param id 【请填写功能名称】主键
-     * @return 【请填写功能名称】
+     * @param id 主键
+     * @return 
      */
     @Override
     public KgNodeClassProperties selectKgNodeClassPropertiesById(Long id)
@@ -53,10 +53,10 @@ public class KgNodeClassPropertiesServiceImpl implements IKgNodeClassPropertiesS
     }
 
     /**
-     * 查询【请填写功能名称】列表
+     * 查询列表
      *
-     * @param kgNodeClassProperties 【请填写功能名称】
-     * @return 【请填写功能名称】
+     * @param kgNodeClassProperties 
+     * @return 
      */
     @Override
     public List<KgNodeClassProperties> selectKgNodeClassPropertiesList(KgNodeClassProperties kgNodeClassProperties)
@@ -65,9 +65,9 @@ public class KgNodeClassPropertiesServiceImpl implements IKgNodeClassPropertiesS
     }
 
     /**
-     * 新增【请填写功能名称】
+     * 新增
      *
-     * @param kgNodeClassProperties 【请填写功能名称】
+     * @param kgNodeClassProperties 
      * @return 结果
      */
     @Override
@@ -132,9 +132,9 @@ public class KgNodeClassPropertiesServiceImpl implements IKgNodeClassPropertiesS
     }
 
     /**
-     * 修改【请填写功能名称】
+     * 修改
      *
-     * @param kgNodeClassProperties 【请填写功能名称】
+     * @param kgNodeClassProperties 
      * @return 结果
      */
     @Override
@@ -158,9 +158,9 @@ public class KgNodeClassPropertiesServiceImpl implements IKgNodeClassPropertiesS
     }
 
     /**
-     * 批量删除【请填写功能名称】
+     * 批量删除
      *
-     * @param ids 需要删除的【请填写功能名称】主键
+     * @param ids 需要删除的主键
      * @return 结果
      */
     @Override

@@ -16,7 +16,7 @@ import com.ruoyi.system.service.IKgEdgeClassPropertiesService;
 import javax.annotation.Resource;
 
 /**
- * 【请填写功能名称】Service业务层处理
+ * Service业务层处理
  *
  * @author ruoyi
  * @date 2024-03-08
@@ -36,10 +36,10 @@ public class KgEdgeClassPropertiesServiceImpl implements IKgEdgeClassPropertiesS
     private TestNeo4jService neo4jService;
 
     /**
-     * 查询【请填写功能名称】
+     * 查询
      *
-     * @param id 【请填写功能名称】主键
-     * @return 【请填写功能名称】
+     * @param id 主键
+     * @return 
      */
     @Override
     public KgEdgeClassProperties selectKgEdgeClassPropertiesById(Long id)
@@ -48,10 +48,10 @@ public class KgEdgeClassPropertiesServiceImpl implements IKgEdgeClassPropertiesS
     }
 
     /**
-     * 查询【请填写功能名称】列表
+     * 查询列表
      *
-     * @param kgEdgeClassProperties 【请填写功能名称】
-     * @return 【请填写功能名称】
+     * @param kgEdgeClassProperties 
+     * @return 
      */
     @Override
     public List<KgEdgeClassProperties> selectKgEdgeClassPropertiesList(KgEdgeClassProperties kgEdgeClassProperties)
@@ -60,9 +60,9 @@ public class KgEdgeClassPropertiesServiceImpl implements IKgEdgeClassPropertiesS
     }
 
     /**
-     * 新增【请填写功能名称】
+     * 新增
      *
-     * @param kgEdgeClassProperties 【请填写功能名称】
+     * @param kgEdgeClassProperties 
      * @return 结果
      */
     @Override
@@ -115,9 +115,9 @@ public class KgEdgeClassPropertiesServiceImpl implements IKgEdgeClassPropertiesS
     }
 
     /**
-     * 修改【请填写功能名称】
+     * 修改
      *
-     * @param kgEdgeClassProperties 【请填写功能名称】
+     * @param kgEdgeClassProperties 
      * @return 结果
      */
     @Override
@@ -140,9 +140,9 @@ public class KgEdgeClassPropertiesServiceImpl implements IKgEdgeClassPropertiesS
     }
 
     /**
-     * 批量删除【请填写功能名称】
+     * 批量删除
      *
-     * @param ids 需要删除的【请填写功能名称】主键
+     * @param ids 需要删除的主键
      * @return 结果
      */
     @Override
@@ -156,9 +156,9 @@ public class KgEdgeClassPropertiesServiceImpl implements IKgEdgeClassPropertiesS
     }
 
     /**
-     * 删除【请填写功能名称】信息
+     * 删除信息
      *
-     * @param id 【请填写功能名称】主键
+     * @param id 主键
      * @return 结果
      */
     @Override

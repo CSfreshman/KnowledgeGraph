@@ -207,7 +207,7 @@
       @pagination="getList"
     />
 
-    <!-- 添加或修改【请填写功能名称】对话框 -->
+    <!-- 添加或修改对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="对应的主体的id" prop="targetId">
@@ -261,7 +261,7 @@ export default {
       showSearch: true,
       // 总条数
       total: 0,
-      // 【请填写功能名称】表格数据
+      // 表格数据
       historyList: [],
       // 弹出层标题
       title: "",
@@ -324,7 +324,7 @@ export default {
     refresh(){
       this.getList()
     },
-    /** 查询【请填写功能名称】列表 */
+    /** 查询列表 */
     getList() {
       this.loading = true;
       listHistory(this.queryParams).then(response => {
@@ -373,7 +373,7 @@ export default {
     handleAdd() {
       this.reset();
       this.open = true;
-      this.title = "添加【请填写功能名称】";
+      this.title = "添加";
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
@@ -382,7 +382,7 @@ export default {
       getHistory(id).then(response => {
         this.form = response.data;
         this.open = true;
-        this.title = "修改【请填写功能名称】";
+        this.title = "修改";
       });
     },
     /** 提交按钮 */
@@ -414,7 +414,7 @@ export default {
     /** 删除按钮操作 */
     handleDelete(row) {
       const ids = row.id || this.ids;
-      this.$modal.confirm('是否确认删除【请填写功能名称】编号为"' + ids + '"的数据项？').then(function() {
+      this.$modal.confirm('是否确认删除编号为"' + ids + '"的数据项？').then(function() {
         return delHistory(ids);
       }).then(() => {
         this.getList();

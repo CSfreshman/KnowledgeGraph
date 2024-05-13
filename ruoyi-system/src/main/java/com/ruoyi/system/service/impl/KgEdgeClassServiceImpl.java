@@ -19,7 +19,7 @@ import com.ruoyi.system.mapper.KgEdgeClassMapper;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * 【请填写功能名称】Service业务层处理
+ * Service业务层处理
  *
  * @author ruoyi
  * @date 2024-03-08
@@ -46,10 +46,10 @@ public class KgEdgeClassServiceImpl implements IKgEdgeClassService
     private TestNeo4jService neo4jService;
 
     /**
-     * 查询【请填写功能名称】
+     * 查询
      *
-     * @param id 【请填写功能名称】主键
-     * @return 【请填写功能名称】
+     * @param id 主键
+     * @return 
      */
     @Override
     public KgEdgeClass selectKgEdgeClassById(Long id)
@@ -71,10 +71,10 @@ public class KgEdgeClassServiceImpl implements IKgEdgeClassService
     }
 
     /**
-     * 查询【请填写功能名称】列表
+     * 查询列表
      *
-     * @param kgEdgeClass 【请填写功能名称】
-     * @return 【请填写功能名称】
+     * @param kgEdgeClass 
+     * @return 
      */
     @Override
     public List<KgEdgeClass> selectKgEdgeClassList(KgEdgeClass kgEdgeClass)
@@ -114,9 +114,9 @@ public class KgEdgeClassServiceImpl implements IKgEdgeClassService
     public static Deque<Long> path = new LinkedList<>();
 
     /**
-     * 新增【请填写功能名称】
+     * 新增
      *
-     * @param kgEdgeClass 【请填写功能名称】
+     * @param kgEdgeClass 
      * @return 结果
      */
     @Override
@@ -277,9 +277,9 @@ public class KgEdgeClassServiceImpl implements IKgEdgeClassService
     }
 
     /**
-     * 修改【请填写功能名称】
+     * 修改
      *
-     * @param kgEdgeClass 【请填写功能名称】
+     * @param kgEdgeClass 
      * @return 结果
      */
     @Override
@@ -289,9 +289,9 @@ public class KgEdgeClassServiceImpl implements IKgEdgeClassService
     }
 
     /**
-     * 批量删除【请填写功能名称】
+     * 批量删除
      *
-     * @param ids 需要删除的【请填写功能名称】主键
+     * @param ids 需要删除的主键
      * @return 结果
      */
     @Override

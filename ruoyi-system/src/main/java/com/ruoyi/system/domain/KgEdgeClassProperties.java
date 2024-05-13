@@ -11,7 +11,7 @@ import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
 
 /**
- * 【请填写功能名称】对象 kg_edge_class_properties
+ * 对象 kg_edge_class_properties
  *
  * @author ruoyi
  * @date 2024-03-08
