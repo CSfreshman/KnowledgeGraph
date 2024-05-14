@@ -277,7 +277,7 @@ public class ExtraController {
             // 如果并集为空，则相似度定义为1（两个空集相似度为1）
             return 1.0;
         } else {
-            return (double) intersection.size() / union.size();
+            return (double) intersection.size() / (double) union.size();
         }
     }
 

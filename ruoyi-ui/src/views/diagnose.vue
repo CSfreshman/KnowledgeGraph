@@ -291,7 +291,7 @@ export default {
             const matchNodes = nodeInfo.matchNodes;
             matchNodes.forEach(matchNode => {
               console.log(`匹配节点: ${matchNode.label}`);
-              matchNodesStr+=matchNode.label;
+              matchNodesStr+=" " + matchNode.label;
             });
           } else {
             console.log('该对象没有matchNodes属性');

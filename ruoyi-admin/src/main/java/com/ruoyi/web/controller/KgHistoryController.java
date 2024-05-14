@@ -37,7 +37,7 @@ public class KgHistoryController extends BaseController
     /**
      * 查询列表
      */
-    @PreAuthorize("@ss.hasPermi('system:history:list')")
+
     @GetMapping("/list")
     public TableDataInfo list(KgHistory kgHistory)
     {
@@ -49,7 +49,7 @@ public class KgHistoryController extends BaseController
     /**
      * 导出列表
      */
-    @PreAuthorize("@ss.hasPermi('system:history:export')")
+
     @Log(title = "", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     public void export(HttpServletResponse response, KgHistory kgHistory)
@@ -62,7 +62,7 @@ public class KgHistoryController extends BaseController
     /**
      * 获取详细信息
      */
-    @PreAuthorize("@ss.hasPermi('system:history:query')")
+
     @GetMapping(value = "/{id}")
     public AjaxResult getInfo(@PathVariable("id") Long id)
     {
@@ -72,7 +72,7 @@ public class KgHistoryController extends BaseController
     /**
      * 新增
      */
-    @PreAuthorize("@ss.hasPermi('system:history:add')")
+
     @Log(title = "", businessType = BusinessType.INSERT)
     @PostMapping
     public AjaxResult add(@RequestBody KgHistory kgHistory)
@@ -83,7 +83,7 @@ public class KgHistoryController extends BaseController
     /**
      * 修改
      */
-    @PreAuthorize("@ss.hasPermi('system:history:edit')")
+
     @Log(title = "", businessType = BusinessType.UPDATE)
     @PutMapping
     public AjaxResult edit(@RequestBody KgHistory kgHistory)
@@ -94,7 +94,7 @@ public class KgHistoryController extends BaseController
     /**
      * 删除
      */
-    @PreAuthorize("@ss.hasPermi('system:history:remove')")
+
     @Log(title = "", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{ids}")
     public AjaxResult remove(@PathVariable Long[] ids)

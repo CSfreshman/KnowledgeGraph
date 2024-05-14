@@ -702,7 +702,10 @@ public class TestNeo4jServiceImpl implements TestNeo4jService {
             test.append(',');
             test.append("`").append(s).append("`").append(":{orientation: 'UNDIRECTED' }");
         }
-        test.deleteCharAt(0);
+        if(ObjectUtil.isNotEmpty(edgeClassList)){
+            test.deleteCharAt(0);
+        }
+
 
 
         String name = projectName +"-"+ LocalDateTime.now();
@@ -710,9 +713,7 @@ public class TestNeo4jServiceImpl implements TestNeo4jService {
                 // 如果类型列表为空，就匹配全部的类型
                 "," + (ObjectUtil.isEmpty(nodeClassListStr) ? "'*'" : nodeClassListStr) +
                 "," +
-                "{" +
-                test +
-                "}" +
+                (ObjectUtil.isEmpty(test) ? "'*'" : "{" + test + "}") +
                 ") YIELD graphName";
         System.out.println("createGraphProject:cypher:\n");
         System.out.println(cypher);
