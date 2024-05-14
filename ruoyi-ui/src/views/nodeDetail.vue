@@ -54,7 +54,7 @@
                     </el-table-column>
                     <el-table-column>
                       <template slot-scope="scope">
-                        <el-button type="text" icon="el-icon-edit" @click="updateProp(scope.row)" size="mini" circle></el-button>
+                        <el-button v-if="scope.row.canEdit" type="text" icon="el-icon-edit" @click="updateProp(scope.row)" size="mini" circle></el-button>
                       </template>
                     </el-table-column>
                   </el-table>
@@ -313,16 +313,21 @@ export default {
     transformData(data,isEdge) {
       let rawData = data.props;
       const transformedData = [];
-      transformedData.push({key: 'id', value: data.id})
-      transformedData.push({ key: 'label', value: data.label});
+      transformedData.push({key: 'id', value: data.id,canEdit: false})
+      transformedData.push({ key: 'label', value: data.label,canEdit: false});
       if(isEdge){
-        transformedData.push({key: 'fromId', value: data.from})
-        transformedData.push({key: 'fromName', value: this.nodes.find(node=>node.id == data.from).label})
-        transformedData.push({key: 'toId', value: data.to})
-        transformedData.push({key: 'toName', value: this.nodes.find(node=>node.id == data.to).label})
+        transformedData.push({key: 'fromId', value: data.from,canEdit: false})
+        transformedData.push({key: 'fromName', value: this.nodes.find(node=>node.id == data.from).label,canEdit: false})
+        transformedData.push({key: 'toId', value: data.to,canEdit: false})
+        transformedData.push({key: 'toName', value: this.nodes.find(node=>node.id == data.to).label,canEdit: false})
       }
       for (const key in rawData) {
-        transformedData.push({ key, value: rawData[key] });
+        if(key === 'name'){
+          transformedData.push({ key, value: rawData[key] ,canEdit: false});
+        }else{
+          transformedData.push({ key, value: rawData[key] ,canEdit: true});
+        }
+
       }
       this.tableData = transformedData;
     },

@@ -545,7 +545,7 @@ public class TestNeo4jServiceImpl implements TestNeo4jService {
         System.out.println(cypher);
 
         try {
-            Thread.sleep(100);
+            Thread.sleep(500);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -700,7 +700,7 @@ public class TestNeo4jServiceImpl implements TestNeo4jService {
         StringBuilder test = new StringBuilder();
         for (String s : edgeClassList) {
             test.append(',');
-            test.append(s).append(":{orientation: 'UNDIRECTED' }");
+            test.append("`").append(s).append("`").append(":{orientation: 'UNDIRECTED' }");
         }
         test.deleteCharAt(0);
 

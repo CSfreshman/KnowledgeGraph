@@ -39,7 +39,7 @@
     <!-- 节点右键操作菜单 -->
     <div id="nodeRightMenuPanel" class="right-menu-layer">
       <button @click="showNodeDeteail()"><i class="el-icon-notebook-2"></i>节点属性</button>
-      <button @click="handleEditButton()"><i class="el-icon-setting"></i>节点编辑</button>
+<!--      <button @click="handleEditButton()"><i class="el-icon-setting"></i>节点编辑</button>-->
       <button @click="goToDetail()"><i class="el-icon-setting"></i>查看详情</button>
       <el-popover placement="top" :width="180" ref="popoverNode">
         <p>您确定要删除该节点吗?</p>
@@ -57,7 +57,7 @@
     <!-- 连线右键操作对话栏 -->
     <div id="linkRightMenuPanel" class="right-menu-layer">
       <button @click="showLinkDetail()"><i class="el-icon-notebook-2"></i>关系属性</button>
-      <button @click="handleEditEdgeButton()"><i class="el-icon-setting"></i>关系设置</button>
+<!--      <button @click="handleEditEdgeButton()"><i class="el-icon-setting"></i>关系设置</button>-->
       <button @click="goToDetail1()"><i class="el-icon-setting"></i>查看详情</button>
       <el-popover placement="top" :width="180" ref="popoverLink">
         <p>您确定要删除该关系吗?</p>
@@ -598,7 +598,14 @@ export default {
       this.deleteNodeAndProperNodes(this.currentNode)
       // 向服务端发送请求，删除节点
       deleteNode({nodeId:this.currentNode.id}).then(resp=>{
+        this.drawGraphData()
+        getAllNode({valid:1}).then(resp=>{
+          this.allNodeList = resp;
+        })
 
+        getAllEdge({valid:1}).then(resp=>{
+          this.allEdgeList = resp;
+        })
       })
 
       this.$message.success('节点已删除')
@@ -662,6 +669,14 @@ export default {
       addNode(saveNode).then(resp=>{
         this.drawGraphData()
         this.resetEditNode();
+        // 保存新的节点之后需要重新请求节点、关系数据
+        getAllNode({valid:1}).then(resp=>{
+          this.allNodeList = resp;
+        })
+
+        getAllEdge({valid:1}).then(resp=>{
+          this.allEdgeList = resp;
+        })
       })
 
     },
@@ -760,8 +775,8 @@ export default {
 
       this.relationSetPanel = true;
       // var fromNodeClassId = this.nodeClassList.find(it=>it.id == );
-      var fromNodeClass = this.nodeClassList.find(it=>it.name == this.graphData.nodes.find(it1=>it1.id == link.source.id).labels[0])
-      var toNodeClass = this.nodeClassList.find(it=>it.name == this.graphData.nodes.find(it1=>it1.id == link.target.id).labels[0])
+      var fromNodeClass = this.nodeClassList.find(it=>it.name === this.graphData.nodes.find(it1=>it1.id == link.source.id).labels[0])
+      var toNodeClass = this.nodeClassList.find(it=>it.name === this.graphData.nodes.find(it1=>it1.id == link.target.id).labels[0])
 
       console.log("起点实体类型")
       console.log(fromNodeClass)
@@ -798,11 +813,12 @@ export default {
       this.visGraph.deleteLink(this.currentLink)
 
       //TODO 需要保存到服务端去，生成id，然后设置给连线
+      console.log("需要保存的关系信息")
       console.log(this.relationInfo);
       this.relationInfo.fromNodeNeo4jId = this.relationInfo.sourceId
       this.relationInfo.toNodeNeo4jId = this.relationInfo.targetId
-      this.relationInfo.fromNodeId = this.allNodeList.find(it=>it.neo4jId == this.relationInfo.fromNodeNeo4jId).id;
-      this.relationInfo.toNodeId = this.allNodeList.find(it=>it.neo4jId == this.relationInfo.toNodeNeo4jId).id;
+      this.relationInfo.fromNodeId = this.allNodeList.find(it=>it.neo4jId === this.relationInfo.fromNodeNeo4jId).id;
+      this.relationInfo.toNodeId = this.allNodeList.find(it=>it.neo4jId === this.relationInfo.toNodeNeo4jId).id;
       this.relationInfo.props = this.editEdge1.props
       if(this.editEdge){
         // 执行更新逻辑
@@ -818,6 +834,10 @@ export default {
           //   this.drawGraphData()
           // }
           this.drawGraphData()
+          // 更新全部的边的信息
+          getAllEdge({valid:1}).then(resp=>{
+            this.allEdgeList = resp;
+          })
         })
       }
 

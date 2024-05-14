@@ -81,7 +81,7 @@
             </el-row>
             <el-table v-loading="loading" :data="nodePropertiesList" @selection-change="handleSelectionChange">
               <el-table-column label="属性名" prop="name"></el-table-column>
-              <el-table-column label="类型" prop="type"></el-table-column>
+<!--              <el-table-column label="类型" prop="type"></el-table-column>-->
               <el-table-column label="默认值" prop="defaultValue"></el-table-column>
               <el-table-column
                 label="操作"
@@ -141,17 +141,17 @@
         <el-form-item label="属性名" prop="name">
           <el-input v-model="formProperties.name" placeholder="请输入属性名(不能以数字开头)" />
         </el-form-item>
-        <el-form-item label="属性类型" prop="type">
-          <el-select v-model="formProperties.type" placeholder="请选择">
-            <el-option
-              v-for="item in optionalType"
-              :key="item.value"
-              :label="item.label"
-              :value="item.value">
-            </el-option>
-          </el-select>
-<!--          <el-input v-model="" placeholder="请输入属性类型" />-->
-        </el-form-item>
+<!--        <el-form-item label="属性类型" prop="type">-->
+<!--          <el-select v-model="formProperties.type" placeholder="请选择">-->
+<!--            <el-option-->
+<!--              v-for="item in optionalType"-->
+<!--              :key="item.value"-->
+<!--              :label="item.label"-->
+<!--              :value="item.value">-->
+<!--            </el-option>-->
+<!--          </el-select>-->
+<!--&lt;!&ndash;          <el-input v-model="" placeholder="请输入属性类型" />&ndash;&gt;-->
+<!--        </el-form-item>-->
         <el-form-item label="默认值" prop="defaultValue">
           <div v-if="formProperties.name === 'color'">
             <el-color-picker v-model="formProperties.defaultValue" :color-format="'rgb'" :show-alpha="false"></el-color-picker>
@@ -348,7 +348,7 @@ export default {
       this.titleProperties = "修改属性";
       this.openProperties = true;
       this.formProperties.name = row.name;
-      this.formProperties.type = row.type;
+      this.formProperties.type = 'String';
       this.formProperties.defaultValue = row.defaultValue;
       this.formProperties.id = row.id;
       this.formProperties.originValue = row.defaultValue;
@@ -424,6 +424,7 @@ export default {
     },
     /** 提交按钮 */
     submitFormProperties() {
+      this.formProperties.type = 'String';
       this.$refs["form"].validate(valid => {
         if (valid) {
           if(this.editProp){
