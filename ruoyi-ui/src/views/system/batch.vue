@@ -122,13 +122,13 @@ export default {
       this.edgeClass = this.edgeClassList.find(it=>it.id === this.edgeClassId)
     },
     getNodeList() {
-      var queryParams = {valid: 1}
+      var queryParams = {valid: 1,pageSize:200}
       listNodeClass(queryParams).then(response => {
         this.nodeClassList = response.rows;
       });
     },
     getEdgeList() {
-      var queryParams = {valid: 1}
+      var queryParams = {valid: 1,pageSize:200}
       listEdgeClass(queryParams).then(response => {
         this.edgeClassList = response.rows;
       });

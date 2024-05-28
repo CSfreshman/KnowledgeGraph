@@ -2,7 +2,7 @@
   <div>
     <div>
       <el-input
-        placeholder="请输出实体类型名称"
+        placeholder="请输出名称"
         v-model="zzName"
         style="margin-left: 20%; width: 60%">
         <template #suffix>
